@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="tail 包读取日志文件1 下载、安装 tail1go get github.com&#x2F;hpcloud&#x2F;tail  2 tail 读取日志文件 Demo2.1 配置2.1.1 初始化 config 对象1234567config :&#x3D; tail.Config&amp;#123;    ReOpen:    true,    &#x2F;&#x2F; 重新打开，如果修改操作不是在日志文件末尾添加    Follow:    tr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tail 包读取日志文件">
+<meta property="og:url" content="http://example.com/2021/09/23/tail-%E5%8C%85%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="hlnBlog">
+<meta property="og:description" content="tail 包读取日志文件1 下载、安装 tail1go get github.com&#x2F;hpcloud&#x2F;tail  2 tail 读取日志文件 Demo2.1 配置2.1.1 初始化 config 对象1234567config :&#x3D; tail.Config&amp;#123;    ReOpen:    true,    &#x2F;&#x2F; 重新打开，如果修改操作不是在日志文件末尾添加    Follow:    tr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-23T12:18:24.000Z">
+<meta property="article:modified_time" content="2021-09-23T12:27:55.053Z">
+<meta property="article:author" content="Lining Hoo">
+<meta property="article:tag" content="IO">
+<meta property="article:tag" content="日志">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/09/23/tail-%E5%8C%85%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>tail 包读取日志文件 | hlnBlog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">hlnBlog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/23/tail-%E5%8C%85%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          tail 包读取日志文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-23 20:18:24 / 修改时间：20:27:55" itemprop="dateCreated datePublished" datetime="2021-09-23T20:18:24+08:00">2021-09-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="tail-包读取日志文件"><a href="#tail-包读取日志文件" class="headerlink" title="tail 包读取日志文件"></a>tail 包读取日志文件</h1><h1 id="1-下载、安装-tail"><a href="#1-下载、安装-tail" class="headerlink" title="1 下载、安装 tail"></a>1 下载、安装 tail</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/hpcloud/tail</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-tail-读取日志文件-Demo"><a href="#2-tail-读取日志文件-Demo" class="headerlink" title="2 tail 读取日志文件 Demo"></a>2 tail 读取日志文件 Demo</h1><h2 id="2-1-配置"><a href="#2-1-配置" class="headerlink" title="2.1 配置"></a>2.1 配置</h2><h3 id="2-1-1-初始化-config-对象"><a href="#2-1-1-初始化-config-对象" class="headerlink" title="2.1.1 初始化 config 对象"></a>2.1.1 初始化 config 对象</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">config := tail.Config&#123;</span><br><span class="line">    ReOpen:    <span class="literal">true</span>,    <span class="comment">// 重新打开，如果修改操作不是在日志文件末尾添加</span></span><br><span class="line">    Follow:    <span class="literal">true</span>,    <span class="comment">// 持续寻找新行</span></span><br><span class="line">    Location:  &amp;tail.SeekInfo&#123;Offset: <span class="number">0</span>, Whence: <span class="number">2</span>&#125;, <span class="comment">// 初始光标位置</span></span><br><span class="line">    MustExist: <span class="literal">false</span>,    <span class="comment">// 是否允许文件不存在</span></span><br><span class="line">    Poll:      <span class="literal">true</span>,    <span class="comment">// 使用 Poll 监听文件的变化，而不是 inotify</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-1-2-SeekInfo-结构"><a href="#2-1-2-SeekInfo-结构" class="headerlink" title="2.1.2 SeekInfo 结构"></a>2.1.2 SeekInfo 结构</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SeekInfo <span class="keyword">struct</span> &#123;        </span><br><span class="line">    Offset <span class="keyword">int64</span>    <span class="comment">// 偏移量</span></span><br><span class="line">    Whence <span class="keyword">int</span> <span class="comment">// 搜索起始位置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>Whence</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>文件开始处</td>
+</tr>
+<tr>
+<td>1</td>
+<td>当前位置</td>
+</tr>
+<tr>
+<td>2</td>
+<td>文件末尾</td>
+</tr>
+</tbody></table>
+<h2 id="2-2-创建-Tail-对象"><a href="#2-2-创建-Tail-对象" class="headerlink" title="2.2 创建 Tail 对象"></a>2.2 创建 Tail 对象</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tails, err := tail.TailFile(fileName, config)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;tail file failed, err:&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用<strong>日志文件的路径</strong>和<strong>配置信息</strong>初始化 Tail 对象。</p>
+<h2 id="2-3-读日志"><a href="#2-3-读日志" class="headerlink" title="2.3 读日志"></a>2.3 读日志</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">    msg, ok := &lt;-tails.Lines</span><br><span class="line">    <span class="keyword">if</span> !ok &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;tail file close reopen, filename:%s\n&quot;</span>, tails.Filename)</span><br><span class="line">        time.Sleep(time.Second)</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(<span class="string">&quot;msg:&quot;</span>, msg.Text)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Tail 对象内部维护了一个 channel，变量名为 Lines，其中储存着 Line 类型的对象，</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Line <span class="keyword">struct</span> &#123;        </span><br><span class="line">    Text <span class="keyword">string</span>    <span class="comment">// 文本</span></span><br><span class="line">    Time time.Time    <span class="comment">// 时间</span></span><br><span class="line">    Err  error <span class="comment">// Error from tail</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-4-运行效果"><a href="#2-4-运行效果" class="headerlink" title="2.4 运行效果"></a>2.4 运行效果</h2><h3 id="2-4-1-运行程序"><a href="#2-4-1-运行程序" class="headerlink" title="2.4.1 运行程序"></a>2.4.1 运行程序</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ go run tail.go</span><br><span class="line">2021/09/23 20:04:59 Waiting <span class="keyword">for</span> ./log_file to appear...</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-2-创建日志文件"><a href="#2-4-2-创建日志文件" class="headerlink" title="2.4.2 创建日志文件"></a>2.4.2 创建日志文件</h3><p>打开另一个命令行窗口，执行以下命令，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch log_file</span><br></pre></td></tr></table></figure>
+
+<p>看到程序输出，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2021/09/23 20:06:46 Seeked ./log_file - &amp;&#123;Offset:0 Whence:2&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-3-向日志文件末尾写入一行"><a href="#2-4-3-向日志文件末尾写入一行" class="headerlink" title="2.4.3 向日志文件末尾写入一行"></a>2.4.3 向日志文件末尾写入一行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;this is a test&quot;</span> &gt;&gt; log_file</span><br></pre></td></tr></table></figure>
+
+<p>看到程序输出，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msg: this is a <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-完整代码"><a href="#2-5-完整代码" class="headerlink" title="2.5 完整代码"></a>2.5 完整代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;github.com/hpcloud/tail&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fileName := <span class="string">&quot;./log_file&quot;</span></span><br><span class="line"></span><br><span class="line">    config := tail.Config&#123;</span><br><span class="line">        ReOpen:    <span class="literal">true</span>,</span><br><span class="line">        Follow:    <span class="literal">true</span>,</span><br><span class="line">        Location:  &amp;tail.SeekInfo&#123;Offset: <span class="number">0</span>, Whence: <span class="number">2</span>&#125;,</span><br><span class="line">        MustExist: <span class="literal">false</span>,</span><br><span class="line">        Poll:      <span class="literal">true</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    tails, err := tail.TailFile(fileName, config)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">&quot;tail file failed, err:&quot;</span>, err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        msg, ok := &lt;-tails.Lines</span><br><span class="line">        <span class="keyword">if</span> !ok &#123;</span><br><span class="line">            fmt.Printf(<span class="string">&quot;tail file close reopen, filename:%s\n&quot;</span>, tails.Filename)</span><br><span class="line">            time.Sleep(time.Second)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        fmt.Println(<span class="string">&quot;msg:&quot;</span>, msg.Text)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IO/" rel="tag"># IO</a>
+              <a href="/tags/%E6%97%A5%E5%BF%97/" rel="tag"># 日志</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/23/%E4%BD%BF%E7%94%A8-Sarama-%E5%BE%80-Kafka-%E5%8F%91%E6%95%B0%E6%8D%AE/" rel="prev" title="使用 Sarama 往 Kafka 发数据">
+      <i class="fa fa-chevron-left"></i> 使用 Sarama 往 Kafka 发数据
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tail-%E5%8C%85%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">tail 包读取日志文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E4%B8%8B%E8%BD%BD%E3%80%81%E5%AE%89%E8%A3%85-tail"><span class="nav-number">2.</span> <span class="nav-text">1 下载、安装 tail</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-tail-%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6-Demo"><span class="nav-number">3.</span> <span class="nav-text">2 tail 读取日志文件 Demo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-%E5%88%9D%E5%A7%8B%E5%8C%96-config-%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.1.</span> <span class="nav-text">2.1.1 初始化 config 对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-SeekInfo-%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.2.</span> <span class="nav-text">2.1.2 SeekInfo 结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E5%88%9B%E5%BB%BA-Tail-%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 创建 Tail 对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E8%AF%BB%E6%97%A5%E5%BF%97"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 读日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 运行效果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-1-%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.4.1.</span> <span class="nav-text">2.4.1 运行程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-2-%E5%88%9B%E5%BB%BA%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6"><span class="nav-number">3.4.2.</span> <span class="nav-text">2.4.2 创建日志文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-3-%E5%90%91%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E6%9C%AB%E5%B0%BE%E5%86%99%E5%85%A5%E4%B8%80%E8%A1%8C"><span class="nav-number">3.4.3.</span> <span class="nav-text">2.4.3 向日志文件末尾写入一行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 完整代码</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lining Hoo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lining Hoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
