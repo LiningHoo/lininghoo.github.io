@@ -155,6 +155,105 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/24/%E4%BD%BF%E7%94%A8-go-ini-%E8%A7%A3%E6%9E%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/24/%E4%BD%BF%E7%94%A8-go-ini-%E8%A7%A3%E6%9E%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">使用 go-ini 解析配置文件</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-24 20:06:04 / 修改时间：20:11:16" itemprop="dateCreated datePublished" datetime="2021-09-24T20:06:04+08:00">2021-09-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="使用-go-ini-解析配置文件"><a href="#使用-go-ini-解析配置文件" class="headerlink" title="使用 go-ini 解析配置文件"></a>使用 go-ini 解析配置文件</h1><p>本文只介绍实际项目开发中最常用到的功能，详细说明请参考<a target="_blank" rel="noopener" href="https://ini.unknwon.cn/docs">《go-ini使用文档》</a>。</p>
+<h1 id="1-下载、安装-go-ini"><a href="#1-下载、安装-go-ini" class="headerlink" title="1 下载、安装 go-ini"></a>1 下载、安装 go-ini</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get gopkg.in/ini.v1</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-go-ini-解析配置文件-Demo"><a href="#2-go-ini-解析配置文件-Demo" class="headerlink" title="2 go-ini 解析配置文件 Demo"></a>2 go-ini 解析配置文件 Demo</h1><h2 id="2-1-配置文件格式"><a href="#2-1-配置文件格式" class="headerlink" title="2.1 配置文件格式"></a>2.1 配置文件格式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># possible values : production, development</span></span><br><span class="line">app_mode = development</span><br><span class="line"></span><br><span class="line">[paths]</span><br><span class="line"><span class="comment"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span></span><br><span class="line">data = /home/git/grafana</span><br><span class="line"></span><br><span class="line">[server]</span><br><span class="line"><span class="comment"># Protocol (http or https)</span></span><br><span class="line">protocol = http</span><br><span class="line"></span><br><span class="line"><span class="comment"># The http port  to use</span></span><br><span class="line">http_port = 9999</span><br><span class="line"></span><br><span class="line"><span class="comment"># Redirect to correct domain if host header does not match domain</span></span><br><span class="line"><span class="comment"># Prevents DNS rebinding attacks</span></span><br><span class="line">enforce_domain = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>和大多数配置文件一样，以<strong>键值对</strong>的形式表示配置信息</li>
+<li>当文本中出现一行形如 <strong>“[example_section_name]”</strong>，表示新建一个分区，之后的配置信息会和这个分区关联，除非另起一个新分区。</li>
+<li>文件最开头的部分，如果没有显式地指明分区，则这些配置信息属于默认分区。</li>
+</ul>
+<h2 id="2-2-从数据源加载"><a href="#2-2-从数据源加载" class="headerlink" title="2.2 从数据源加载"></a>2.2 从数据源加载</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfg, err := ini.Load(<span class="string">&quot;my.ini&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>加载指定路径配置文件的数据，并解析。</p>
+<h2 id="2-3-获取、写入配置值"><a href="#2-3-获取、写入配置值" class="headerlink" title="2.3 获取、写入配置值"></a>2.3 获取、写入配置值</h2><h3 id="2-3-1-读取指定分区下的某个配置项"><a href="#2-3-1-读取指定分区下的某个配置项" class="headerlink" title="2.3.1 读取指定分区下的某个配置项"></a>2.3.1 读取指定分区下的某个配置项</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 典型读取操作，默认分区可以使用空字符串表示</span></span><br><span class="line">fmt.Println(<span class="string">&quot;App Mode:&quot;</span>, cfg.Section(<span class="string">&quot;&quot;</span>).Key(<span class="string">&quot;app_mode&quot;</span>).String())</span><br><span class="line">fmt.Println(<span class="string">&quot;Data Path:&quot;</span>, cfg.Section(<span class="string">&quot;paths&quot;</span>).Key(<span class="string">&quot;data&quot;</span>).String())</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-2-候选值限制"><a href="#2-3-2-候选值限制" class="headerlink" title="2.3.2 候选值限制"></a>2.3.2 候选值限制</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 候选值限制的操作</span></span><br><span class="line">fmt.Println(<span class="string">&quot;Server Protocol:&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;protocol&quot;</span>).In(<span class="string">&quot;http&quot;</span>, []<span class="keyword">string</span>&#123;<span class="string">&quot;http&quot;</span>, <span class="string">&quot;https&quot;</span>&#125;))</span><br><span class="line">fmt.Println(<span class="string">&quot;Email Protocol:&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;protocol&quot;</span>).In(<span class="string">&quot;smtp&quot;</span>, []<span class="keyword">string</span>&#123;<span class="string">&quot;imap&quot;</span>, <span class="string">&quot;smtp&quot;</span>&#125;))</span><br></pre></td></tr></table></figure>
+
+<p>如果读取的值不在候选值列表中，则用默认值替代。</p>
+<h3 id="2-2-3-类型转换"><a href="#2-2-3-类型转换" class="headerlink" title="2.2.3 类型转换"></a>2.2.3 类型转换</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fmt.Printf(<span class="string">&quot;Port Number: (%[1]T) %[1]d\n&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;http_port&quot;</span>).MustInt(<span class="number">9999</span>))</span><br><span class="line">fmt.Printf(<span class="string">&quot;Enforce Domain: (%[1]T) %[1]v\n&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;enforce_domain&quot;</span>).MustBool(<span class="literal">false</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-4-修改配置值"><a href="#2-2-4-修改配置值" class="headerlink" title="2.2.4 修改配置值"></a>2.2.4 修改配置值</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfg.Section(<span class="string">&quot;&quot;</span>).Key(<span class="string">&quot;app_mode&quot;</span>).SetValue(<span class="string">&quot;production&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-5-保存配置文件"><a href="#2-2-5-保存配置文件" class="headerlink" title="2.2.5 保存配置文件"></a>2.2.5 保存配置文件</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cfg.SaveTo(<span class="string">&quot;my.ini.local&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>调用 SaveTo 方法将配置文件保存到指定路径。</p>
+<h2 id="2-4-完整代码"><a href="#2-4-完整代码" class="headerlink" title="2.4 完整代码"></a>2.4 完整代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;os&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;gopkg.in/ini.v1&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    cfg, err := ini.Load(<span class="string">&quot;my.ini&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;Fail to read file:%v\n&quot;</span>, err)</span><br><span class="line">        os.Exit(<span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 典型读取操作，默认分区可以使用空字符串表示</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;App Mode:&quot;</span>, cfg.Section(<span class="string">&quot;&quot;</span>).Key(<span class="string">&quot;app_mode&quot;</span>).String())</span><br><span class="line">    fmt.Println(<span class="string">&quot;Data Path:&quot;</span>, cfg.Section(<span class="string">&quot;paths&quot;</span>).Key(<span class="string">&quot;data&quot;</span>).String())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 候选值限制的操作</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;Server Protocol:&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;protocol&quot;</span>).In(<span class="string">&quot;http&quot;</span>, []<span class="keyword">string</span>&#123;<span class="string">&quot;http&quot;</span>, <span class="string">&quot;https&quot;</span>&#125;))</span><br><span class="line">    fmt.Println(<span class="string">&quot;Email Protocol:&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;protocol&quot;</span>).In(<span class="string">&quot;smtp&quot;</span>, []<span class="keyword">string</span>&#123;<span class="string">&quot;imap&quot;</span>, <span class="string">&quot;smtp&quot;</span>&#125;))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 类型转换</span></span><br><span class="line">    fmt.Printf(<span class="string">&quot;Port Number: (%[1]T) %[1]d\n&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;http_port&quot;</span>).MustInt(<span class="number">9999</span>))</span><br><span class="line">    fmt.Printf(<span class="string">&quot;Enforce Domain: (%[1]T) %[1]v\n&quot;</span>, cfg.Section(<span class="string">&quot;server&quot;</span>).Key(<span class="string">&quot;enforce_domain&quot;</span>).MustBool(<span class="literal">false</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 修改某个值然后进行保存</span></span><br><span class="line">    cfg.Section(<span class="string">&quot;&quot;</span>).Key(<span class="string">&quot;app_mode&quot;</span>).SetValue(<span class="string">&quot;production&quot;</span>)</span><br><span class="line">    cfg.SaveTo(<span class="string">&quot;my.ini.local&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-执行效果"><a href="#2-5-执行效果" class="headerlink" title="2.5 执行效果"></a>2.5 执行效果</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ go run ini.go</span><br><span class="line">App Mode: development</span><br><span class="line">Data Path: /home/git/grafana</span><br><span class="line">Server Protocol: http</span><br><span class="line">Email Protocol: smtp</span><br><span class="line">Port Number: (int) 9999</span><br><span class="line">Enforce Domain: (bool) <span class="literal">true</span></span><br><span class="line">$ cat ./my.ini.local</span><br><span class="line"><span class="comment"># possible values : production, development</span></span><br><span class="line">app_mode = production</span><br><span class="line"></span><br><span class="line">[paths]</span><br><span class="line"><span class="comment"># Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)</span></span><br><span class="line">data = /home/git/grafana</span><br><span class="line"></span><br><span class="line">[server]</span><br><span class="line"><span class="comment"># Protocol (http or https)</span></span><br><span class="line">protocol       = http</span><br><span class="line"><span class="comment"># The http port  to use</span></span><br><span class="line">http_port      = 9999</span><br><span class="line"><span class="comment"># Redirect to correct domain if host header does not match domain</span></span><br><span class="line"><span class="comment"># Prevents DNS rebinding attacks</span></span><br><span class="line">enforce_domain = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/23/tail-%E5%8C%85%E8%AF%BB%E5%8F%96%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1272,7 +1371,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1285,7 +1384,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
