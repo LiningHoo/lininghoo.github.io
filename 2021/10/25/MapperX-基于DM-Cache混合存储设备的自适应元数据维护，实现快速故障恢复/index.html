@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复背景混合存储设备 固态硬盘相比于传统的机械硬盘，在处理随机小I&#x2F;O时具有更出色的表现 但是现在固态硬盘的价格依然比机械硬盘昂贵得多 近些年，提出了混合存储设备的概念，例如SSHD技术，将SSD作为HHD的高速缓存，以低成本的方式提供更快速的读写  DM-Cache 概览 DM-Cache是Linux内核设备映射器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复">
+<meta property="og:url" content="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/index.html">
+<meta property="og:site_name" content="hlnBlog">
+<meta property="og:description" content="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复背景混合存储设备 固态硬盘相比于传统的机械硬盘，在处理随机小I&#x2F;O时具有更出色的表现 但是现在固态硬盘的价格依然比机械硬盘昂贵得多 近些年，提出了混合存储设备的概念，例如SSHD技术，将SSD作为HHD的高速缓存，以低成本的方式提供更快速的读写  DM-Cache 概览 DM-Cache是Linux内核设备映射器">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/arch.png">
+<meta property="og:image" content="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/tree.png">
+<meta property="article:published_time" content="2021-10-25T15:43:16.000Z">
+<meta property="article:modified_time" content="2021-10-25T15:53:00.254Z">
+<meta property="article:author" content="Lining Hoo">
+<meta property="article:tag" content="IO">
+<meta property="article:tag" content="缓存">
+<meta property="article:tag" content="linux内核">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/arch.png">
+
+<link rel="canonical" href="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复 | hlnBlog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">hlnBlog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-25 23:43:16 / 修改时间：23:53:00" itemprop="dateCreated datePublished" datetime="2021-10-25T23:43:16+08:00">2021-10-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"><a href="#MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复" class="headerlink" title="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"></a>MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</h1><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h2 id="混合存储设备"><a href="#混合存储设备" class="headerlink" title="混合存储设备"></a>混合存储设备</h2><ul>
+<li>固态硬盘相比于传统的机械硬盘，在处理随机小I/O时具有更出色的表现</li>
+<li>但是现在固态硬盘的价格依然比机械硬盘昂贵得多</li>
+<li>近些年，提出了混合存储设备的概念，例如SSHD技术，将SSD作为HHD的高速缓存，以低成本的方式提供更快速的读写</li>
+</ul>
+<h2 id="DM-Cache-概览"><a href="#DM-Cache-概览" class="headerlink" title="DM-Cache 概览"></a>DM-Cache 概览</h2><ul>
+<li>DM-Cache是Linux内核设备映射器的一个组件，实现了物理块设备到虚拟块设备的映射，其将SSDs和HHDs映射到虚拟块设备，SSD作为HHD的高速缓存</li>
+<li>Linux中I/O设备分为两类：块设备和字符设备，SSD和HHD都属于块设备</li>
+</ul>
+<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/arch.png" alt="img"></p>
+<ul>
+<li>虚拟块设备是一种抽象，应用程序将数据写入虚拟块设备、获得ACK确认，从虚拟块设备读取数据，底层的SSD、HHD操作对应用程序是透明的</li>
+<li>DM-Cache元数据(metadata)存储：SSD块和对应HHD块之间的映射关系、“脏”位、当前采用策略相关的元数据</li>
+<li>若采用写回法(writeback)的模式，有两种可能的情况：</li>
+</ul>
+<p>(1) 被修改的块在缓存中：</p>
+<p>不需要更新元数据中SSD块和对应HHD块之间的映射关系，但是要在将“脏”位信息放到内存中后向调用方发送ACK确认，之后由异步任务将“脏”位信息持久化到元数据驱动器上</p>
+<p>(2) 被修改的块不在缓存中：</p>
+<p>需要将HHD块加载到SSD缓存中，同步修改元数据中SSD块和对应HHD块之间的映射关系，之后的步骤和情况(1)中一样</p>
+<ul>
+<li>如果写局部性较高，则缓存命中率高，不需要频繁修改元数据中的映射关系，这样“脏”位的同步会造成更大的影响</li>
+<li>MapperX使用ABT(adaptive bit-tree)数据结构同步地以层次结构的形式维护”脏”位元数据；ABT用一个比特位表示某个连续范围内的数据块</li>
+</ul>
+<h2 id="DM-Cache-的缺陷"><a href="#DM-Cache-的缺陷" class="headerlink" title="DM-Cache 的缺陷"></a>DM-Cache 的缺陷</h2><ul>
+<li>DM-Cache默认在发生写操作时先将“脏”位信息放入内存中，之后再由异步任务写入元数据驱动器，因为内存是易失性设备，断电后数据消失，这样当系统崩溃时，无法得知SSD缓存中哪些是“脏”数据，只好假定SSD缓存中全部都是“脏”数据（即使大部分数据块是一致的），全都要写入HHD，导致崩溃恢复时间长、系统可用性差</li>
+</ul>
+<h1 id="MapperX"><a href="#MapperX" class="headerlink" title="MapperX"></a>MapperX</h1><h2 id="CBT"><a href="#CBT" class="headerlink" title="CBT"></a>CBT</h2><ul>
+<li>有1个在内存中的位图，记录着全部数据块的状态(1个bit代表对应数据块是否为“脏”，即不一致)，首先把这个位图展开成度为d的树，称为CBT(Complete bit-tree)</li>
+<li>展开方式：数据块的个数最好为d的幂次，刚开始一分为d，分为d个子树，然后递归划分下去，最后叶子结点就代表位图中的某个bit</li>
+</ul>
+<h2 id="ABT"><a href="#ABT" class="headerlink" title="ABT"></a>ABT</h2><ul>
+<li>MapperX在元数据存储器中维护着CBT的摘要，称之为ABT(Adaptive bit-tree)</li>
+<li>对于每次写操作，ABT同步更新</li>
+<li>ABT的结点表示某个连续范围内的数据块状态，初始状态是只有一个“干净”的根结点，表示SSD缓存和HHD数据完全一致</li>
+</ul>
+<h2 id="自适应算法"><a href="#自适应算法" class="headerlink" title="自适应算法"></a>自适应算法</h2><h3 id="BitTreeUpdate"><a href="#BitTreeUpdate" class="headerlink" title="BitTreeUpdate"></a>BitTreeUpdate</h3><ol>
+<li>更新内存中的位图(每一bit表示某个数据块，0代表数据一致，1代表存在“脏”数据)</li>
+<li>更新CBT：当某个结点任何一个子孙结点状态为“脏”，置这个结点状态为脏；如果所有子孙结点都“干净”，这个结点状态也为“干净”</li>
+<li>如果写操作导致ABT的某个叶子结点变“脏”，根据CBT修改磁盘上的ABT</li>
+</ol>
+<h3 id="PeriodicAdjust"><a href="#PeriodicAdjust" class="headerlink" title="PeriodicAdjust"></a>PeriodicAdjust</h3><ul>
+<li>参数列表：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>p</td>
+<td>时间</td>
+<td>异步任务执行周期(采样间隔，默认为1s)</td>
+</tr>
+<tr>
+<td>n</td>
+<td>整数</td>
+<td>SLA(Service-Level Agreement)</td>
+</tr>
+<tr>
+<td>abt</td>
+<td>树</td>
+<td>自适应树ABT</td>
+</tr>
+</tbody></table>
+<ul>
+<li>算法：</li>
+</ul>
+<ol>
+<li>置W为客户端在异步任务执行周期p内的写入操作次数</li>
+<li>置N为元数据驱动器被写入的次数</li>
+<li>如果 N/W ≥  1/(10^n)，认定元数据写入频率太高了，因为元数据修改是同步的，这会降低写操作的性能，在ABT中找到所有叶子结点的直接父结点，在这个范围内寻找在周期p中导致最多元数据写操作的结点，在ABT中将它的子结点移除</li>
+<li>如果 N/W &lt;  1/(10^n)，认定还可以接受更高一点频率的元数据写入，于是在ABT中找到周期p内最少元数据写入的叶子结点，在它的下方生成d个子结点，状态根据CBT设置</li>
+</ol>
+<h2 id="快速崩溃恢复策略"><a href="#快速崩溃恢复策略" class="headerlink" title="快速崩溃恢复策略"></a>快速崩溃恢复策略</h2><ul>
+<li>因为元数据是在每次写操作发生时同步更新的，所以在ABT中的叶子结点对“脏”状态的判断不存在假阴性，也就是说，如果一个叶子结点的状态不为“脏”，那么它所表示的连续数据块也就没有“脏”数据，在数据恢复时可以安全地跳过这些块</li>
+<li>对于ABT中每个状态为“脏”的叶子结点，其所表示范围的SSD缓存块全都写回HHD</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><ul>
+<li>重用DM-Cache原有的4字节元数据类型，最后两位分别是“脏”位和有效位，将所有4字节元数据的前30位组织成一个位数组，每一bit表示1个结点，以宽度优先的方式表示</li>
+<li>V-ABT和CBT具有相同的层数和叶子结点数，但是只要状态为“脏”的<strong>叶子结点</strong>标记为1，其余结点标记为0</li>
+<li>例如：</li>
+</ul>
+<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/tree.png" alt="img"></p>
+<p>上图是1个V-ABT，度为2，层数为4，有两个“脏”状态的叶子结点被标记为1，根据宽度优先，可以将这个V-ABT表示成1个15个bit的位数组：001010000000000</p>
+<h1 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h1><h2 id="写入时延"><a href="#写入时延" class="headerlink" title="写入时延"></a>写入时延</h2><ul>
+<li>根据实验数据，使用MapperX后，写入时延相比于原有的DM-Cache略微高一些，但是远低于使用同步写“脏”位元数据的策略</li>
+<li>MapperX本质上也是同步写“脏”位元数据，但是利用了客户端写操作的局部性原理，减少了对元数据的写入次数</li>
+<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，客户端写入时延增加</li>
+</ul>
+<h2 id="IOPS-writes-per-sec"><a href="#IOPS-writes-per-sec" class="headerlink" title="IOPS(writes per sec)"></a>IOPS(writes per sec)</h2><ul>
+<li>根据实验数据，使用MapperX后，IOPS低于原有的DM-Cache，远高于使用同步写“脏”位元数据的策略</li>
+</ul>
+<h2 id="恢复时间"><a href="#恢复时间" class="headerlink" title="恢复时间"></a>恢复时间</h2><ul>
+<li>根据实验数据，使用MapperX后，崩溃恢复时间相比于原有的DM-Cache显著减少</li>
+<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，恢复时间减少，这是因为在<strong>PeriodicAdjust</strong>过程中，当N/W小于β时会在ABT中增加叶子结点，从而叶子结点表示范围粒度更细，在崩溃恢复的时候，需要写回HHD的缓存块个数更少</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IO/" rel="tag"># IO</a>
+              <a href="/tags/%E7%BC%93%E5%AD%98/" rel="tag"># 缓存</a>
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/03/influxDB-%E4%BB%8B%E7%BB%8D%E5%92%8C%E4%BD%BF%E7%94%A8/" rel="prev" title="influxDB 介绍和使用">
+      <i class="fa fa-chevron-left"></i> influxDB 介绍和使用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D"><span class="nav-text">MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-text">背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87"><span class="nav-text">混合存储设备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DM-Cache-%E6%A6%82%E8%A7%88"><span class="nav-text">DM-Cache 概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DM-Cache-%E7%9A%84%E7%BC%BA%E9%99%B7"><span class="nav-text">DM-Cache 的缺陷</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MapperX"><span class="nav-text">MapperX</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CBT"><span class="nav-text">CBT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ABT"><span class="nav-text">ABT</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E9%80%82%E5%BA%94%E7%AE%97%E6%B3%95"><span class="nav-text">自适应算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BitTreeUpdate"><span class="nav-text">BitTreeUpdate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PeriodicAdjust"><span class="nav-text">PeriodicAdjust</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E5%B4%A9%E6%BA%83%E6%81%A2%E5%A4%8D%E7%AD%96%E7%95%A5"><span class="nav-text">快速崩溃恢复策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%84%E4%BC%B0"><span class="nav-text">评估</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%85%A5%E6%97%B6%E5%BB%B6"><span class="nav-text">写入时延</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IOPS-writes-per-sec"><span class="nav-text">IOPS(writes per sec)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%81%A2%E5%A4%8D%E6%97%B6%E9%97%B4"><span class="nav-text">恢复时间</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lining Hoo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lining Hoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
