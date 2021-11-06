@@ -155,6 +155,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/06/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84Makefile%EF%BC%8C%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%8F%92%E5%85%A5%E5%92%8C%E5%8D%B8%E8%BD%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/06/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%9A%84Makefile%EF%BC%8C%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%8F%92%E5%85%A5%E5%92%8C%E5%8D%B8%E8%BD%BD/" class="post-title-link" itemprop="url">字符设备驱动的Makefile，驱动的插入和卸载</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-06 21:57:23 / 修改时间：22:03:33" itemprop="dateCreated datePublished" datetime="2021-11-06T21:57:23+08:00">2021-11-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="字符设备驱动的Makefile，驱动的插入和卸载"><a href="#字符设备驱动的Makefile，驱动的插入和卸载" class="headerlink" title="字符设备驱动的Makefile，驱动的插入和卸载"></a>字符设备驱动的Makefile，驱动的插入和卸载</h1><h1 id="1-字符设备驱动的Makefile"><a href="#1-字符设备驱动的Makefile" class="headerlink" title="1 字符设备驱动的Makefile"></a>1 字符设备驱动的Makefile</h1><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ifneq</span> (<span class="variable">$(KERNELRELEASE)</span>,)</span><br><span class="line">    obj-m := hello_dev.o</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    PWD := <span class="variable">$(<span class="built_in">shell</span> pwd)</span></span><br><span class="line">    KDIR := /lib/modules/`uname -r`/build</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">    make -C <span class="variable">$(KDIR)</span> M=<span class="variable">$(PWD)</span></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm -rf *.o *.ko *.mod.c *.symvers *.c~ *~</span><br><span class="line"><span class="keyword">endif</span> </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先判断 KERNELRELEASE 变量是否为空，刚开始这个变量肯定没有被定义，于是控制流跳转到else 分支</li>
+<li>在 else 分支中，定义变量 PWD 表示当前所在目录，定义变量 KDIR 表示内核所在目录，make -C $(KDIR) M=$(PWD)这一行的规则是：先进入 -C 指定的内核所在目录执行Makefile文件，在这个Makefile文件中会设置变量 KERNELRELEASE；“M=”选项的作用是，当用户需要以某个内核为基础编译1个外部模块，程序会自动到 “M=” 指定的 dir 目录中查找模块源码，将其编译，生成 .ko 文件</li>
+<li>这里的 M 是内核根目录下 Makefile 中使用的变量，</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Use make M=dir to specify directory of external module to build</span></span><br><span class="line"><span class="comment"># Old syntax make ... SUBDIRS=$PWD is still supported</span></span><br><span class="line"><span class="comment"># Setting the environment variable KBUILD_EXTMOD take precedence</span></span><br><span class="line"><span class="keyword">ifdef</span> SUBDIRS</span><br><span class="line">  KBUILD_EXTMOD ?= <span class="variable">$(SUBDIRS)</span></span><br><span class="line"><span class="keyword">endif</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="string">&quot;$(origin M)&quot;</span>, <span class="string">&quot;command line&quot;</span>)</span><br><span class="line">  KBUILD_EXTMOD := <span class="variable">$(M)</span></span><br><span class="line"><span class="keyword">endif</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>obj-m 指定目标文件，表示将由 c 代码编译成 .o 文件，然后生成独立的 .ko 模块，不会编译到 zImage</li>
+<li>在驱动源码目录下执行 make 命令，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ make </span><br><span class="line">make -C /lib/modules/`uname -r`/build M=/home/lnhoo/workspace/c/src/hello_dev</span><br><span class="line">make[1]: Entering directory `/usr/src/linux-headers-4.4.0-142-generic<span class="string">&#x27;</span></span><br><span class="line"><span class="string">  LD      /home/lnhoo/workspace/c/src/hello_dev/built-in.o</span></span><br><span class="line"><span class="string">  CC [M]  /home/lnhoo/workspace/c/src/hello_dev/hello_dev.o</span></span><br><span class="line"><span class="string">  Building modules, stage 2.</span></span><br><span class="line"><span class="string">  MODPOST 1 modules</span></span><br><span class="line"><span class="string">  CC      /home/lnhoo/workspace/c/src/hello_dev/hello_dev.mod.o</span></span><br><span class="line"><span class="string">  LD [M]  /home/lnhoo/workspace/c/src/hello_dev/hello_dev.ko</span></span><br><span class="line"><span class="string">make[1]: Leaving directory `/usr/src/linux-headers-4.4.0-142-generic&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="2-驱动的插入和卸载"><a href="#2-驱动的插入和卸载" class="headerlink" title="2 驱动的插入和卸载"></a>2 驱动的插入和卸载</h1><h2 id="2-1-插入"><a href="#2-1-插入" class="headerlink" title="2.1 插入"></a>2.1 插入</h2><ul>
+<li>执行 insmod 命令加载驱动模块到内核中，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod hello_dev.ko</span><br></pre></td></tr></table></figure>
+
+<p>此时查看内核模块列表，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ lsmod</span><br><span class="line">Module                  Size  Used by</span><br><span class="line">hello_dev              16384  0 </span><br><span class="line">crct10dif_pclmul       16384  0 </span><br><span class="line">crc32_pclmul           16384  0 </span><br><span class="line">ghash_clmulni_intel    16384  0</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>hello_dev 驱动出现在列表中</p>
+<ul>
+<li>清空内核日志，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo dmesg -c</span><br></pre></td></tr></table></figure>
+
+<p>此时加载驱动模块，然后查看内核日志，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ dmesg</span><br><span class="line">[  331.039816] hello_dev: loading out-of-tree module taints kernel.</span><br><span class="line">[  331.039869] hello_dev: module verification failed: signature and/or required key missing - tainting kernel</span><br><span class="line">[  331.040488] register_chrdev_region ok </span><br><span class="line">[  331.040490]  hello driver init</span><br></pre></td></tr></table></figure>
+
+<p>hello_dev 字符设备驱动程序入口函数中的 printk 成功将消息写入内核日志</p>
+<h2 id="2-2-卸载"><a href="#2-2-卸载" class="headerlink" title="2.2 卸载"></a>2.2 卸载</h2><ul>
+<li>执行 rmmod 命令卸载驱动程序，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo rmmod hello_dev</span><br></pre></td></tr></table></figure>
+
+<p>执行 lsmod 命令查看内核模块列表，此时 hello_dev 驱动已不在列表中</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/06/%E5%AE%9E%E7%8E%B0%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1443,122 +1553,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/02/%E6%A0%B9%E6%8D%AE%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E5%8F%98%E5%8C%96%E7%AE%A1%E7%90%86-tailTask/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/10/02/%E6%A0%B9%E6%8D%AE%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E5%8F%98%E5%8C%96%E7%AE%A1%E7%90%86-tailTask/" class="post-title-link" itemprop="url">根据配置文件的变化管理 tailTask</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-10-02 23:58:45" itemprop="dateCreated datePublished" datetime="2021-10-02T23:58:45+08:00">2021-10-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-10-03 00:08:47" itemprop="dateModified" datetime="2021-10-03T00:08:47+08:00">2021-10-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="根据配置文件的变化管理-tailTask"><a href="#根据配置文件的变化管理-tailTask" class="headerlink" title="根据配置文件的变化管理 tailTask"></a>根据配置文件的变化管理 tailTask</h1><h1 id="1-watch-etcd-中的新配置"><a href="#1-watch-etcd-中的新配置" class="headerlink" title="1 watch etcd 中的新配置"></a>1 watch etcd 中的新配置</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WatchConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">    watchChan := client.Watch(context.Background(), conf.DefaultConfig.ETCD.CollectConfKey)</span><br><span class="line">    <span class="keyword">for</span> wresp := <span class="keyword">range</span> watchChan &#123;</span><br><span class="line">        <span class="keyword">for</span> _, event := <span class="keyword">range</span> wresp.Events &#123;</span><br><span class="line">            <span class="keyword">var</span> config []common.CollectConfigEntry</span><br><span class="line">            <span class="comment">// 如果 key 被删除了，直接把空配置放到 channel 中</span></span><br><span class="line">            <span class="keyword">if</span> event.Type == clientv3.EventTypeDelete &#123;</span><br><span class="line">                tailfile.Manager.PutConfigIntoChan(config)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line">            err := json.Unmarshal(event.Kv.Value, &amp;config)</span><br><span class="line">            <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                logrus.Errorf(<span class="string">&quot;unmarshal config error: %w&quot;</span>, err)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line">            tailfile.Manager.PutConfigIntoChan(config)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>调用 etcd client 的 Watch 函数，给定要监听的 key，返回一个 channel。对于指定的 key 关联数据的修改事件会被放入这个 channel 中。</li>
-<li>配置信息以 json 格式字符串的形式存储，所以需要 unmarshal 得到 config 对象。</li>
-<li>调用 tailfile 包 Manager 对象的 PutConfigIntoChan 方法，将 config 对象放入另一个 channel 中。在 tailfile 包内，会监听对这个 channel 的更改，以实现根据配置文件的变化动态管理 tailTask。</li>
-</ul>
-<h1 id="2-tailfile-监听配置变化"><a href="#2-tailfile-监听配置变化" class="headerlink" title="2 tailfile 监听配置变化"></a>2 tailfile 监听配置变化</h1><h2 id="2-1-tailFileManager-类"><a href="#2-1-tailFileManager-类" class="headerlink" title="2.1 tailFileManager 类"></a>2.1 tailFileManager 类</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> tailFileManager <span class="keyword">struct</span> &#123;</span><br><span class="line">    tileTaskMap   <span class="keyword">map</span>[<span class="keyword">string</span>]*tailTask</span><br><span class="line">    collectConfig []common.CollectConfigEntry</span><br><span class="line">    configChan    <span class="keyword">chan</span> []common.CollectConfigEntry</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *tailFileManager)</span> <span class="title">PutConfigIntoChan</span><span class="params">(config []common.CollectConfigEntry)</span></span> &#123;</span><br><span class="line">    t.configChan &lt;- config</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>管理器类 tailFileManager 是单例的，成员变量 tailTaskMap 储存全部 tailTask，key 是任务关联的日志文件路径；collectConfig 存放 logagent 的配置信息；configChan 存放从 etcd 拿到的最新配置，配置监听 goroutine 从这个 channel 中获取最新配置。</li>
-</ul>
-<h2 id="2-2-通知-tailTask-goroutine-结束的方式"><a href="#2-2-通知-tailTask-goroutine-结束的方式" class="headerlink" title="2.2 通知 tailTask goroutine 结束的方式"></a>2.2 通知 tailTask goroutine 结束的方式</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> tailTask <span class="keyword">struct</span> &#123;</span><br><span class="line">    topic       <span class="keyword">string</span></span><br><span class="line">    logFilePath <span class="keyword">string</span></span><br><span class="line">    tailFile    *tail.Tail</span><br><span class="line">    ctx         context.Context</span><br><span class="line">    cancel      context.CancelFunc</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newTailTask</span><span class="params">(topic, logFilePath <span class="keyword">string</span>, tailFile *tail.Tail)</span> *<span class="title">tailTask</span></span> &#123;</span><br><span class="line">    ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line">    <span class="keyword">return</span> &amp;tailTask&#123;</span><br><span class="line">        topic:       topic,</span><br><span class="line">        logFilePath: logFilePath,</span><br><span class="line">        tailFile:    tailFile,</span><br><span class="line">        ctx:         ctx,</span><br><span class="line">        cancel:      cancel,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tt *tailTask)</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> &lt;-tt.ctx.Done():</span><br><span class="line">            logrus.Infof(<span class="string">&quot;tail task (%s) is stopping...&quot;</span>, tt.logFilePath)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        <span class="keyword">case</span> line, ok := &lt;-tt.tailFile.Lines:</span><br><span class="line">            <span class="keyword">if</span> !ok &#123;</span><br><span class="line">                logrus.Errorf(<span class="string">&quot;tail read file err, filename: %s&quot;</span>, tt.tailFile.Filename)</span><br><span class="line">                time.Sleep(time.Second)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line">            kafka.DefaultProducerClient.SendToMsgChan(tt.topic, line.Text)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>tailTask 对象的字段 ctx 为 context.Context 对象，另一字段 cancel 是与 ctx 绑定的 CancelFunc 函数对象，调用 cancel，将向 ctx.Done() 这个 channel 添加数据。</li>
-<li>在 run 方法中去监听 ctx.Done() 这个 channel，如果有变化，则结束这个 goroutine，否则尝试从日志文件末尾读取一行数据。</li>
-</ul>
-<h2 id="2-3-监听配置变化、动态管理-tailTask"><a href="#2-3-监听配置变化、动态管理-tailTask" class="headerlink" title="2.3 监听配置变化、动态管理 tailTask"></a>2.3 监听配置变化、动态管理 tailTask</h2><h3 id="2-3-1-三种情况"><a href="#2-3-1-三种情况" class="headerlink" title="2.3.1 三种情况"></a>2.3.1 三种情况</h3><ul>
-<li>原来就有，什么都不干</li>
-<li>原来没有，现在有，新建任务</li>
-<li>原来有，但现在没有，停掉</li>
-</ul>
-<h3 id="2-3-2-监听函数"><a href="#2-3-2-监听函数" class="headerlink" title="2.3.2 监听函数"></a>2.3.2 监听函数</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *tailFileManager)</span> <span class="title">ConfigListener</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> config := <span class="keyword">range</span> t.configChan &#123;</span><br><span class="line">        <span class="keyword">for</span> _, configEntry := <span class="keyword">range</span> config &#123;</span><br><span class="line">            <span class="comment">// 原来就有，什么都不干</span></span><br><span class="line">            <span class="keyword">if</span> _, ok := t.tileTaskMap[configEntry.LogFilePath]; ok &#123;</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 原来没有，现在有，新建任务</span></span><br><span class="line">            newTailFile, err := tail.TailFile(configEntry.LogFilePath, defaultTailConfig)</span><br><span class="line">            <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                logrus.Errorf(<span class="string">&quot;create new tail task error: %w&quot;</span>, err)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line">            logrus.Infof(<span class="string">&quot;create new tail task for \&quot;%s\&quot;&quot;</span>, configEntry.LogFilePath)</span><br><span class="line">            tailTask := newTailTask(configEntry.Topic, configEntry.LogFilePath, newTailFile)</span><br><span class="line">            t.tileTaskMap[tailTask.logFilePath] = tailTask</span><br><span class="line">            <span class="keyword">go</span> tailTask.run()</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 原来有，但现在没有，停掉</span></span><br><span class="line">        pathSet := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> _, configEntry := <span class="keyword">range</span> config &#123;</span><br><span class="line">            pathSet[configEntry.LogFilePath] = <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> path, task := <span class="keyword">range</span> t.tileTaskMap &#123;</span><br><span class="line">            <span class="keyword">if</span> _, ok := pathSet[path]; !ok &#123;</span><br><span class="line">                logrus.Infof(<span class="string">&quot;tail task (%s) should be stopped&quot;</span>, task.logFilePath)</span><br><span class="line">                task.cancel()</span><br><span class="line">                <span class="built_in">delete</span>(t.tileTaskMap, path)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 更新配置</span></span><br><span class="line">        t.collectConfig = config</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-效果演示"><a href="#3-效果演示" class="headerlink" title="3 效果演示"></a>3 效果演示</h1><h2 id="3-1-初始配置"><a href="#3-1-初始配置" class="headerlink" title="3.1 初始配置"></a>3.1 初始配置</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl put collect_conf_key <span class="string">&quot;[&#123;\&quot;log_file_path\&quot;:\&quot;./logs/web_log\&quot;,\&quot;topic\&quot;:\&quot;web_log\&quot;&#125;, &#123;\&quot;log_file_path\&quot;:\&quot;./logs/shopping_log\&quot;, \&quot;topic\&quot;:\&quot;shopping_log\&quot;&#125;]&quot;</span>             </span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-
-<p>编译、运行程序，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ go run main.go </span><br><span class="line">initial config: [&#123;./logs/web_log web_log&#125; &#123;./logs/shopping_log shopping_log&#125;]</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/shopping_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/web_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-2-修改配置，减少要收集的日志文件"><a href="#3-2-修改配置，减少要收集的日志文件" class="headerlink" title="3.2 修改配置，减少要收集的日志文件"></a>3.2 修改配置，减少要收集的日志文件</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl put collect_conf_key <span class="string">&quot;[&#123;\&quot;log_file_path\&quot;:\&quot;./logs/web_log\&quot;,\&quot;topic\&quot;:\&quot;web_log\&quot;&#125;]&quot;</span>                       </span><br><span class="line">OK             </span><br></pre></td></tr></table></figure>
-
-<p>查看程序输出，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ go run main.go </span><br><span class="line">initial config: [&#123;./logs/web_log web_log&#125; &#123;./logs/shopping_log shopping_log&#125;]</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/shopping_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/web_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">INFO[0097] tail task (./logs/shopping_log) should be stopped </span><br><span class="line">INFO[0097] tail task (./logs/shopping_log) is stopping...</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-3-修改配置，增加要收集的日志文件"><a href="#3-3-修改配置，增加要收集的日志文件" class="headerlink" title="3.3 修改配置，增加要收集的日志文件"></a>3.3 修改配置，增加要收集的日志文件</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl put collect_conf_key <span class="string">&quot;[&#123;\&quot;log_file_path\&quot;:\&quot;./logs/web_log\&quot;,\&quot;topic\&quot;:\&quot;web_log\&quot;&#125;, &#123;\&quot;log_file_path\&quot;:\&quot;./logs/shopping_log\&quot;, \&quot;topic\&quot;:\&quot;shopping_log\&quot;&#125;, &#123;\&quot;log_file_path\&quot;:\&quot;./logs/live_log\&quot;, \&quot;topic\&quot;:\&quot;live_log\&quot;&#125;]&quot;</span>              </span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-
-<p>查看程序输出，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ go run main.go </span><br><span class="line">initial config: [&#123;./logs/web_log web_log&#125; &#123;./logs/shopping_log shopping_log&#125;]</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/shopping_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">2021/10/02 23:50:03 Seeked ./logs/web_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">INFO[0097] tail task (./logs/shopping_log) should be stopped </span><br><span class="line">INFO[0097] tail task (./logs/shopping_log) is stopping... </span><br><span class="line">INFO[0189] create new tail task <span class="keyword">for</span> <span class="string">&quot;./logs/shopping_log&quot;</span> </span><br><span class="line">INFO[0189] create new tail task <span class="keyword">for</span> <span class="string">&quot;./logs/live_log&quot;</span>   </span><br><span class="line">2021/10/02 23:53:12 Seeked ./logs/shopping_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">2021/10/02 23:53:12 Waiting <span class="keyword">for</span> ./logs/live_log to appear...</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1628,7 +1622,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1641,7 +1635,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">26</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
