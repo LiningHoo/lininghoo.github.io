@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Linux 内核同步机制之 Semaphore1 Semaphore 的使用1.1 竞争条件 竞争条件是指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形 举例：  12345678910int open_count &#x3D; 0;int hello_open(struct inode *p, struct file *f) &amp;#123;    if (open_count) &amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 内核同步机制之 Semaphore">
+<meta property="og:url" content="http://example.com/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/index.html">
+<meta property="og:site_name" content="hlnBlog">
+<meta property="og:description" content="Linux 内核同步机制之 Semaphore1 Semaphore 的使用1.1 竞争条件 竞争条件是指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形 举例：  12345678910int open_count &#x3D; 0;int hello_open(struct inode *p, struct file *f) &amp;#123;    if (open_count) &amp;#">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/1.png">
+<meta property="article:published_time" content="2021-11-21T17:33:18.000Z">
+<meta property="article:modified_time" content="2021-11-21T17:38:18.902Z">
+<meta property="article:author" content="Lining Hoo">
+<meta property="article:tag" content="并发编程">
+<meta property="article:tag" content="linux内核">
+<meta property="article:tag" content="源码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/1.png">
+
+<link rel="canonical" href="http://example.com/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux 内核同步机制之 Semaphore | hlnBlog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">hlnBlog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux 内核同步机制之 Semaphore
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-22 01:33:18 / 修改时间：01:38:18" itemprop="dateCreated datePublished" datetime="2021-11-22T01:33:18+08:00">2021-11-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Linux-内核同步机制之-Semaphore"><a href="#Linux-内核同步机制之-Semaphore" class="headerlink" title="Linux 内核同步机制之 Semaphore"></a>Linux 内核同步机制之 Semaphore</h1><h1 id="1-Semaphore-的使用"><a href="#1-Semaphore-的使用" class="headerlink" title="1 Semaphore 的使用"></a>1 Semaphore 的使用</h1><h2 id="1-1-竞争条件"><a href="#1-1-竞争条件" class="headerlink" title="1.1 竞争条件"></a>1.1 竞争条件</h2><ul>
+<li>竞争条件是指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形</li>
+<li>举例：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> open_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hello_open</span><span class="params">(struct inode *p, struct file *f)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (open_count) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125;</span><br><span class="line">    ++open_count;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_open ok\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码的作用是确保同一时间只有1个进程能够访问 hello_dev 驱动设备，但是由于 CPU 的指令调度，可能存在如下的执行顺序，</p>
+<p><img src="/2021/11/22/Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore/1.png" alt="img"></p>
+<p>初始情况，open_count 为 0，进程 A 执行到 if 语句，条件为假，不执行分支内部的语句，此时，由于 CPU 调度（可能是因为进程 A 时间片到期或者被更高优先级的进程 B 抢占），进程 B 也执行到 if 判断，条件也为假，不执行分支内部的语句，然后进程 A 和 B 都获得了设备的使用权</p>
+<h2 id="1-2-使用-Semaphore-实现互斥"><a href="#1-2-使用-Semaphore-实现互斥" class="headerlink" title="1.2 使用 Semaphore 实现互斥"></a>1.2 使用 Semaphore 实现互斥</h2><h3 id="1-2-1-声明"><a href="#1-2-1-声明" class="headerlink" title="1.2.1 声明"></a>1.2.1 声明</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">semaphore</span> <span class="title">sema</span>;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 linux 内核中，信号量为结构体类型 struct semaphore，在 hello_dev 字符设备驱动中，将信号量声明成 struct semaphore 类型的全局变量 sema</li>
+</ul>
+<h3 id="1-2-2-初始化"><a href="#1-2-2-初始化" class="headerlink" title="1.2.2 初始化"></a>1.2.2 初始化</h3><ul>
+<li>信号量在使用之前需要初始化，</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hello_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    devNum = MKDEV(reg_major, reg_minor);</span><br><span class="line">    <span class="keyword">if</span>(OK == register_chrdev_region(devNum, subDevNum, <span class="string">&quot;helloworld&quot;</span>)) &#123;</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;register_chrdev_region ok \n&quot;</span>); </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;register_chrdev_region error n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot; hello driver init \n&quot;</span>);</span><br><span class="line">    gDev = kzalloc(<span class="keyword">sizeof</span>(struct cdev), GFP_KERNEL);</span><br><span class="line">    gFile = kzalloc(<span class="keyword">sizeof</span>(struct file_operations), GFP_KERNEL);</span><br><span class="line">    gFile-&gt;open = hello_open;</span><br><span class="line">    gFile-&gt;read = hello_read;</span><br><span class="line">    gFile-&gt;write = hello_write;</span><br><span class="line">    gFile-&gt;owner = THIS_MODULE;</span><br><span class="line">    cdev_init(gDev, gFile);</span><br><span class="line">    cdev_add(gDev, devNum, <span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    sema_init(&amp;sema, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 hello_dev 字符设备的初始化函数中，调用 sema_init 函数将信号量 sema 初始化为 1，</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">sema_init</span><span class="params">(struct semaphore *sem, <span class="keyword">int</span> val)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> __<span class="title">key</span>;</span></span><br><span class="line">    *sem = (struct semaphore) __SEMAPHORE_INITIALIZER(*sem, val);</span><br><span class="line">    lockdep_init_map(&amp;sem-&gt;lock.dep_map, <span class="string">&quot;semaphore-&gt;lock&quot;</span>, &amp;__key, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将信号量初始化为 1，是因为 hello_dev 字符设备需要保证互斥访问，即同一时间只有1个进程或线程能够访问这个设备</li>
+</ul>
+<h3 id="1-2-3-使用信号量解决上述的竞争条件问题"><a href="#1-2-3-使用信号量解决上述的竞争条件问题" class="headerlink" title="1.2.3 使用信号量解决上述的竞争条件问题"></a>1.2.3 使用信号量解决上述的竞争条件问题</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hello_open</span><span class="params">(struct inode *p, struct file *f)</span> </span>&#123;</span><br><span class="line">    down(&amp;sema);</span><br><span class="line">    <span class="keyword">if</span> (open_count &gt;= <span class="number">1</span>) &#123;</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;device is busy, hello open failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -EBUSY;</span><br><span class="line">    &#125;</span><br><span class="line">    ++open_count;</span><br><span class="line">    up(&amp;sema);</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_open ok\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>之前的 hello_open 函数代码之所以存在竞争条件问题，是因为打开设备的过程被分为两个步骤：判断使用量、增加使用量，不具有原子性</li>
+<li>将判断、增加使用量的代码称为临界区，在进入临界区之前，先调用 down 函数，将信号量 sema 的值减 1；离开临界区时，调用 up 函数，对信号量 sema 的值加 1</li>
+</ul>
+<h3 id="1-2-4-原理浅析"><a href="#1-2-4-原理浅析" class="headerlink" title="1.2.4 原理浅析"></a>1.2.4 原理浅析</h3><h4 id="1-2-4-1-基本原理"><a href="#1-2-4-1-基本原理" class="headerlink" title="1.2.4.1 基本原理"></a>1.2.4.1 基本原理</h4><ul>
+<li>当对某个信号量调用 down 函数，会对信号量的值减 1，如果得到的结果不小于 0，则可以继续执行临界区代码；如果得到的结果小于 0，则会导致进程被阻塞休眠</li>
+<li>当对某个信号量调用 up 函数，会对信号量的值加 1，如果得到的结果不大于0，就会从进程阻塞队列中根据某种策略选取 1 个进程唤出，执行临界区代码</li>
+</ul>
+<h4 id="1-2-4-2-案例分析"><a href="#1-2-4-2-案例分析" class="headerlink" title="1.2.4.2 案例分析"></a>1.2.4.2 案例分析</h4><ul>
+<li>在初始情况下，信号量 sema 被初始化为 1，此时进程 A 调用 down 函数，将信号量的值减 1，得到的结果为 0，可以继续执行临界区代码</li>
+<li>在进程 A 调用 up 函数前，进程 B 也想使用同一设备，于是调用 down 函数，对信号量 sema 的值减 1，得到结果为 -1，从而被阻塞</li>
+<li>当进程 A 执行完临界区代码后，调用 up 函数，将信号量 sema 的值加 1，得到结果为 0，于是将进程 B 从进程阻塞队列唤出，于是 B 也能执行临界区代码</li>
+<li>进程 B 执行完临界区代码后，也调用 up 函数，将信号量 sema 的值加 1，又回到初始状态 1</li>
+</ul>
+<h1 id="2-Semaphore-源码浅析"><a href="#2-Semaphore-源码浅析" class="headerlink" title="2 Semaphore 源码浅析"></a>2 Semaphore 源码浅析</h1><h2 id="2-1-数据结构"><a href="#2-1-数据结构" class="headerlink" title="2.1 数据结构"></a>2.1 数据结构</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Please don&#x27;t access any members of this structure directly */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">semaphore</span> &#123;</span></span><br><span class="line">    <span class="keyword">raw_spinlock_t</span>      lock;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span>        count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span>    <span class="title">wait_list</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 semaphore 结构体内部有 3 个成员变量，分别是：自旋锁 lock、计数器 count、双向链表 wait_list</li>
+<li>在 linux 内核中，已经实现了双向链表，类型为 struct list_head，无需再自己实现</li>
+</ul>
+<h2 id="2-2-初始化信号量的过程"><a href="#2-2-初始化信号量的过程" class="headerlink" title="2.2 初始化信号量的过程"></a>2.2 初始化信号量的过程</h2><h3 id="2-2-1-宏初始化"><a href="#2-2-1-宏初始化" class="headerlink" title="2.2.1 宏初始化"></a>2.2.1 宏初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __SEMAPHORE_INITIALIZER(name, n)                \</span></span><br><span class="line"><span class="meta">&#123;                                   \</span></span><br><span class="line"><span class="meta">    .lock       = __RAW_SPIN_LOCK_UNLOCKED((name).lock),    \</span></span><br><span class="line"><span class="meta">    .count      = n,                        \</span></span><br><span class="line"><span class="meta">    .wait_list  = LIST_HEAD_INIT((name).wait_list),     \</span></span><br><span class="line"><span class="meta">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>以宏定义的形式初始化信号量结构体内部的 3 个成员：锁、计数器和双向链表</p>
+<h3 id="2-2-2-函数初始化"><a href="#2-2-2-函数初始化" class="headerlink" title="2.2.2 函数初始化"></a>2.2.2 函数初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">sema_init</span><span class="params">(struct semaphore *sem, <span class="keyword">int</span> val)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">lock_class_key</span> __<span class="title">key</span>;</span></span><br><span class="line">    *sem = (struct semaphore) __SEMAPHORE_INITIALIZER(*sem, val);</span><br><span class="line">    lockdep_init_map(&amp;sem-&gt;lock.dep_map, <span class="string">&quot;semaphore-&gt;lock&quot;</span>, &amp;__key, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-获取信号量的过程"><a href="#2-3-获取信号量的过程" class="headerlink" title="2.3 获取信号量的过程"></a>2.3 获取信号量的过程</h2><h3 id="2-3-1-down-函数"><a href="#2-3-1-down-函数" class="headerlink" title="2.3.1 down 函数"></a>2.3.1 down 函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * down - acquire the semaphore</span></span><br><span class="line"><span class="comment"> * @sem: the semaphore to be acquired</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Acquires the semaphore.  If no more tasks are allowed to acquire the</span></span><br><span class="line"><span class="comment"> * semaphore, calling this function will put the task to sleep until the</span></span><br><span class="line"><span class="comment"> * semaphore is released.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Use of this function is deprecated, please use down_interruptible() or</span></span><br><span class="line"><span class="comment"> * down_killable() instead.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">down</span><span class="params">(struct semaphore *sem)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line"></span><br><span class="line">    raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);</span><br><span class="line">    <span class="keyword">if</span> (likely(sem-&gt;count &gt; <span class="number">0</span>))</span><br><span class="line">        sem-&gt;count--;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        __down(sem);</span><br><span class="line">    raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为对信号量 sem 内部成员的访问可能是并发的，所以使用自旋锁 sem-&gt;lock 确保共享变量的互斥访问</li>
+<li>如果此时计数器 sem-&gt;count 大于 0，则将其减 1，然后释放自旋锁 sem-&gt; lock，退出 down 函数</li>
+<li>如果此时计数器 sem-&gt;count 小于或等于 0，则调用 __down 函数</li>
+</ul>
+<h3 id="2-3-2-down-函数"><a href="#2-3-2-down-函数" class="headerlink" title="2.3.2 __down 函数"></a>2.3.2 __down 函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> noinline <span class="keyword">void</span> __sched __down(struct semaphore *sem)</span><br><span class="line">&#123;</span><br><span class="line">    __down_common(sem, TASK_UNINTERRUPTIBLE, MAX_SCHEDULE_TIMEOUT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>down 函数内部又调用 __down_common 函数</li>
+<li>宏 TASK_UNINTERRUPTIBLE 表示进程不可中断的睡眠状态，宏 MAX_SCHEDULE_TIMEOUT 被定义成 LONG_MAX</li>
+</ul>
+<h3 id="2-3-3-down-common-函数"><a href="#2-3-3-down-common-函数" class="headerlink" title="2.3.3 __down_common 函数"></a>2.3.3 __down_common 函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">int</span> __sched __down_common(struct semaphore *sem, <span class="keyword">long</span> state, <span class="keyword">long</span> timeout)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span> =</span> current;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">semaphore_waiter</span> <span class="title">waiter</span>;</span></span><br><span class="line"></span><br><span class="line">    list_add_tail(&amp;waiter.<span class="built_in">list</span>, &amp;sem-&gt;wait_list);</span><br><span class="line">    waiter.task = task;</span><br><span class="line">    waiter.up = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="keyword">if</span> (signal_pending_state(state, task))</span><br><span class="line">            <span class="keyword">goto</span> interrupted; <span class="comment">//因中断信号而结束</span></span><br><span class="line">        <span class="keyword">if</span> (unlikely(timeout &lt;= <span class="number">0</span>))</span><br><span class="line">            <span class="keyword">goto</span> timed_out; <span class="comment">// //因超时而结束</span></span><br><span class="line">        __set_task_state(task, state);</span><br><span class="line">        raw_spin_unlock_irq(&amp;sem-&gt;lock);</span><br><span class="line">        timeout = schedule_timeout(timeout);</span><br><span class="line">        raw_spin_lock_irq(&amp;sem-&gt;lock);</span><br><span class="line">        <span class="keyword">if</span> (waiter.up)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"> timed_out:</span><br><span class="line">    list_del(&amp;waiter.<span class="built_in">list</span>);</span><br><span class="line">    <span class="keyword">return</span> -ETIME;</span><br><span class="line"></span><br><span class="line"> interrupted:</span><br><span class="line">    list_del(&amp;waiter.<span class="built_in">list</span>);</span><br><span class="line">    <span class="keyword">return</span> -EINTR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 linux 内核源码中，task_struct 类型是进程的抽象，current 指针始终指向当前正在执行中的进程，在 __down_common 函数的第一行定义 task_struct 类型指针 task 指向当前进程</li>
+<li>将当前进程加入到信号量 sem 的等待队列 wait_list 中，这里用双向链表模拟队列，添加元素到表尾即为入队，从表头取出元素即为出队</li>
+<li>进入 for 循环内部，signal_pending_state 函数判断当前是否存在中断信号，如果有就跳出死循环，将进程从阻塞队列中移除，__down_common 函数返回 -EINTR</li>
+<li>如果 timeout 小于等于 0，则因为超时跳出死循环，将进程从阻塞队列中移除，__down_common 函数返回 -ETIME</li>
+<li>schedule_timeout 函数将当前进程置于休眠状态，等待 timeout 时间后继续执行</li>
+<li>如果其他进程对这个信号量调用了 up 函数，那么 waiter.up 就置为 1，__down_common 函数返回 0</li>
+</ul>
+<h2 id="2-4-释放信号量的过程"><a href="#2-4-释放信号量的过程" class="headerlink" title="2.4 释放信号量的过程"></a>2.4 释放信号量的过程</h2><h3 id="2-4-1-up-函数"><a href="#2-4-1-up-函数" class="headerlink" title="2.4.1 up 函数"></a>2.4.1 up 函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * up - release the semaphore</span></span><br><span class="line"><span class="comment"> * @sem: the semaphore to release</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Release the semaphore.  Unlike mutexes, up() may be called from any</span></span><br><span class="line"><span class="comment"> * context and even by tasks which have never called down().</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">up</span><span class="params">(struct semaphore *sem)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags;</span><br><span class="line"></span><br><span class="line">    raw_spin_lock_irqsave(&amp;sem-&gt;lock, flags);</span><br><span class="line">    <span class="keyword">if</span> (likely(list_empty(&amp;sem-&gt;wait_list)))</span><br><span class="line">        sem-&gt;count++;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        __up(sem);</span><br><span class="line">    raw_spin_unlock_irqrestore(&amp;sem-&gt;lock, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为对信号量 sem 内部成员的访问可能是并发的，所以使用自旋锁 sem-&gt;lock 确保共享变量的互斥访问</li>
+<li>如果此时等待队列是空的，则将 count 加 1，然后释放自旋锁 sem-&gt; lock，退出 up 函数</li>
+<li>如果此时等待队列不为空，调用 __up 函数</li>
+</ul>
+<h3 id="2-4-2-up-函数"><a href="#2-4-2-up-函数" class="headerlink" title="2.4.2 __up 函数"></a>2.4.2 __up 函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> noinline <span class="keyword">void</span> __sched __up(struct semaphore *sem)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">semaphore_waiter</span> *<span class="title">waiter</span> =</span> list_first_entry(&amp;sem-&gt;wait_list,</span><br><span class="line">                        struct semaphore_waiter, <span class="built_in">list</span>);</span><br><span class="line">    list_del(&amp;waiter-&gt;<span class="built_in">list</span>);</span><br><span class="line">    waiter-&gt;up = <span class="literal">true</span>;</span><br><span class="line">    wake_up_process(waiter-&gt;task);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>取出信号量 sem 等待队列的第一个进程，调用 wake_up_process 函数唤醒这个处于睡眠状态的进程，使其由睡眠状态变为RUNNING状态，从而能够被CPU重新调度执行</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" rel="tag"># 并发编程</a>
+              <a href="/tags/linux%E5%86%85%E6%A0%B8/" rel="tag"># linux内核</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81/" rel="tag"># 源码</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/21/x86-%E6%AE%B5%E9%A1%B5%E5%BC%8F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%92%8C%E9%A1%B5%E8%A1%A8%E6%98%A0%E5%B0%84/" rel="prev" title="x86 段页式内存管理和页表映射">
+      <i class="fa fa-chevron-left"></i> x86 段页式内存管理和页表映射
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-%E5%86%85%E6%A0%B8%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6%E4%B9%8B-Semaphore"><span class="nav-text">Linux 内核同步机制之 Semaphore</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Semaphore-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">1 Semaphore 的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E7%AB%9E%E4%BA%89%E6%9D%A1%E4%BB%B6"><span class="nav-text">1.1 竞争条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E4%BD%BF%E7%94%A8-Semaphore-%E5%AE%9E%E7%8E%B0%E4%BA%92%E6%96%A5"><span class="nav-text">1.2 使用 Semaphore 实现互斥</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-%E5%A3%B0%E6%98%8E"><span class="nav-text">1.2.1 声明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-text">1.2.2 初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-%E4%BD%BF%E7%94%A8%E4%BF%A1%E5%8F%B7%E9%87%8F%E8%A7%A3%E5%86%B3%E4%B8%8A%E8%BF%B0%E7%9A%84%E7%AB%9E%E4%BA%89%E6%9D%A1%E4%BB%B6%E9%97%AE%E9%A2%98"><span class="nav-text">1.2.3 使用信号量解决上述的竞争条件问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-4-%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90"><span class="nav-text">1.2.4 原理浅析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-4-1-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-text">1.2.4.1 基本原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-4-2-%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-text">1.2.4.2 案例分析</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Semaphore-%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90"><span class="nav-text">2 Semaphore 源码浅析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">2.1 数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-text">2.2 初始化信号量的过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-%E5%AE%8F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-text">2.2.1 宏初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-%E5%87%BD%E6%95%B0%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-text">2.2.2 函数初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E8%8E%B7%E5%8F%96%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-text">2.3 获取信号量的过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-1-down-%E5%87%BD%E6%95%B0"><span class="nav-text">2.3.1 down 函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-2-down-%E5%87%BD%E6%95%B0"><span class="nav-text">2.3.2 __down 函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-3-down-common-%E5%87%BD%E6%95%B0"><span class="nav-text">2.3.3 __down_common 函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E9%87%8A%E6%94%BE%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-text">2.4 释放信号量的过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-1-up-%E5%87%BD%E6%95%B0"><span class="nav-text">2.4.1 up 函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-2-up-%E5%87%BD%E6%95%B0"><span class="nav-text">2.4.2 __up 函数</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lining Hoo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lining Hoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
