@@ -155,6 +155,148 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/" class="post-title-link" itemprop="url">内核空间和用户空间的数据拷贝</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-21 17:30:45 / 修改时间：17:40:01" itemprop="dateCreated datePublished" datetime="2021-11-21T17:30:45+08:00">2021-11-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="内核空间和用户空间的数据拷贝"><a href="#内核空间和用户空间的数据拷贝" class="headerlink" title="内核空间和用户空间的数据拷贝"></a>内核空间和用户空间的数据拷贝</h1><h1 id="1-内核空间和用户空间"><a href="#1-内核空间和用户空间" class="headerlink" title="1 内核空间和用户空间"></a>1 内核空间和用户空间</h1><h2 id="1-1-地址空间的划分"><a href="#1-1-地址空间的划分" class="headerlink" title="1.1 地址空间的划分"></a>1.1 地址空间的划分</h2><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/1.png" alt="img"></p>
+<ul>
+<li>32位地址总线的寻址范围是4GB，默认情况下，在32位系统中，处于低地址的3GB地址被分配给用户空间，处于高地址的1GB地址被分配给内核空间</li>
+<li>在 arch/x86/include/asm/page_32_types.h 中有如下定义，</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * This handles the memory map.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * A __PAGE_OFFSET of 0xC0000000 means that the kernel has</span></span><br><span class="line"><span class="comment"> * a virtual address space of one gigabyte, which limits the</span></span><br><span class="line"><span class="comment"> * amount of physical memory you can use to about 950MB.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * If you want more physical memory than this then see the CONFIG_HIGHMEM4G</span></span><br><span class="line"><span class="comment"> * and CONFIG_HIGHMEM64G options in the kernel configuration.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PAGE_OFFSET_BASE  _AC(CONFIG_PAGE_OFFSET, UL)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PAGE_OFFSET       __PAGE_OFFSET_BASE</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-用户空间和内核空间的区别"><a href="#1-2-用户空间和内核空间的区别" class="headerlink" title="1.2 用户空间和内核空间的区别"></a>1.2 用户空间和内核空间的区别</h2><h3 id="1-2-1-权限不同"><a href="#1-2-1-权限不同" class="headerlink" title="1.2.1 权限不同"></a>1.2.1 权限不同</h3><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/2.png" alt="img"></p>
+<ul>
+<li>对于 x86 体系的 CPU，用户空间代码运行在 Ring3 模式，内核空间代码运行在 Ring0 模式</li>
+<li>对于 arm 体系的 CPU， 用户空间代码运行在 usr 模式，内核空间代码运行在 svc 模式</li>
+</ul>
+<h3 id="1-2-2-安全考量"><a href="#1-2-2-安全考量" class="headerlink" title="1.2.2 安全考量"></a>1.2.2 安全考量</h3><ul>
+<li>整个系统中有各种资源，比如计算资源、内存资源和外设资源，而 linux 是多用户、多进程系统，所以这些资源必须在受限的、被管理的状态下使用，否则就会陷入混乱。空间隔离可以保证即使是单个应用程序出现错误也不会影响到操作系统的稳定性</li>
+</ul>
+<h3 id="1-2-3-侧重点"><a href="#1-2-3-侧重点" class="headerlink" title="1.2.3 侧重点"></a>1.2.3 侧重点</h3><ul>
+<li>内核代码偏重于系统管理；而用户空间代码（也即应用程序）偏重于业务逻辑的实现</li>
+</ul>
+<h2 id="1-3-应用程序使用内核提供的服务"><a href="#1-3-应用程序使用内核提供的服务" class="headerlink" title="1.3 应用程序使用内核提供的服务"></a>1.3 应用程序使用内核提供的服务</h2><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/3.png" alt="img"></p>
+<ul>
+<li>CPU、内存、外设、文件等资源是受保护的，用户进程无法直接操作，必须以系统调用的形式访问</li>
+<li>当应用程序要使用内核提供的服务时，要通过 “访管” 指令陷入到内核态，触发软中断，执行对应的系统调用</li>
+<li>当处于进程上下文的程序在运行时，如果发生定时器中断、外设中断，当前进程会被打断，CPU 进入内核态去执行对应的中断处理程序，处理结束后再回到用户进程</li>
+</ul>
+<h1 id="2-数据拷贝"><a href="#2-数据拷贝" class="headerlink" title="2 数据拷贝"></a>2 数据拷贝</h1><h2 id="2-1-用户空间向内核空间拷贝数据"><a href="#2-1-用户空间向内核空间拷贝数据" class="headerlink" title="2.1 用户空间向内核空间拷贝数据"></a>2.1 用户空间向内核空间拷贝数据</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_write</span><span class="params">(struct file *f, <span class="keyword">const</span> <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_write\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">int</span> write_len = BUFFER_MAX &gt; s ? s : BUFFER_MAX;</span><br><span class="line">    <span class="keyword">if</span> (copy_from_user(buffer, u, write_len)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> write_len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>指针 u 用 __user 宏修饰，表示这是用户空间指针，内核不能直接使用</li>
+<li>在内核空间定义缓冲区 buffer，存放 hello_dev 字符设备的数据</li>
+<li>write_len 取缓冲区容量 BUFFER_MAX 和字符长度 s 的最小值，防止越界</li>
+<li>调用 copy_from_user 函数执行用户空间到内核空间的数据拷贝，传入内核空间地址、用户空间地址、数据长度，成功返回零，失败返回非零值</li>
+</ul>
+<h2 id="2-2-内核空间向用户空间拷贝数据"><a href="#2-2-内核空间向用户空间拷贝数据" class="headerlink" title="2.2 内核空间向用户空间拷贝数据"></a>2.2 内核空间向用户空间拷贝数据</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_read</span><span class="params">(struct file *f, <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_read\r\n&quot;</span>);   </span><br><span class="line">    <span class="keyword">int</span> read_len = BUFFER_MAX &gt; s ? s : BUFFER_MAX;</span><br><span class="line">    <span class="keyword">if</span> (copy_to_user(u, buffer, read_len)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;   </span><br><span class="line">    <span class="keyword">return</span> read_len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用 copy_to_user 函数执行内核空间到用户空间的数据拷贝，传入用户空间地址、内核空间地址、数据长度，成功返回零，失败返回非零值</li>
+</ul>
+<h2 id="2-3-测试"><a href="#2-3-测试" class="headerlink" title="2.3 测试"></a>2.3 测试</h2><h3 id="2-3-1-创建字符设备"><a href="#2-3-1-创建字符设备" class="headerlink" title="2.3.1 创建字符设备"></a>2.3.1 创建字符设备</h3><ul>
+<li>重新编译内核，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br><span class="line">............</span><br><span class="line">Kernel: arch/x86/boot/bzImage is ready  (<span class="comment">#3)</span></span><br><span class="line">Building modules, stage 2.</span><br><span class="line">MODPOST 19 modules</span><br><span class="line">LD [M]  drivers/char/hello_dev.ko</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>加载 hello_dev 驱动模块，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod hello_dev.ko</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建 hello_dev 字符设备，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mknod /dev/hello c 232 0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加访问权限，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo chmod a+w /dev/hello</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-2-编译、运行测试程序"><a href="#2-3-2-编译、运行测试程序" class="headerlink" title="2.3.2 编译、运行测试程序"></a>2.3.2 编译、运行测试程序</h3><ul>
+<li>测试程序，</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DATA_LEN (32)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[DATA_LEN] = <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/dev/hello&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == fd) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open file error\r\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;open success\r\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> w_len = write(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="number">0</span>, DATA_LEN);</span><br><span class="line">    <span class="keyword">int</span> r_len = read(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d\r\n&quot;</span>, w_len, r_len);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\r\n&quot;</span>, buf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc hello_dev_test.c -o hello_dev_test</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>运行，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ./hello_dev_test </span><br><span class="line">open success</span><br><span class="line">32 32</span><br><span class="line">Hello, world!</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1432,172 +1574,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/" class="post-title-link" itemprop="url">MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-10-25 23:43:16 / 修改时间：23:53:00" itemprop="dateCreated datePublished" datetime="2021-10-25T23:43:16+08:00">2021-10-25</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"><a href="#MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复" class="headerlink" title="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"></a>MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</h1><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h2 id="混合存储设备"><a href="#混合存储设备" class="headerlink" title="混合存储设备"></a>混合存储设备</h2><ul>
-<li>固态硬盘相比于传统的机械硬盘，在处理随机小I/O时具有更出色的表现</li>
-<li>但是现在固态硬盘的价格依然比机械硬盘昂贵得多</li>
-<li>近些年，提出了混合存储设备的概念，例如SSHD技术，将SSD作为HHD的高速缓存，以低成本的方式提供更快速的读写</li>
-</ul>
-<h2 id="DM-Cache-概览"><a href="#DM-Cache-概览" class="headerlink" title="DM-Cache 概览"></a>DM-Cache 概览</h2><ul>
-<li>DM-Cache是Linux内核设备映射器的一个组件，实现了物理块设备到虚拟块设备的映射，其将SSDs和HHDs映射到虚拟块设备，SSD作为HHD的高速缓存</li>
-<li>Linux中I/O设备分为两类：块设备和字符设备，SSD和HHD都属于块设备</li>
-</ul>
-<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/arch.png" alt="img"></p>
-<ul>
-<li>虚拟块设备是一种抽象，应用程序将数据写入虚拟块设备、获得ACK确认，从虚拟块设备读取数据，底层的SSD、HHD操作对应用程序是透明的</li>
-<li>DM-Cache元数据(metadata)存储：SSD块和对应HHD块之间的映射关系、“脏”位、当前采用策略相关的元数据</li>
-<li>若采用写回法(writeback)的模式，有两种可能的情况：</li>
-</ul>
-<p>(1) 被修改的块在缓存中：</p>
-<p>不需要更新元数据中SSD块和对应HHD块之间的映射关系，但是要在将“脏”位信息放到内存中后向调用方发送ACK确认，之后由异步任务将“脏”位信息持久化到元数据驱动器上</p>
-<p>(2) 被修改的块不在缓存中：</p>
-<p>需要将HHD块加载到SSD缓存中，同步修改元数据中SSD块和对应HHD块之间的映射关系，之后的步骤和情况(1)中一样</p>
-<ul>
-<li>如果写局部性较高，则缓存命中率高，不需要频繁修改元数据中的映射关系，这样“脏”位的同步会造成更大的影响</li>
-<li>MapperX使用ABT(adaptive bit-tree)数据结构同步地以层次结构的形式维护”脏”位元数据；ABT用一个比特位表示某个连续范围内的数据块</li>
-</ul>
-<h2 id="DM-Cache-的缺陷"><a href="#DM-Cache-的缺陷" class="headerlink" title="DM-Cache 的缺陷"></a>DM-Cache 的缺陷</h2><ul>
-<li>DM-Cache默认在发生写操作时先将“脏”位信息放入内存中，之后再由异步任务写入元数据驱动器，因为内存是易失性设备，断电后数据消失，这样当系统崩溃时，无法得知SSD缓存中哪些是“脏”数据，只好假定SSD缓存中全部都是“脏”数据（即使大部分数据块是一致的），全都要写入HHD，导致崩溃恢复时间长、系统可用性差</li>
-</ul>
-<h1 id="MapperX"><a href="#MapperX" class="headerlink" title="MapperX"></a>MapperX</h1><h2 id="CBT"><a href="#CBT" class="headerlink" title="CBT"></a>CBT</h2><ul>
-<li>有1个在内存中的位图，记录着全部数据块的状态(1个bit代表对应数据块是否为“脏”，即不一致)，首先把这个位图展开成度为d的树，称为CBT(Complete bit-tree)</li>
-<li>展开方式：数据块的个数最好为d的幂次，刚开始一分为d，分为d个子树，然后递归划分下去，最后叶子结点就代表位图中的某个bit</li>
-</ul>
-<h2 id="ABT"><a href="#ABT" class="headerlink" title="ABT"></a>ABT</h2><ul>
-<li>MapperX在元数据存储器中维护着CBT的摘要，称之为ABT(Adaptive bit-tree)</li>
-<li>对于每次写操作，ABT同步更新</li>
-<li>ABT的结点表示某个连续范围内的数据块状态，初始状态是只有一个“干净”的根结点，表示SSD缓存和HHD数据完全一致</li>
-</ul>
-<h2 id="自适应算法"><a href="#自适应算法" class="headerlink" title="自适应算法"></a>自适应算法</h2><h3 id="BitTreeUpdate"><a href="#BitTreeUpdate" class="headerlink" title="BitTreeUpdate"></a>BitTreeUpdate</h3><ol>
-<li>更新内存中的位图(每一bit表示某个数据块，0代表数据一致，1代表存在“脏”数据)</li>
-<li>更新CBT：当某个结点任何一个子孙结点状态为“脏”，置这个结点状态为脏；如果所有子孙结点都“干净”，这个结点状态也为“干净”</li>
-<li>如果写操作导致ABT的某个叶子结点变“脏”，根据CBT修改磁盘上的ABT</li>
-</ol>
-<h3 id="PeriodicAdjust"><a href="#PeriodicAdjust" class="headerlink" title="PeriodicAdjust"></a>PeriodicAdjust</h3><ul>
-<li>参数列表：</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>类型</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>p</td>
-<td>时间</td>
-<td>异步任务执行周期(采样间隔，默认为1s)</td>
-</tr>
-<tr>
-<td>n</td>
-<td>整数</td>
-<td>SLA(Service-Level Agreement)</td>
-</tr>
-<tr>
-<td>abt</td>
-<td>树</td>
-<td>自适应树ABT</td>
-</tr>
-</tbody></table>
-<ul>
-<li>算法：</li>
-</ul>
-<ol>
-<li>置W为客户端在异步任务执行周期p内的写入操作次数</li>
-<li>置N为元数据驱动器被写入的次数</li>
-<li>如果 N/W ≥  1/(10^n)，认定元数据写入频率太高了，因为元数据修改是同步的，这会降低写操作的性能，在ABT中找到所有叶子结点的直接父结点，在这个范围内寻找在周期p中导致最多元数据写操作的结点，在ABT中将它的子结点移除</li>
-<li>如果 N/W &lt;  1/(10^n)，认定还可以接受更高一点频率的元数据写入，于是在ABT中找到周期p内最少元数据写入的叶子结点，在它的下方生成d个子结点，状态根据CBT设置</li>
-</ol>
-<h2 id="快速崩溃恢复策略"><a href="#快速崩溃恢复策略" class="headerlink" title="快速崩溃恢复策略"></a>快速崩溃恢复策略</h2><ul>
-<li>因为元数据是在每次写操作发生时同步更新的，所以在ABT中的叶子结点对“脏”状态的判断不存在假阴性，也就是说，如果一个叶子结点的状态不为“脏”，那么它所表示的连续数据块也就没有“脏”数据，在数据恢复时可以安全地跳过这些块</li>
-<li>对于ABT中每个状态为“脏”的叶子结点，其所表示范围的SSD缓存块全都写回HHD</li>
-</ul>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><ul>
-<li>重用DM-Cache原有的4字节元数据类型，最后两位分别是“脏”位和有效位，将所有4字节元数据的前30位组织成一个位数组，每一bit表示1个结点，以宽度优先的方式表示</li>
-<li>V-ABT和CBT具有相同的层数和叶子结点数，但是只要状态为“脏”的<strong>叶子结点</strong>标记为1，其余结点标记为0</li>
-<li>例如：</li>
-</ul>
-<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/tree.png" alt="img"></p>
-<p>上图是1个V-ABT，度为2，层数为4，有两个“脏”状态的叶子结点被标记为1，根据宽度优先，可以将这个V-ABT表示成1个15个bit的位数组：001010000000000</p>
-<h1 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h1><h2 id="写入时延"><a href="#写入时延" class="headerlink" title="写入时延"></a>写入时延</h2><ul>
-<li>根据实验数据，使用MapperX后，写入时延相比于原有的DM-Cache略微高一些，但是远低于使用同步写“脏”位元数据的策略</li>
-<li>MapperX本质上也是同步写“脏”位元数据，但是利用了客户端写操作的局部性原理，减少了对元数据的写入次数</li>
-<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，客户端写入时延增加</li>
-</ul>
-<h2 id="IOPS-writes-per-sec"><a href="#IOPS-writes-per-sec" class="headerlink" title="IOPS(writes per sec)"></a>IOPS(writes per sec)</h2><ul>
-<li>根据实验数据，使用MapperX后，IOPS低于原有的DM-Cache，远高于使用同步写“脏”位元数据的策略</li>
-</ul>
-<h2 id="恢复时间"><a href="#恢复时间" class="headerlink" title="恢复时间"></a>恢复时间</h2><ul>
-<li>根据实验数据，使用MapperX后，崩溃恢复时间相比于原有的DM-Cache显著减少</li>
-<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，恢复时间减少，这是因为在<strong>PeriodicAdjust</strong>过程中，当N/W小于β时会在ABT中增加叶子结点，从而叶子结点表示范围粒度更细，在崩溃恢复的时候，需要写回HHD的缓存块个数更少</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1667,7 +1643,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
