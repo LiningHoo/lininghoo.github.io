@@ -155,6 +155,93 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/01/%E5%9F%BA%E4%BA%8E-busybox-%E6%89%93%E5%8C%85%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E9%80%9A%E8%BF%87-qemu-%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/01/%E5%9F%BA%E4%BA%8E-busybox-%E6%89%93%E5%8C%85%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E9%80%9A%E8%BF%87-qemu-%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" class="post-title-link" itemprop="url">基于 busybox 打包、制作根文件系统并通过 qemu 启动内核和文件系统</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-01 01:20:31 / 修改时间：01:22:40" itemprop="dateCreated datePublished" datetime="2021-11-01T01:20:31+08:00">2021-11-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="基于-busybox-打包、制作根文件系统并通过-qemu-启动内核和文件系统"><a href="#基于-busybox-打包、制作根文件系统并通过-qemu-启动内核和文件系统" class="headerlink" title="基于 busybox 打包、制作根文件系统并通过 qemu 启动内核和文件系统"></a>基于 busybox 打包、制作根文件系统并通过 qemu 启动内核和文件系统</h1><h1 id="1-busybox-打包、制作根文件系统"><a href="#1-busybox-打包、制作根文件系统" class="headerlink" title="1 busybox 打包、制作根文件系统"></a>1 busybox 打包、制作根文件系统</h1><h2 id="1-1-制作空镜像文件"><a href="#1-1-制作空镜像文件" class="headerlink" title="1.1 制作空镜像文件"></a>1.1 制作空镜像文件</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ dd if=/dev/zero of=./rootfs.ext3 bs=1M count=32 </span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-将此镜像文件格式化为ext3格式"><a href="#1-2-将此镜像文件格式化为ext3格式" class="headerlink" title="1.2 将此镜像文件格式化为ext3格式"></a>1.2 将此镜像文件格式化为ext3格式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mkfs.ext3 rootfs.ext3 </span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-挂载镜像文件，将根文件系统复制到挂载目录"><a href="#1-3-挂载镜像文件，将根文件系统复制到挂载目录" class="headerlink" title="1.3 挂载镜像文件，将根文件系统复制到挂载目录"></a>1.3 挂载镜像文件，将根文件系统复制到挂载目录</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir fs</span><br><span class="line">$ mount -o loop rootfs.ext3 ./fs</span><br><span class="line">$ cp -rf ./_install/* ./fs </span><br></pre></td></tr></table></figure>
+
+<h2 id="1-4-卸载镜像文件"><a href="#1-4-卸载镜像文件" class="headerlink" title="1.4 卸载镜像文件"></a>1.4 卸载镜像文件</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ umount ./fs </span><br></pre></td></tr></table></figure>
+
+<h2 id="1-5-打包-gzip-包"><a href="#1-5-打包-gzip-包" class="headerlink" title="1.5 打包 gzip 包"></a>1.5 打包 gzip 包</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gzip --best -c rootfs.ext3 &gt; rootfs.img.gz </span><br></pre></td></tr></table></figure>
+
+<h1 id="2-通过-qemu-启动内核和文件系统"><a href="#2-通过-qemu-启动内核和文件系统" class="headerlink" title="2 通过 qemu 启动内核和文件系统"></a>2 通过 qemu 启动内核和文件系统</h1><h2 id="2-1-安装-qemu"><a href="#2-1-安装-qemu" class="headerlink" title="2.1 安装 qemu"></a>2.1 安装 qemu</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt install qemu</span><br><span class="line">$ sudo apt install qemu-system-x86</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-启动内核和文件系统"><a href="#2-2-启动内核和文件系统" class="headerlink" title="2.2 启动内核和文件系统"></a>2.2 启动内核和文件系统</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ qemu-system-x86_64 \</span><br><span class="line">  -kernel ./linux-4.9.229/arch/x86_64/boot/bzImage  \</span><br><span class="line">  -initrd ./busybox-1.30.0/rootfs.img.gz   \</span><br><span class="line">  -append &quot;root=/dev/ram init=/linuxrc&quot;  \</span><br><span class="line">  -serial file:output.txt </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/01/%E5%9F%BA%E4%BA%8E-busybox-%E6%89%93%E5%8C%85%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E9%80%9A%E8%BF%87-qemu-%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/qemu1.png" alt="img"></p>
+<h2 id="2-3-执行一些命令作为测试，"><a href="#2-3-执行一些命令作为测试，" class="headerlink" title="2.3 执行一些命令作为测试，"></a>2.3 执行一些命令作为测试，</h2><p><img src="/2021/11/01/%E5%9F%BA%E4%BA%8E-busybox-%E6%89%93%E5%8C%85%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E9%80%9A%E8%BF%87-qemu-%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/qemu2.png" alt="img"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/01/%E7%BC%96%E8%AF%91-linux-%E5%86%85%E6%A0%B8%E5%92%8C-busybox-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1339,95 +1426,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/01/Sarama-Kafka-%E6%B6%88%E8%B4%B9%E8%80%85-Client/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/10/01/Sarama-Kafka-%E6%B6%88%E8%B4%B9%E8%80%85-Client/" class="post-title-link" itemprop="url">Sarama Kafka 消费者 Client</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-10-01 17:42:10 / 修改时间：17:45:51" itemprop="dateCreated datePublished" datetime="2021-10-01T17:42:10+08:00">2021-10-01</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Sarama-Kafka-消费者-Client"><a href="#Sarama-Kafka-消费者-Client" class="headerlink" title="Sarama Kafka 消费者 Client"></a>Sarama Kafka 消费者 Client</h1><h1 id="1-创建新的消费者"><a href="#1-创建新的消费者" class="headerlink" title="1 创建新的消费者"></a>1 创建新的消费者</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">consumer, err := sarama.NewConsumer([]<span class="keyword">string</span>&#123;<span class="string">&quot;127.0.0.1:9092&quot;</span>&#125;, <span class="literal">nil</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logrus.Errorf(<span class="string">&quot;failed to create kafka consumer: %w&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-获取指定topic下的所有分区列表"><a href="#2-获取指定topic下的所有分区列表" class="headerlink" title="2 获取指定topic下的所有分区列表"></a>2 获取指定topic下的所有分区列表</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">topicName := <span class="string">&quot;web_log&quot;</span></span><br><span class="line">partitionList, err := consumer.Partitions(topicName)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logrus.Errorf(<span class="string">&quot;failed to get list of partition: %w&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(<span class="string">&quot;partitionList:&quot;</span>, partitionList)</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-针对每个分区创建一个对应的分区消费者"><a href="#3-针对每个分区创建一个对应的分区消费者" class="headerlink" title="3 针对每个分区创建一个对应的分区消费者"></a>3 针对每个分区创建一个对应的分区消费者</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line"><span class="keyword">for</span> _, partition := <span class="keyword">range</span> partitionList &#123;</span><br><span class="line">    partConsumer, err := consumer.ConsumePartition(topicName, partition, sarama.OffsetNewest)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        logrus.Errorf(<span class="string">&quot;failed to create consumer for partition %d: %w&quot;</span>, partition, err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">defer</span> partConsumer.AsyncClose()</span><br><span class="line">    <span class="comment">// 异步从每个分区消费信息</span></span><br><span class="line">    wg.Add(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> msg := <span class="keyword">range</span> partConsumer.Messages() &#123;</span><br><span class="line">            logrus.Infof(<span class="string">&quot;Partition:%d Offset:%d Key:%s Value:%s&quot;</span>,</span><br><span class="line">                msg.Partition, msg.Offset, msg.Key, msg.Value)</span><br><span class="line">        &#125;</span><br><span class="line">        wg.Done()</span><br><span class="line">    &#125;()</span><br><span class="line">&#125;</span><br><span class="line">wg.Wait()</span><br></pre></td></tr></table></figure>
-
-<h1 id="4-效果演示"><a href="#4-效果演示" class="headerlink" title="4 效果演示"></a>4 效果演示</h1><p>编译、运行程序，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ go run kafka_consumer.go </span><br><span class="line">partitionList: [0]</span><br></pre></td></tr></table></figure>
-
-<p>启动 <strong>kafka_console_producer</strong>，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kafka-console-producer.sh --broker-list localhost:9092 --topic web_log    </span><br><span class="line">&gt; </span><br></pre></td></tr></table></figure>
-
-<p>使用 <strong>kafka_console_producer</strong> 向指定topic发送1条消息，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kafka-console-producer.sh --broker-list localhost:9092 --topic web_log               </span><br><span class="line">&gt;Hello, world!           </span><br><span class="line">&gt; </span><br></pre></td></tr></table></figure>
-
-<p>查看程序输出，</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ go run kafka_consumer.go </span><br><span class="line">partitionList: [0]</span><br><span class="line">INFO[0266] Partition:0 Offset:8 Key: Value:Hello, world! </span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1497,7 +1495,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
