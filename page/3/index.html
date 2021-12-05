@@ -155,6 +155,116 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/02/tailfile-%E5%90%AF%E5%8A%A8%E5%A4%9A%E4%B8%AA-tailTask/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/02/tailfile-%E5%90%AF%E5%8A%A8%E5%A4%9A%E4%B8%AA-tailTask/" class="post-title-link" itemprop="url">tailfile 启动多个 tailTask</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-02 11:15:04 / 修改时间：11:20:49" itemprop="dateCreated datePublished" datetime="2021-10-02T11:15:04+08:00">2021-10-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="tailfile-启动多个-tailTask"><a href="#tailfile-启动多个-tailTask" class="headerlink" title="tailfile 启动多个 tailTask"></a>tailfile 启动多个 tailTask</h1><h1 id="1-tailTask-structure"><a href="#1-tailTask-structure" class="headerlink" title="1 tailTask structure"></a>1 tailTask structure</h1><h2 id="1-1-结构体"><a href="#1-1-结构体" class="headerlink" title="1.1 结构体"></a>1.1 结构体</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    tailTasks []*tailTask</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> tailTask <span class="keyword">struct</span> &#123;</span><br><span class="line">    topic       <span class="keyword">string</span>    <span class="comment">// kafka 话题</span></span><br><span class="line">    logFilePath <span class="keyword">string</span>    <span class="comment">// 日志文件路径</span></span><br><span class="line">    tailFile    *tail.Tail    <span class="comment">// tail.Tail 对象</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-构造函数"><a href="#1-2-构造函数" class="headerlink" title="1.2 构造函数"></a>1.2 构造函数</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newTailTask</span><span class="params">(topic, logFilePath <span class="keyword">string</span>, tailFile *tail.Tail)</span> *<span class="title">tailTask</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;tailTask&#123;</span><br><span class="line">        topic:       topic,</span><br><span class="line">        logFilePath: logFilePath,</span><br><span class="line">        tailFile:    tailFile,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-run-方法"><a href="#1-3-run-方法" class="headerlink" title="1.3 run 方法"></a>1.3 run 方法</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tt *tailTask)</span> <span class="title">run</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">        line, ok := &lt;-tt.tailFile.Lines</span><br><span class="line">        <span class="keyword">if</span> !ok &#123;</span><br><span class="line">            logrus.Errorf(<span class="string">&quot;tail read file err, filename: %s&quot;</span>, tt.tailFile.Filename)</span><br><span class="line">            time.Sleep(time.Second)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        kafka.DefaultProducerClient.SendToMsgChan(tt.topic, line.Text)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-初始化"><a href="#2-初始化" class="headerlink" title="2 初始化"></a>2 初始化</h1><h1 id="2-1-etcd-日志配置项"><a href="#2-1-etcd-日志配置项" class="headerlink" title="2.1 etcd 日志配置项"></a>2.1 etcd 日志配置项</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ etcdctl get collect_conf_key                                         </span><br><span class="line">collect_conf_key                                                                                                        </span><br><span class="line">[&#123;<span class="string">&quot;log_file_path&quot;</span>:<span class="string">&quot;./logs/web_log&quot;</span>,<span class="string">&quot;topic&quot;</span>:<span class="string">&quot;web_log&quot;</span>&#125;, &#123;<span class="string">&quot;log_file_path&quot;</span>:<span class="string">&quot;./logs/shopping_log&quot;</span>, <span class="string">&quot;topic&quot;</span>:<span class="string">&quot;shopping_log&quot;</span>&#125;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-tailefile-初始化"><a href="#2-2-tailefile-初始化" class="headerlink" title="2.2 tailefile 初始化"></a>2.2 tailefile 初始化</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(collectConfig []common.CollectConfigEntry)</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">    config := tail.Config&#123;</span><br><span class="line">        ReOpen:    <span class="literal">true</span>,                                 <span class="comment">// 重新打开，如果修改操作不是在日志文件末尾添加</span></span><br><span class="line">        Follow:    <span class="literal">true</span>,                                 <span class="comment">// 持续寻找新行</span></span><br><span class="line">        Location:  &amp;tail.SeekInfo&#123;Offset: <span class="number">0</span>, Whence: <span class="number">2</span>&#125;, <span class="comment">// 初始光标位置</span></span><br><span class="line">        MustExist: <span class="literal">false</span>,                                <span class="comment">// 是否允许文件不存在</span></span><br><span class="line">        Poll:      <span class="literal">true</span>,                                 <span class="comment">// 使用 Poll 监听文件的变化，而不是 inotify</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> _, configEntry := <span class="keyword">range</span> collectConfig &#123;</span><br><span class="line">        tailFile, err := tail.TailFile(configEntry.LogFilePath, config)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            logrus.Errorf(<span class="string">&quot;tail file failed, err:%w&quot;</span>, err)</span><br><span class="line">            <span class="keyword">return</span> err</span><br><span class="line">        &#125;</span><br><span class="line">        newTask := newTailTask(configEntry.Topic, configEntry.LogFilePath, tailFile)</span><br><span class="line">        tailTasks = <span class="built_in">append</span>(tailTasks, newTask)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为每个配置项创建一个收集任务，用 Kafka话题、日志文件路径初始化，加入到任务列表中</li>
+</ul>
+<h1 id="3-启动任务"><a href="#3-启动任务" class="headerlink" title="3 启动任务"></a>3 启动任务</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">StartCollect</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, task := <span class="keyword">range</span> tailTasks &#123;</span><br><span class="line">        <span class="keyword">go</span> task.run()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为任务列表中的每个 tailTask 开启一个 goroutine，并发收集多个日志文件的内容，发送到对应的 kafka 话题</li>
+</ul>
+<p>启动话题 web_log 的控制台消费者，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sh <span class="variable">$KAFKA</span>/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <span class="string">&quot;web_log&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>另外开一个终端窗口，启动话题 shopping_log 的控制台消费者，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sh <span class="variable">$KAFKA</span>/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <span class="string">&quot;shopping_log&quot;</span> </span><br></pre></td></tr></table></figure>
+
+<p>编译、运行程序，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ go run main.go </span><br><span class="line">[&#123;./logs/web_log web_log&#125; &#123;./logs/shopping_log shopping_log&#125;]</span><br><span class="line">2021/10/02 10:54:46 Seeked ./logs/web_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br><span class="line">2021/10/02 10:54:46 Seeked ./logs/shopping_log - &amp;&#123;Offset:0 Whence:2&#125;</span><br></pre></td></tr></table></figure>
+
+<p>向日志文件 ./logs/web_log 写入一行数据，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Hello, web_log!&quot;</span> &gt;&gt; logs/web_log</span><br></pre></td></tr></table></figure>
+
+<p>查看话题 web_log 的控制台消费者，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sh <span class="variable">$KAFKA</span>/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <span class="string">&quot;web_log&quot;</span>    </span><br><span class="line">Hello, web_log!</span><br></pre></td></tr></table></figure>
+
+<p>向日志文件 ./logs/shopping_log 写入一行数据，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;Hello, shopping_log&quot;</span> &gt;&gt; logs/shopping_log</span><br></pre></td></tr></table></figure>
+
+<p>查看话题 shopping_log 的控制台消费者，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ sh <span class="variable">$KAFKA</span>/bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic <span class="string">&quot;shopping_log&quot;</span>                                          </span><br><span class="line">[2021-10-02 11:02:48,117] WARN [Consumer clientId=consumer-console-consumer-27830-1, groupId=console-consumer-27830] Error <span class="keyword">while</span> fetching metadata with correlation id 2 : &#123;shopping_log=LEADER_NOT_AVAILABLE&#125; (org.apache.kafka.clients.NetworkClient)    </span><br><span class="line">[2021-10-02 11:02:48,226] WARN [Consumer clientId=consumer-console-consumer-27830-1, groupId=console-consumer-27830] Error <span class="keyword">while</span> fetching metadata with correlation id 7 : &#123;shopping_log=LEADER_NOT_AVAILABLE&#125; (org.apache.kafka.clients.NetworkClient)        </span><br><span class="line">[2021-10-02 11:02:48,230] WARN [Consumer clientId=consumer-console-consumer-27830-1, groupId=console-consumer-27830] The following subscribed topics are not assigned to any members: [shopping_log]  (org.apache.kafka.clients.consumer.internals.ConsumerCoordinator)</span><br><span class="line">Hello, shopping_log</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/02/%E4%BB%8Eetcd%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E9%A1%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1073,107 +1183,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/22/Kafka-%E5%92%8C-Zookeeper-%E6%90%AD%E5%BB%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/22/Kafka-%E5%92%8C-Zookeeper-%E6%90%AD%E5%BB%BA/" class="post-title-link" itemprop="url">Kafka 和 Zookeeper 搭建</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-09-22 17:33:56 / 修改时间：17:42:00" itemprop="dateCreated datePublished" datetime="2021-09-22T17:33:56+08:00">2021-09-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Kafka-和-Zookeeper-搭建"><a href="#Kafka-和-Zookeeper-搭建" class="headerlink" title="Kafka 和 Zookeeper 搭建"></a>Kafka 和 Zookeeper 搭建</h1><h1 id="1-安装-JDK"><a href="#1-安装-JDK" class="headerlink" title="1 安装 JDK"></a>1 安装 JDK</h1><h2 id="1-1-下载-JDK-压缩包"><a href="#1-1-下载-JDK-压缩包" class="headerlink" title="1.1 下载 JDK 压缩包"></a>1.1 下载 JDK 压缩包</h2><p>下载地址：</p>
-<p><a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html</a></p>
-<p><img src="/2021/09/22/Kafka-%E5%92%8C-Zookeeper-%E6%90%AD%E5%BB%BA/jdk_dl.png" alt="img"></p>
-<h2 id="1-2-解压、移动"><a href="#1-2-解压、移动" class="headerlink" title="1.2 解压、移动"></a>1.2 解压、移动</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 解压</span><br><span class="line">tar -xzvf jdk-8u301-linux-x64.tar.gz</span><br><span class="line"># 移动文件夹</span><br><span class="line">sudo mv jdk1.8.0_301/ /opt/jdk8</span><br></pre></td></tr></table></figure>
-
-<h2 id="1-3-配置-JDK-环境变量"><a href="#1-3-配置-JDK-环境变量" class="headerlink" title="1.3 配置 JDK 环境变量"></a>1.3 配置 JDK 环境变量</h2><p>在 ~/.bashrc 文件末尾添加以下几行，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME=/opt/jdk8</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar                                                       </span><br><span class="line">export PATH=$PATH:$JAVA_HOME/bin</span><br></pre></td></tr></table></figure>
-
-<p>使环境变量生效，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-下载-Kafka-压缩包、解压、移动"><a href="#2-下载-Kafka-压缩包、解压、移动" class="headerlink" title="2 下载 Kafka 压缩包、解压、移动"></a>2 下载 Kafka 压缩包、解压、移动</h1><h2 id="2-1-下载-Kafka-压缩包"><a href="#2-1-下载-Kafka-压缩包" class="headerlink" title="2.1 下载 Kafka 压缩包"></a>2.1 下载 Kafka 压缩包</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://dlcdn.apache.org/kafka/3.0.0/kafka_2.13-3.0.0.tgz</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-解压"><a href="#2-2-解压" class="headerlink" title="2.2 解压"></a>2.2 解压</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf kafka_2.13-3.0.0.tgz</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-移动文件夹"><a href="#2-3-移动文件夹" class="headerlink" title="2.3 移动文件夹"></a>2.3 移动文件夹</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mv kafka_2.13-3.0.0 /opt/kafka</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-配置环境变量"><a href="#2-4-配置环境变量" class="headerlink" title="2.4 配置环境变量"></a>2.4 配置环境变量</h2><p>在 ~/.bashrc 文件末尾添加以下几行，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export KAFKA=/opt/kafka</span><br><span class="line">export PATH=$PATH:$KAFKA/bin </span><br></pre></td></tr></table></figure>
-
-<p>使环境变量生效，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-运行-Kafka"><a href="#3-运行-Kafka" class="headerlink" title="3 运行 Kafka"></a>3 运行 Kafka</h1><h2 id="3-1-启动-Zookeeper"><a href="#3-1-启动-Zookeeper" class="headerlink" title="3.1 启动 Zookeeper"></a>3.1 启动 Zookeeper</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zookeeper-server-start.sh $KAFKA/config/zookeeper.properties</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/09/22/Kafka-%E5%92%8C-Zookeeper-%E6%90%AD%E5%BB%BA/zookeeper_start.png" alt="img"></p>
-<h2 id="3-2-启动-Kafka"><a href="#3-2-启动-Kafka" class="headerlink" title="3.2 启动 Kafka"></a>3.2 启动 Kafka</h2><p>另外打开一个终端窗口，</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-server-start.sh $KAFKA/config/server.properties</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/09/22/Kafka-%E5%92%8C-Zookeeper-%E6%90%AD%E5%BB%BA/kafka_start.png" alt="img"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1243,14 +1252,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">

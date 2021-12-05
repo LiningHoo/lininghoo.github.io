@@ -155,6 +155,162 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" class="post-title-link" itemprop="url">MapperX 性能测试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-12-06 01:38:41 / 修改时间：01:44:08" itemprop="dateCreated datePublished" datetime="2021-12-06T01:38:41+08:00">2021-12-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/MapperX/" itemprop="url" rel="index"><span itemprop="name">MapperX</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MapperX-性能测试"><a href="#MapperX-性能测试" class="headerlink" title="MapperX 性能测试"></a>MapperX 性能测试</h1><h1 id="1-搭建-dm-cache-环境"><a href="#1-搭建-dm-cache-环境" class="headerlink" title="1 搭建 dm-cache 环境"></a>1 搭建 dm-cache 环境</h1><h2 id="1-1-创建物理卷"><a href="#1-1-创建物理卷" class="headerlink" title="1.1 创建物理卷"></a>1.1 创建物理卷</h2><h3 id="1-1-1-修改虚拟机设置，添加一块虚拟磁盘"><a href="#1-1-1-修改虚拟机设置，添加一块虚拟磁盘" class="headerlink" title="1.1.1 修改虚拟机设置，添加一块虚拟磁盘"></a>1.1.1 修改虚拟机设置，添加一块虚拟磁盘</h3><p><img src="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/1.png" alt="img"></p>
+<h3 id="1-1-2-对新建的磁盘进行分区及格式化的工作"><a href="#1-1-2-对新建的磁盘进行分区及格式化的工作" class="headerlink" title="1.1.2 对新建的磁盘进行分区及格式化的工作"></a>1.1.2 对新建的磁盘进行分区及格式化的工作</h3><ul>
+<li>执行 fdisk  /dev/sdb，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ fdisk /dev/sdb</span><br><span class="line">Welcome to fdisk (util-linux 2.23.2).</span><br><span class="line"></span><br><span class="line">Changes will remain <span class="keyword">in</span> memory only, until you decide to write them.</span><br><span class="line">Be careful before using the write <span class="built_in">command</span>.</span><br><span class="line"></span><br><span class="line">Device does not contain a recognized partition table</span><br><span class="line">Building a new DOS disklabel with disk identifier 0x6f3b5f16.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>):</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在上一步骤的基础上输入：m，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): m</span><br><span class="line">Command action</span><br><span class="line">   a   toggle a bootable flag</span><br><span class="line">   b   edit bsd disklabel</span><br><span class="line">   c   toggle the dos compatibility flag</span><br><span class="line">   d   delete a partition</span><br><span class="line">   g   create a new empty GPT partition table</span><br><span class="line">   G   create an IRIX (SGI) partition table</span><br><span class="line">   l   list known partition types</span><br><span class="line">   m   <span class="built_in">print</span> this menu</span><br><span class="line">   n   add a new partition</span><br><span class="line">   o   create a new empty DOS partition table</span><br><span class="line">   p   <span class="built_in">print</span> the partition table</span><br><span class="line">   q   quit without saving changes</span><br><span class="line">   s   create a new empty Sun disklabel</span><br><span class="line">   t   change a partition<span class="string">&#x27;s system id</span></span><br><span class="line"><span class="string">   u   change display/entry units</span></span><br><span class="line"><span class="string">   v   verify the partition table</span></span><br><span class="line"><span class="string">   w   write table to disk and exit</span></span><br><span class="line"><span class="string">   x   extra functionality (experts only)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后根据提示输入：n，以添加新的分区，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): n</span><br><span class="line">Partition <span class="built_in">type</span>:</span><br><span class="line">   p   primary (0 primary, 0 extended, 4 free)</span><br><span class="line">   e   extended</span><br><span class="line">Select (default p):</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>依次输入 p 和 1，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Partition <span class="built_in">type</span>:</span><br><span class="line">   p   primary (0 primary, 0 extended, 4 free)</span><br><span class="line">   e   extended</span><br><span class="line">Select (default p): p</span><br><span class="line">Partition number (1-4, default 1): 1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接着便会提示卷的起始扇区和结束扇区，都保持默认按回车的即可（意思是只分一个区），</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">First sector (2048-4194303, default 2048):</span><br><span class="line">Using default value 2048</span><br><span class="line">Last sector, +sectors or +size&#123;K,M,G&#125; (2048-4194303, default 4194303):</span><br><span class="line">Using default value 4194303</span><br><span class="line">Partition 1 of <span class="built_in">type</span> Linux and of size 2 GiB is <span class="built_in">set</span></span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>):</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>输入 “w” 保存并退出，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): w</span><br><span class="line">The partition table has been altered!</span><br><span class="line"></span><br><span class="line">Calling ioctl() to re-read partition table.</span><br><span class="line">Syncing disks.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>再次使用 “fdisk -l ”这个命令来查看会发现出现了/dev/sdb1（说明已经完成了分区工作）,</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ fdisk -l</span><br><span class="line">............</span><br><span class="line">   Device Boot      Start         End      Blocks   Id  System</span><br><span class="line">/dev/sdb1            2048     4194303     2096128   83  Linux</span><br><span class="line"></span><br><span class="line">Disk /dev/mapper/centos-root: 18.2 GB, 18249416704 bytes, 35643392 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">............</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-1-3-初始化分区为物理卷"><a href="#1-1-3-初始化分区为物理卷" class="headerlink" title="1.1.3 初始化分区为物理卷"></a>1.1.3 初始化分区为物理卷</h3><ul>
+<li>使用 pvcreate 命令新建物理卷，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pvcreate /dev/sdb1</span><br><span class="line">  Physical volume <span class="string">&quot;/dev/sdb1&quot;</span> successfully created.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看当前的物理卷，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ pvdisplay</span><br><span class="line">  --- Physical volume ---</span><br><span class="line">  PV Name               /dev/sda2</span><br><span class="line">  VG Name               centos</span><br><span class="line">  PV Size               &lt;19.00 GiB / not usable 3.00 MiB</span><br><span class="line">  Allocatable           yes (but full)</span><br><span class="line">  PE Size               4.00 MiB</span><br><span class="line">  Total PE              4863</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          4863</span><br><span class="line">  PV UUID               Y0aMSP-YKlD-Y2yH-c01s-4FME-4loY-GqqDVw</span><br><span class="line"></span><br><span class="line">  <span class="string">&quot;/dev/sdb1&quot;</span> is a new physical volume of <span class="string">&quot;&lt;2.00 GiB&quot;</span></span><br><span class="line">  --- NEW Physical volume ---</span><br><span class="line">  PV Name               /dev/sdb1</span><br><span class="line">  VG Name</span><br><span class="line">  PV Size               &lt;2.00 GiB</span><br><span class="line">  Allocatable           NO</span><br><span class="line">  PE Size               0</span><br><span class="line">  Total PE              0</span><br><span class="line">  Free PE               0</span><br><span class="line">  Allocated PE          0</span><br><span class="line">  PV UUID               i3qKtd-WqIU-aIxY-0niW-OwLd-GFSC-HjKXu2</span><br></pre></td></tr></table></figure>
+
+<p>物理卷 /dev/sdb1 出现在列表中</p>
+<h2 id="1-2-将物理卷添加到卷组"><a href="#1-2-将物理卷添加到卷组" class="headerlink" title="1.2 将物理卷添加到卷组"></a>1.2 将物理卷添加到卷组</h2><ul>
+<li>使用 vgextend 命令将物理卷添加到卷组，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ vgextend centos /dev/sdb1</span><br><span class="line">  Volume group <span class="string">&quot;centos&quot;</span> successfully extended</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-在卷组上创建逻辑卷"><a href="#1-3-在卷组上创建逻辑卷" class="headerlink" title="1.3 在卷组上创建逻辑卷"></a>1.3 在卷组上创建逻辑卷</h2><ul>
+<li>使用 lvcreate 命令创建逻辑卷，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ lvcreate -n dm_cache -L 1G centos /dev/sdb1</span><br><span class="line">  Logical volume <span class="string">&quot;dm_cache&quot;</span> created.</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-4-将-fast-LV-设置成-main-LV-的高速缓存"><a href="#1-4-将-fast-LV-设置成-main-LV-的高速缓存" class="headerlink" title="1.4 将 fast LV 设置成 main LV 的高速缓存"></a>1.4 将 fast LV 设置成 main LV 的高速缓存</h2><ul>
+<li>使用 lvconvert 命令建立高速缓存磁盘和大容量磁盘的关联，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/root</span><br><span class="line">  WARNING: Converting centos/dm_cache to cache pool<span class="string">&#x27;s data volume with metadata wiping.</span></span><br><span class="line"><span class="string">  THIS WILL DESTROY CONTENT OF LOGICAL VOLUME (filesystem etc.)</span></span><br><span class="line"><span class="string">Do you really want to convert centos/dm_cache? [y/n]: y</span></span><br><span class="line"><span class="string">  Converted centos/dm_cache to cache pool.</span></span><br><span class="line"><span class="string">  Logical volume centos/root is now cached.</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看当前的逻辑卷，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">$ lvdisplay</span><br><span class="line"> --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/root</span><br><span class="line">  LV Name                root</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                M60HVr-h2IS-yDiJ-5mdW-XR2T-MY0R-cbzAFX</span><br><span class="line">  LV Write Access        <span class="built_in">read</span>/write</span><br><span class="line">  LV Creation host, time localhost, 2021-12-05 11:35:38 -0500</span><br><span class="line">  LV Cache pool name     dm_cache</span><br><span class="line">  LV Cache origin name   root_corig</span><br><span class="line">  LV Status              available</span><br><span class="line">  <span class="comment"># open                 1</span></span><br><span class="line">  LV Size                &lt;17.00 GiB</span><br><span class="line">  Cache used blocks      99.99%</span><br><span class="line">  Cache metadata blocks  2.00%</span><br><span class="line">  Cache dirty blocks     0.00%</span><br><span class="line">  Cache <span class="built_in">read</span> hits/misses 506 / 1510</span><br><span class="line">  Cache wrt hits/misses  4021 / 137499</span><br><span class="line">  Cache demotions        7381</span><br><span class="line">  Cache promotions       23763</span><br><span class="line">  Current LE             4351</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently <span class="built_in">set</span> to     8192</span><br><span class="line">  Block device           253:0</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-安装性能测试工具"><a href="#2-安装性能测试工具" class="headerlink" title="2 安装性能测试工具"></a>2 安装性能测试工具</h1><h2 id="2-1-安装-fio"><a href="#2-1-安装-fio" class="headerlink" title="2.1 安装 fio"></a>2.1 安装 fio</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y fio</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fio 是一个多线程 I/O 生成工具,可以生成多种 I/O 模式,用来测试磁盘设备的性能(也包含文件系统:如针对网络文件系统 NFS 的 I/O 测试)。</li>
+</ul>
+<h2 id="2-下载-MSR-Cambridge-Traces"><a href="#2-下载-MSR-Cambridge-Traces" class="headerlink" title="2. 下载 MSR Cambridge Traces"></a>2. 下载 MSR Cambridge Traces</h2><ul>
+<li>点击链接 <a target="_blank" rel="noopener" href="http://iotta.snia.org/traces/block-io/388%EF%BC%8C%E8%BF%9B%E5%85%A5%E4%B8%8B%E8%BD%BD%E9%A1%B5%E9%9D%A2%EF%BC%8C">http://iotta.snia.org/traces/block-io/388，进入下载页面，</a></li>
+</ul>
+<p><img src="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/2.png" alt="img"></p>
+<h1 id="3-下载、编译、安装-MapperX"><a href="#3-下载、编译、安装-MapperX" class="headerlink" title="3 下载、编译、安装 MapperX"></a>3 下载、编译、安装 MapperX</h1><ul>
+<li>根据 <a target="_blank" rel="noopener" href="https://github.com/nicexlab/MapperX">MapperX</a> README.md 的提示步骤，下载、编译、安装 MapperX</li>
+</ul>
+<h1 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h1><ul>
+<li><p>Benchmark</p>
+</li>
+<li><p>实验结果分析</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/28/linux-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%87%BD%E6%95%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1509,218 +1665,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/06/%E5%AE%9E%E7%8E%B0%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/06/%E5%AE%9E%E7%8E%B0%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="post-title-link" itemprop="url">实现最简单的字符设备驱动</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-06 17:13:29 / 修改时间：17:18:05" itemprop="dateCreated datePublished" datetime="2021-11-06T17:13:29+08:00">2021-11-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="实现最简单的字符设备驱动"><a href="#实现最简单的字符设备驱动" class="headerlink" title="实现最简单的字符设备驱动"></a>实现最简单的字符设备驱动</h1><h1 id="1-驱动程序的入口"><a href="#1-驱动程序的入口" class="headerlink" title="1 驱动程序的入口"></a>1 驱动程序的入口</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hello_init</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    devNum = MKDEV(reg_major, reg_minor);</span><br><span class="line">    <span class="keyword">if</span>(OK == register_chrdev_region(devNum, subDevNum, <span class="string">&quot;helloworld&quot;</span>)) &#123;</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;register_chrdev_region ok \n&quot;</span>); </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        printk(KERN_INFO <span class="string">&quot;register_chrdev_region error n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot; hello driver init \n&quot;</span>);</span><br><span class="line">    gDev = kzalloc(<span class="keyword">sizeof</span>(struct cdev), GFP_KERNEL);</span><br><span class="line">    gFile = kzalloc(<span class="keyword">sizeof</span>(struct file_operations), GFP_KERNEL);</span><br><span class="line">    gFile-&gt;open = hello_open;</span><br><span class="line">    gFile-&gt;read = hello_read;</span><br><span class="line">    gFile-&gt;write = hello_write;</span><br><span class="line">    gFile-&gt;owner = THIS_MODULE;</span><br><span class="line">    cdev_init(gDev, gFile);</span><br><span class="line">    cdev_add(gDev, devNum, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>MKDEV 根据主、次设备号生成设备编号，通常主设备号表示某一类设备，次设备号表示这类设备里不同的设备。MKDEV 的实现，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MINORBITS   20</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MKDEV(ma,mi)    (((ma) &lt;&lt; MINORBITS) | (mi))</span></span><br></pre></td></tr></table></figure>
-
-<p>将主设备号左移20位，然后或上从设备号</p>
-<ul>
-<li>注册字符设备，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*指定设备编号来静态注册一个字符设备*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">register_chrdev_region</span><span class="params">(<span class="keyword">dev_t</span> from, <span class="keyword">unsigned</span> count, <span class="keyword">const</span> <span class="keyword">char</span> *name)</span></span>;　</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>from</td>
-<td>设备号</td>
-</tr>
-<tr>
-<td>count</td>
-<td>需要连续注册的次设备编号个数</td>
-</tr>
-<tr>
-<td>name</td>
-<td>字符设备名称</td>
-</tr>
-</tbody></table>
-<p>当返回值小于0时，表示注册失败</p>
-<ul>
-<li>为字符设备分配内存，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gDev = kzalloc(<span class="keyword">sizeof</span>(struct cdev), GFP_KERNEL);</span><br></pre></td></tr></table></figure>
-
-<p>kzalloc等价于先调用kmalloc分配一块内存空间，然后初始化为0</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * kzalloc - allocate memory. The memory is set to zero.</span></span><br><span class="line"><span class="comment"> * @size: how many bytes of memory are required.</span></span><br><span class="line"><span class="comment"> * @flags: the type of memory to allocate (see kmalloc).</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> *<span class="title">kzalloc</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> kmalloc(size, flags | __GFP_ZERO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>size</td>
-<td>要分配内存空间的字节数</td>
-</tr>
-<tr>
-<td>flags</td>
-<td>分配方式</td>
-</tr>
-</tbody></table>
-<p>对于 gfp_t (gfp 是 get free page的缩写)类型，有以下几个常量，</p>
-<table>
-<thead>
-<tr>
-<th>gfp_t 常量</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>GFP_ATOMIC</td>
-<td>内存分配过程是原子的，不会被(高优先级进程或中断)打断</td>
-</tr>
-<tr>
-<td>GFP_KERNEL</td>
-<td>正常分配内存</td>
-</tr>
-<tr>
-<td>GFP_DMA</td>
-<td>给 DMA 控制器分配内存</td>
-</tr>
-</tbody></table>
-<p>分配内存后如果不释放会造成内存泄漏，在内存中可能导致系统崩溃，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kfree</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *objp)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>可以调用 kfree 函数释放动态分配的内存</p>
-<ul>
-<li>file_operations 结构体中声明了一组对文件的操作，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">module</span> *<span class="title">owner</span>;</span></span><br><span class="line">    <span class="keyword">loff_t</span> (*llseek) (struct file *, <span class="keyword">loff_t</span>, <span class="keyword">int</span>);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*read) (struct file *, <span class="keyword">char</span> __user *, <span class="keyword">size_t</span>, <span class="keyword">loff_t</span> *);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*write) (struct file *, <span class="keyword">const</span> <span class="keyword">char</span> __user *, <span class="keyword">size_t</span>, <span class="keyword">loff_t</span> *);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*read_iter) (struct kiocb *, struct iov_iter *);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*write_iter) (struct kiocb *, struct iov_iter *);</span><br><span class="line">    <span class="keyword">int</span> (*iterate) (struct file *, struct dir_context *);</span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">int</span> <span class="params">(*poll)</span> <span class="params">(struct file *, struct poll_table_struct *)</span></span>;</span><br><span class="line">    <span class="keyword">long</span> (*unlocked_ioctl) (struct file *, <span class="keyword">unsigned</span> <span class="keyword">int</span>, <span class="keyword">unsigned</span> <span class="keyword">long</span>);</span><br><span class="line">    <span class="keyword">long</span> (*compat_ioctl) (struct file *, <span class="keyword">unsigned</span> <span class="keyword">int</span>, <span class="keyword">unsigned</span> <span class="keyword">long</span>);</span><br><span class="line">    <span class="keyword">int</span> (*mmap) (struct file *, struct vm_area_struct *);</span><br><span class="line">    <span class="keyword">int</span> (*open) (struct inode *, struct file *);</span><br><span class="line">    <span class="keyword">int</span> (*flush) (struct file *, <span class="keyword">fl_owner_t</span> id);</span><br><span class="line">    <span class="keyword">int</span> (*release) (struct inode *, struct file *);</span><br><span class="line">    <span class="keyword">int</span> (*fsync) (struct file *, <span class="keyword">loff_t</span>, <span class="keyword">loff_t</span>, <span class="keyword">int</span> datasync);</span><br><span class="line">    <span class="keyword">int</span> (*aio_fsync) (struct kiocb *, <span class="keyword">int</span> datasync);</span><br><span class="line">    <span class="keyword">int</span> (*fasync) (<span class="keyword">int</span>, struct file *, <span class="keyword">int</span>);</span><br><span class="line">    <span class="keyword">int</span> (*lock) (struct file *, <span class="keyword">int</span>, struct file_lock *);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*sendpage) (struct file *, struct page *, <span class="keyword">int</span>, <span class="keyword">size_t</span>, <span class="keyword">loff_t</span> *, <span class="keyword">int</span>);</span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="title">long</span> <span class="params">(*get_unmapped_area)</span><span class="params">(struct file *, <span class="keyword">unsigned</span> <span class="keyword">long</span>, <span class="keyword">unsigned</span> <span class="keyword">long</span>, <span class="keyword">unsigned</span> <span class="keyword">long</span>, <span class="keyword">unsigned</span> <span class="keyword">long</span>)</span></span>;</span><br><span class="line">    <span class="keyword">int</span> (*check_flags)(<span class="keyword">int</span>);</span><br><span class="line">    <span class="keyword">int</span> (*flock) (struct file *, <span class="keyword">int</span>, struct file_lock *);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*splice_write)(struct pipe_inode_info *, struct file *, <span class="keyword">loff_t</span> *, <span class="keyword">size_t</span>, <span class="keyword">unsigned</span> <span class="keyword">int</span>);</span><br><span class="line">    <span class="keyword">ssize_t</span> (*splice_read)(struct file *, <span class="keyword">loff_t</span> *, struct pipe_inode_info *, <span class="keyword">size_t</span>, <span class="keyword">unsigned</span> <span class="keyword">int</span>);</span><br><span class="line">    <span class="keyword">int</span> (*setlease)(struct file *, <span class="keyword">long</span>, struct file_lock **, <span class="keyword">void</span> **);</span><br><span class="line">    <span class="keyword">long</span> (*fallocate)(struct file *file, <span class="keyword">int</span> mode, <span class="keyword">loff_t</span> offset,</span><br><span class="line">              <span class="keyword">loff_t</span> len);</span><br><span class="line">    <span class="keyword">void</span> (*show_fdinfo)(struct seq_file *m, struct file *f);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> CONFIG_MMU</span></span><br><span class="line">    <span class="keyword">unsigned</span> (*mmap_capabilities)(struct file *);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>包括应用开发常见的 open、read、write、flush 等。用户进程在对设备文件(linux 中一切皆为文件)进行诸如 read/write 操作的时候，系统调用通过设备文件的主设备号找到相应的设备驱动程序，读取 file_operations 结构体中对应的函数指针，接着把控制权交给该函数，这是 linux 的设备驱动程序工作的基本原理</p>
-<ul>
-<li>以回调函数的形式指定驱动程序对文件的各种操作，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gFile = kzalloc(<span class="keyword">sizeof</span>(struct file_operations), GFP_KERNEL);</span><br><span class="line">gFile-&gt;open = hello_open;</span><br><span class="line">gFile-&gt;read = hello_read;</span><br><span class="line">gFile-&gt;write = hello_write;</span><br></pre></td></tr></table></figure>
-
-<p>实践中，file_operations 结构体的 owner 字段通常被初始化为宏 THIS_MODULE，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gFile-&gt;owner = THIS_MODULE;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>建立字符设备和 file_operations 对象的联系，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cdev_init(gDev, gFile);</span><br></pre></td></tr></table></figure>
-
-<p>cdev_init 函数声明，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cdev_init</span><span class="params">(struct cdev *, <span class="keyword">const</span> struct file_operations *)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>传入字符设备、file_operations指针，建立二者之间的联系</p>
-<ul>
-<li>建立字符设备和设备号的联系，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cdev_add(gDev, devNum, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-
-<p>cdev_add 函数声明，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cdev_add</span><span class="params">(struct cdev *, <span class="keyword">dev_t</span>, <span class="keyword">unsigned</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>传入字符设备指针、设备号、添加设备的个数，建立字符设备和设备号之间的联系</p>
-<h1 id="2-驱动程序的出口"><a href="#2-驱动程序的出口" class="headerlink" title="2 驱动程序的出口"></a>2 驱动程序的出口</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __exit <span class="title">hello_exit</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot; hello driver exit \n&quot;</span>);</span><br><span class="line">    cdev_del(gDev);</span><br><span class="line">    kfree(gFile);</span><br><span class="line">    kfree(gDev);</span><br><span class="line">    unregister_chrdev_region(devNum, subDevNum);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>移除字符设备，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cdev_del</span><span class="params">(struct cdev *)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>释放动态分配的内存空间，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kfree</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>注销设备号，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">unregister_chrdev_region</span><span class="params">(<span class="keyword">dev_t</span>, <span class="keyword">unsigned</span>)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-驱动程序的文件操作逻辑"><a href="#3-驱动程序的文件操作逻辑" class="headerlink" title="3 驱动程序的文件操作逻辑"></a>3 驱动程序的文件操作逻辑</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hello_open</span><span class="params">(struct inode *p, struct file *f)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_open\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_write</span><span class="params">(struct file *f, <span class="keyword">const</span> <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_write\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_read</span><span class="params">(struct file *f, <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_read\r\n&quot;</span>);      </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>作为实例程序，只输出操作对应的提示信息</p>
-<h1 id="4-注册驱动程序的入口、出口函数"><a href="#4-注册驱动程序的入口、出口函数" class="headerlink" title="4 注册驱动程序的入口、出口函数"></a>4 注册驱动程序的入口、出口函数</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">module_init(hello_init);</span><br><span class="line">module_exit(hello_exit);</span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>分别调用 module_init 和 module_exit 函数，注册驱动程序的入口、出口函数</li>
-<li>在 linux 系统，执行 insmod 命令会调用驱动程序入口函数，执行 rmmod 命令会调用驱动程序出口函数</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1790,14 +1734,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
