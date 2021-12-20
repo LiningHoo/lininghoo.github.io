@@ -178,10 +178,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-12-06 01:38:41 / 修改时间：01:44:08" itemprop="dateCreated datePublished" datetime="2021-12-06T01:38:41+08:00">2021-12-06</time>
+              <time title="创建时间：2021-12-06 01:38:41" itemprop="dateCreated datePublished" datetime="2021-12-06T01:38:41+08:00">2021-12-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-13 08:47:21" itemprop="dateModified" datetime="2021-12-13T08:47:21+08:00">2021-12-13</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -207,8 +213,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="MapperX-性能测试"><a href="#MapperX-性能测试" class="headerlink" title="MapperX 性能测试"></a>MapperX 性能测试</h1><h1 id="1-搭建-dm-cache-环境"><a href="#1-搭建-dm-cache-环境" class="headerlink" title="1 搭建 dm-cache 环境"></a>1 搭建 dm-cache 环境</h1><h2 id="1-1-创建物理卷"><a href="#1-1-创建物理卷" class="headerlink" title="1.1 创建物理卷"></a>1.1 创建物理卷</h2><h3 id="1-1-1-修改虚拟机设置，添加一块虚拟磁盘"><a href="#1-1-1-修改虚拟机设置，添加一块虚拟磁盘" class="headerlink" title="1.1.1 修改虚拟机设置，添加一块虚拟磁盘"></a>1.1.1 修改虚拟机设置，添加一块虚拟磁盘</h3><p><img src="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/1.png" alt="img"></p>
-<h3 id="1-1-2-对新建的磁盘进行分区及格式化的工作"><a href="#1-1-2-对新建的磁盘进行分区及格式化的工作" class="headerlink" title="1.1.2 对新建的磁盘进行分区及格式化的工作"></a>1.1.2 对新建的磁盘进行分区及格式化的工作</h3><ul>
+          <h1 id="MapperX-性能测试"><a href="#MapperX-性能测试" class="headerlink" title="MapperX 性能测试"></a>MapperX 性能测试</h1><h1 id="1-搭建-dm-cache-环境"><a href="#1-搭建-dm-cache-环境" class="headerlink" title="1 搭建 dm-cache 环境"></a>1 搭建 dm-cache 环境</h1><h2 id="1-1-创建物理卷"><a href="#1-1-创建物理卷" class="headerlink" title="1.1 创建物理卷"></a>1.1 创建物理卷</h2><h3 id="1-1-1-修改虚拟机设置，添加两块虚拟磁盘"><a href="#1-1-1-修改虚拟机设置，添加两块虚拟磁盘" class="headerlink" title="1.1.1 修改虚拟机设置，添加两块虚拟磁盘"></a>1.1.1 修改虚拟机设置，添加两块虚拟磁盘</h3><p><img src="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/1.png" alt="img"></p>
+<h3 id="1-1-2-对新建的磁盘进行分区及格式化的工作（以其中一块为例）"><a href="#1-1-2-对新建的磁盘进行分区及格式化的工作（以其中一块为例）" class="headerlink" title="1.1.2 对新建的磁盘进行分区及格式化的工作（以其中一块为例）"></a>1.1.2 对新建的磁盘进行分区及格式化的工作（以其中一块为例）</h3><ul>
 <li>执行 fdisk  /dev/sdb，</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ fdisk /dev/sdb</span><br><span class="line">Welcome to fdisk (util-linux 2.23.2).</span><br><span class="line"></span><br><span class="line">Changes will remain <span class="keyword">in</span> memory only, until you decide to write them.</span><br><span class="line">Be careful before using the write <span class="built_in">command</span>.</span><br><span class="line"></span><br><span class="line">Device does not contain a recognized partition table</span><br><span class="line">Building a new DOS disklabel with disk identifier 0x6f3b5f16.</span><br><span class="line"></span><br><span class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>):</span><br></pre></td></tr></table></figure>
@@ -267,12 +273,12 @@
 <h2 id="1-4-将-fast-LV-设置成-main-LV-的高速缓存"><a href="#1-4-将-fast-LV-设置成-main-LV-的高速缓存" class="headerlink" title="1.4 将 fast LV 设置成 main LV 的高速缓存"></a>1.4 将 fast LV 设置成 main LV 的高速缓存</h2><ul>
 <li>使用 lvconvert 命令建立高速缓存磁盘和大容量磁盘的关联，</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/root</span><br><span class="line">  WARNING: Converting centos/dm_cache to cache pool<span class="string">&#x27;s data volume with metadata wiping.</span></span><br><span class="line"><span class="string">  THIS WILL DESTROY CONTENT OF LOGICAL VOLUME (filesystem etc.)</span></span><br><span class="line"><span class="string">Do you really want to convert centos/dm_cache? [y/n]: y</span></span><br><span class="line"><span class="string">  Converted centos/dm_cache to cache pool.</span></span><br><span class="line"><span class="string">  Logical volume centos/root is now cached.</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/dm_main</span><br><span class="line">  WARNING: Converting centos/dm_cache to cache pool<span class="string">&#x27;s data volume with metadata wiping.</span></span><br><span class="line"><span class="string">  THIS WILL DESTROY CONTENT OF LOGICAL VOLUME (filesystem etc.)</span></span><br><span class="line"><span class="string">Do you really want to convert centos/dm_cache? [y/n]: y</span></span><br><span class="line"><span class="string">  Converted centos/dm_cache to cache pool.</span></span><br><span class="line"><span class="string">  Logical volume centos/dm_main is now cached.</span></span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>查看当前的逻辑卷，</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">$ lvdisplay</span><br><span class="line"> --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/root</span><br><span class="line">  LV Name                root</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                M60HVr-h2IS-yDiJ-5mdW-XR2T-MY0R-cbzAFX</span><br><span class="line">  LV Write Access        <span class="built_in">read</span>/write</span><br><span class="line">  LV Creation host, time localhost, 2021-12-05 11:35:38 -0500</span><br><span class="line">  LV Cache pool name     dm_cache</span><br><span class="line">  LV Cache origin name   root_corig</span><br><span class="line">  LV Status              available</span><br><span class="line">  <span class="comment"># open                 1</span></span><br><span class="line">  LV Size                &lt;17.00 GiB</span><br><span class="line">  Cache used blocks      99.99%</span><br><span class="line">  Cache metadata blocks  2.00%</span><br><span class="line">  Cache dirty blocks     0.00%</span><br><span class="line">  Cache <span class="built_in">read</span> hits/misses 506 / 1510</span><br><span class="line">  Cache wrt hits/misses  4021 / 137499</span><br><span class="line">  Cache demotions        7381</span><br><span class="line">  Cache promotions       23763</span><br><span class="line">  Current LE             4351</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently <span class="built_in">set</span> to     8192</span><br><span class="line">  Block device           253:0</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">$ lvdisplay</span><br><span class="line">  --- Logical volume ---</span><br><span class="line">  LV Path                /dev/centos/dm_main</span><br><span class="line">  LV Name                dm_main</span><br><span class="line">  VG Name                centos</span><br><span class="line">  LV UUID                FsTspi-GPTM-bCXd-oLZ6-4hdo-OUJo-LErddE</span><br><span class="line">  LV Write Access        <span class="built_in">read</span>/write</span><br><span class="line">  LV Creation host, time localhost.localdomain, 2021-12-12 02:21:08 -0500</span><br><span class="line">  LV Cache pool name     dm_cache</span><br><span class="line">  LV Cache origin name   dm_main_corig</span><br><span class="line">  LV Status              available</span><br><span class="line">  <span class="comment"># open                 0</span></span><br><span class="line">  LV Size                19.90 GiB</span><br><span class="line">  Cache used blocks      0.05%</span><br><span class="line">  Cache metadata blocks  2.15%</span><br><span class="line">  Cache dirty blocks     0.00%</span><br><span class="line">  Cache <span class="built_in">read</span> hits/misses 5 / 44</span><br><span class="line">  Cache wrt hits/misses  0 / 0</span><br><span class="line">  Cache demotions        0</span><br><span class="line">  Cache promotions       9</span><br><span class="line">  Current LE             5095</span><br><span class="line">  Segments               1</span><br><span class="line">  Allocation             inherit</span><br><span class="line">  Read ahead sectors     auto</span><br><span class="line">  - currently <span class="built_in">set</span> to     8192</span><br><span class="line">  Block device           253:2</span><br></pre></td></tr></table></figure>
 
 <h1 id="2-安装性能测试工具"><a href="#2-安装性能测试工具" class="headerlink" title="2 安装性能测试工具"></a>2 安装性能测试工具</h1><h2 id="2-1-安装-fio"><a href="#2-1-安装-fio" class="headerlink" title="2.1 安装 fio"></a>2.1 安装 fio</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ yum install -y fio</span><br></pre></td></tr></table></figure>
 
@@ -284,8 +290,110 @@
 </ul>
 <p><img src="/2021/12/06/MapperX-%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/2.png" alt="img"></p>
 <h1 id="3-下载、编译、安装-MapperX"><a href="#3-下载、编译、安装-MapperX" class="headerlink" title="3 下载、编译、安装 MapperX"></a>3 下载、编译、安装 MapperX</h1><ul>
-<li>根据 <a target="_blank" rel="noopener" href="https://github.com/nicexlab/MapperX">MapperX</a> README.md 的提示步骤，下载、编译、安装 MapperX</li>
+<li><p>根据 <a target="_blank" rel="noopener" href="https://github.com/nicexlab/MapperX">MapperX</a> README.md 的提示步骤，下载、编译、安装 MapperX</p>
+</li>
+<li><p>编译内核，</p>
+</li>
 </ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make CONFIG_DM_CACHE=m -j4</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译指定模块，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make CONFIG_DM_CACHE=m modules SUBDIRS=drivers/md</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安装模块，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo make modules_install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安装内核，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启虚拟机，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ reboot</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-Benchmark"><a href="#4-Benchmark" class="headerlink" title="4 Benchmark"></a>4 Benchmark</h1><h2 id="4-1-Random-Write-Latency"><a href="#4-1-Random-Write-Latency" class="headerlink" title="4.1 Random Write Latency"></a>4.1 Random Write Latency</h2><h3 id="4-1-1-sync"><a href="#4-1-1-sync" class="headerlink" title="4.1.1 sync"></a>4.1.1 sync</h3><ul>
+<li>dm-cache 默认的写策略是 write through，确保每次写到高速缓存的数据都能同步写到大容量低速设备上，不必担心数据丢失的风险，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ dmsetup status centos/dm_main</span><br><span class="line">0 41738240 cache 8 41/2048 128 16384/16384 1690 123 1718562 23599 94 16478 0 3 metadata2 writethrough no_discard_passdown 2 migration_threshold 2048 smq 0 rw -</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看高速缓存的块大小，</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ lvs -o+chunksize centos/dm_main</span><br><span class="line">  LV      VG     Attr       LSize  Pool       Origin          Data%  Meta%  Move Log Cpy%Sync Convert Chunk</span><br><span class="line">  dm_main centos Cwi-a-C--- 19.90g [dm_cache] [dm_main_corig] 0.05   2.15            0.00             64.00k</span><br></pre></td></tr></table></figure>
+
+<p>默认是 64 KB</p>
+<ul>
+<li>运行 fio 开始测试，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ fio -filename=/dev/centos/dm_main -direct=1 -iodepth=1 -thread -rw=randwrite -ioengine=psync -bs=64k -size=100M -numjobs=50 -group_reporting -name=rand_100write_64k_clat &gt; rand_100write_64k_clat</span><br></pre></td></tr></table></figure>
+
+<p>实验数据，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">$ cat rand_100write_64k_clat</span><br><span class="line">rand_100write_64k_clat: (g=0): rw=randwrite, bs=(R) 64.0KiB-64.0KiB, (W) 64.0KiB-64.0KiB, (T) 64.0KiB-64.0KiB, ioengine=psync, iodepth=1</span><br><span class="line">...</span><br><span class="line">fio-3.7</span><br><span class="line">Starting 50 threads</span><br><span class="line"></span><br><span class="line">rand_100write_64k_clat: (groupid=0, <span class="built_in">jobs</span>=50): err= 0: pid=3135: Sun Dec 12 07:50:37 2021</span><br><span class="line">  write: IOPS=5154, BW=322MiB/s (338MB/s)(5000MiB/15519msec)</span><br><span class="line">    clat (usec): min=150, max=209870, avg=9572.78, stdev=5985.26</span><br><span class="line">     lat (usec): min=151, max=209874, avg=9575.53, stdev=5985.52</span><br><span class="line">    clat percentiles (usec):</span><br><span class="line">     |  1.00th=[   529],  5.00th=[  1647], 10.00th=[  6849], 20.00th=[  7570],</span><br><span class="line">     | 30.00th=[  8029], 40.00th=[  8455], 50.00th=[  8979], 60.00th=[ 10159],</span><br><span class="line">     | 70.00th=[ 10814], 80.00th=[ 11469], 90.00th=[ 12387], 95.00th=[ 13435],</span><br><span class="line">     | 99.00th=[ 27132], 99.50th=[ 44827], 99.90th=[ 84411], 99.95th=[115868],</span><br><span class="line">     | 99.99th=[154141]</span><br><span class="line">   bw (  KiB/s): min= 1792, max=14336, per=2.00%, avg=6589.61, stdev=1289.25, samples=1497</span><br><span class="line">   iops        : min=   28, max=  224, avg=102.72, stdev=20.18, samples=1497</span><br><span class="line">  lat (usec)   : 250=0.04%, 500=0.80%, 750=1.44%, 1000=1.10%</span><br><span class="line">  lat (msec)   : 2=2.26%, 4=1.90%, 10=50.81%, 20=40.11%, 50=1.15%</span><br><span class="line">  lat (msec)   : 100=0.32%, 250=0.07%</span><br><span class="line">  cpu          : usr=0.16%, sys=1.47%, ctx=79970, majf=0, minf=31</span><br><span class="line">  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, &gt;=64=0.0%</span><br><span class="line">     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%</span><br><span class="line">     issued rwts: total=0,80000,0,0 short=0,0,0,0 dropped=0,0,0,0</span><br><span class="line">     latency   : target=0, window=0, percentile=100.00%, depth=1</span><br><span class="line"></span><br><span class="line">Run status group 0 (all <span class="built_in">jobs</span>):</span><br><span class="line">  WRITE: bw=322MiB/s (338MB/s), 322MiB/s-322MiB/s (338MB/s-338MB/s), io=5000MiB (5243MB), run=15519-15519msec</span><br></pre></td></tr></table></figure>
+
+<p>clat（Completion Latency）p50为8979，avg为9572.78，p99.9为84411</p>
+<ul>
+<li>重新运行 fio，其他参数不变，设置 iodepth=16，测试 IOPS，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">write: IOPS=5111, BW=319MiB/s (335MB/s)(5000MiB/15652msec)</span><br><span class="line">iops        : min=   42, max=  271, avg=102.47, stdev=23.19, samples=1492</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将 dm-cache 的块大小更改成 128KB，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --splitcache centos/dm_main</span><br><span class="line">  Logical volume centos/dm_main is not cached and cache pool centos/dm_cache is unused.</span><br><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/dm_main --chunksize 128</span><br><span class="line">Do you want wipe existing metadata of cache pool centos/dm_cache? [y/n]: y</span><br><span class="line">  Logical volume centos/dm_main is now cached.</span><br></pre></td></tr></table></figure>
+
+<p>重复上面的实验，先测 clat，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ fio -filename=/dev/centos/dm_main -direct=1 -iodepth=1 -thread -rw=randwrite -ioengine=psync -bs=128k -size=100M -numjobs=50 -group_reporting -name=rand_100write_128k_clat &gt; rand_100write_128k_clat</span><br><span class="line"> clat (usec): min=294, max=286567, avg=16790.77, stdev=11746.64</span><br><span class="line"> </span><br><span class="line"> clat percentiles (usec):</span><br><span class="line">     |  1.00th=[  1532],  5.00th=[  4146], 10.00th=[  7373], 20.00th=[ 13566],</span><br><span class="line">     | 30.00th=[ 15401], 40.00th=[ 16909], 50.00th=[ 17695], 60.00th=[ 18220],</span><br><span class="line">     | 70.00th=[ 18744], 80.00th=[ 19268], 90.00th=[ 20317], 95.00th=[ 21365],</span><br><span class="line">     | 99.00th=[ 32375], 99.50th=[ 65274], 99.90th=[263193], 99.95th=[270533],</span><br><span class="line">     | 99.99th=[283116]</span><br></pre></td></tr></table></figure>
+
+<p>然后再测 iops，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ fio -filename=/dev/centos/dm_main -direct=1 -iodepth=16 -thread -rw=randwrite -ioengine=psync -bs=128k -size=100M -numjobs=50 -group_reporting -name=rand_100write_128k_iops &gt; rand_100write_128k_iops</span><br><span class="line">write: IOPS=3133, BW=392MiB/s (411MB/s)(5000MiB/12764msec)</span><br><span class="line">iops        : min=   39, max=   88, avg=62.72, stdev= 9.68, samples=1215</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将 dm-cache 的块大小更改成 256KB，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --splitcache centos/dm_main</span><br><span class="line">  Logical volume centos/dm_main is not cached and cache pool centos/dm_cache is unused.</span><br><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/dm_main --chunksize 256</span><br><span class="line">Do you want wipe existing metadata of cache pool centos/dm_cache? [y/n]: y</span><br><span class="line">  Logical volume centos/dm_main is now cached.</span><br></pre></td></tr></table></figure>
+
+<p>测试 clat，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ fio -filename=/dev/centos/dm_main -direct=1 -iodepth=1 -thread -rw=randwrite -ioengine=psync -bs=256k -size=100M -numjobs=50 -group_reporting -name=rand_100write_256k_clat &gt; rand_100write_256k_clat</span><br><span class="line"> clat (usec): min=349, max=266827, avg=26564.90, stdev=14122.46</span><br><span class="line"> </span><br><span class="line"> clat percentiles (usec):</span><br><span class="line">     |  1.00th=[  1696],  5.00th=[  6980], 10.00th=[ 21627], 20.00th=[ 24511],</span><br><span class="line">     | 30.00th=[ 25297], 40.00th=[ 25822], 50.00th=[ 26346], 60.00th=[ 26870],</span><br><span class="line">     | 70.00th=[ 27395], 80.00th=[ 28181], 90.00th=[ 30016], 95.00th=[ 33162],</span><br><span class="line">     | 99.00th=[ 80217], 99.50th=[125305], 99.90th=[221250], 99.95th=[231736],</span><br><span class="line">     | 99.99th=[258999]</span><br></pre></td></tr></table></figure>
+
+<p>测试 iops，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ fio -filename=/dev/centos/dm_main -direct=1 -iodepth=16 -thread -rw=randwrite -ioengine=psync -bs=256k -size=100M -numjobs=50 -group_reporting -name=rand_100write_256k_iops &gt; rand_100write_256k_iops</span><br><span class="line">write: IOPS=1678, BW=420MiB/s (440MB/s)(5000MiB/11916msec)</span><br><span class="line">iops        : min=   13, max=   75, avg=33.92, stdev= 6.59, samples=1107</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-1-2-normal"><a href="#4-1-2-normal" class="headerlink" title="4.1.2 normal"></a>4.1.2 normal</h3><ul>
+<li>将 dm-cache 的 write mode 更改为 writeback，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ lvconvert --splitcache centos/dm_main</span><br><span class="line">  Logical volume centos/dm_main is not cached and cache pool centos/dm_cache is unused.</span><br><span class="line">$ lvconvert --<span class="built_in">type</span> cache --cachepool dm_cache centos/dm_main --chunksize 64 --cachemode writeback</span><br><span class="line">Do you want wipe existing metadata of cache pool centos/dm_cache? [y/n]: y</span><br><span class="line">  Logical volume centos/dm_main is now cached.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重复上面的实验，</li>
+</ul>
+<p>当 dm-cache 块大小为 64KB 时，clat 为，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">clat (usec): min=122, max=254254, avg=3028.95, stdev=8495.91</span><br><span class="line">  </span><br><span class="line">clat percentiles (usec):</span><br><span class="line"> |  1.00th=[   293],  5.00th=[   498], 10.00th=[   717], 20.00th=[  1106],</span><br><span class="line"> | 30.00th=[  1450], 40.00th=[  1778], 50.00th=[  2114], 60.00th=[  2442],</span><br><span class="line"> | 70.00th=[  2868], 80.00th=[  3556], 90.00th=[  4686], 95.00th=[  5604],</span><br><span class="line"> | 99.00th=[ 11076], 99.50th=[ 58459], 99.90th=[147850], 99.95th=[183501],</span><br><span class="line"> | 99.99th=[235930]</span><br></pre></td></tr></table></figure>
+
+<p>iops 为，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">write: IOPS=14.8k, BW=925MiB/s (970MB/s)(5000MiB/5405msec)</span><br><span class="line">iops        : min=  100, max=  782, avg=322.91, stdev=88.47, samples=435</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当 dm-cache 块大小为 128KB 时，clat 为，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">clat (usec): min=117, max=502708, avg=4851.00, stdev=8269.09</span><br><span class="line"></span><br><span class="line">clat percentiles (usec):</span><br><span class="line"> |  1.00th=[   502],  5.00th=[   898], 10.00th=[  1401], 20.00th=[  2278],</span><br><span class="line"> | 30.00th=[  2933], 40.00th=[  3458], 50.00th=[  3949], 60.00th=[  4490],</span><br><span class="line"> | 70.00th=[  5080], 80.00th=[  5932], 90.00th=[  8029], 95.00th=[  9634],</span><br><span class="line"> | 99.00th=[ 18482], 99.50th=[ 43254], 99.90th=[128451], 99.95th=[152044],</span><br><span class="line"> | 99.99th=[308282]</span><br></pre></td></tr></table></figure>
+
+<p>iops 为，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">write: IOPS=9541, BW=1193MiB/s (1251MB/s)(5000MiB/4192msec)</span><br><span class="line">iops        : min=   56, max=  503, avg=202.64, stdev=75.92, samples=337</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当 dm-cache 块大小为 256KB 时，clat 为，</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">clat (usec): min=205, max=310102, avg=8785.39, stdev=9813.20</span><br><span class="line"> </span><br><span class="line">clat percentiles (usec):</span><br><span class="line"> |  1.00th=[   668],  5.00th=[  1172], 10.00th=[  2278], 20.00th=[  4752],</span><br><span class="line"> | 30.00th=[  5932], 40.00th=[  6849], 50.00th=[  7635], 60.00th=[  8455],</span><br><span class="line"> | 70.00th=[  9503], 80.00th=[ 11207], 90.00th=[ 14222], 95.00th=[ 17695],</span><br><span class="line"> | 99.00th=[ 31065], 99.50th=[ 42730], 99.90th=[149947], 99.95th=[185598],</span><br><span class="line"> | 99.99th=[278922]</span><br></pre></td></tr></table></figure>
+
+<p>iops 为，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">write: IOPS=5323, BW=1331MiB/s (1395MB/s)(5000MiB/3757msec)</span><br><span class="line">iops        : min=   18, max=  233, avg=119.38, stdev=31.13, samples=278</span><br></pre></td></tr></table></figure>
+
 <h1 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h1><ul>
 <li><p>Benchmark</p>
 </li>
