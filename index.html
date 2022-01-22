@@ -155,6 +155,350 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">项目管理工具Maven的使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-22 16:43:27 / 修改时间：16:50:18" itemprop="dateCreated datePublished" datetime="2022-01-22T16:43:27+08:00">2022-01-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Maven/" itemprop="url" rel="index"><span itemprop="name">Maven</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="项目管理工具Maven的使用"><a href="#项目管理工具Maven的使用" class="headerlink" title="项目管理工具Maven的使用"></a>项目管理工具Maven的使用</h1><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1 简介"></a>1 简介</h1><h2 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h2><ul>
+<li>Maven是一款项目管理工具，将项目开发和管理过程抽象成一个项目对象模型（POM）</li>
+</ul>
+<h2 id="1-2-功能"><a href="#1-2-功能" class="headerlink" title="1.2 功能"></a>1.2 功能</h2><ul>
+<li>项目构建：提供标准的、跨平台的自动化项目构建方式</li>
+<li>依赖管理：方便快捷地管理项目依赖的资源（jar包），避免资源间的版本冲突问题</li>
+<li>统一开发结构：提供标准、统一的项目结构</li>
+</ul>
+<h1 id="2-安装配置"><a href="#2-安装配置" class="headerlink" title="2 安装配置"></a>2 安装配置</h1><h2 id="2-1-下载Maven"><a href="#2-1-下载Maven" class="headerlink" title="2.1 下载Maven"></a>2.1 下载Maven</h2><ul>
+<li>下载地址，</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a></p>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/1.png" alt="img"></p>
+<p>如果是Windows平台，选择zip安装包下载</p>
+<h2 id="2-2-解压、移动文件"><a href="#2-2-解压、移动文件" class="headerlink" title="2.2 解压、移动文件"></a>2.2 解压、移动文件</h2><ul>
+<li>解压zip文件，</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/2.png" alt="img"></p>
+<p>将maven根目录移动到一个固定的目录下，</p>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/3.png" alt="img"></p>
+<h2 id="2-3-配置环境变量"><a href="#2-3-配置环境变量" class="headerlink" title="2.3 配置环境变量"></a>2.3 配置环境变量</h2><h3 id="2-3-1-MAVEN-HOME"><a href="#2-3-1-MAVEN-HOME" class="headerlink" title="2.3.1 MAVEN_HOME"></a>2.3.1 MAVEN_HOME</h3><ul>
+<li>新建一个系统环境变量，命名为MAVEN_HOME，值为maven根目录的路径</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/4.png" alt="img"></p>
+<h3 id="2-3-2-Path"><a href="#2-3-2-Path" class="headerlink" title="2.3.2 Path"></a>2.3.2 Path</h3><ul>
+<li>编辑环境变量Path，在末尾添加maven bin目录的路径，</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/5.png" alt="img"></p>
+<h2 id="2-4-测试"><a href="#2-4-测试" class="headerlink" title="2.4 测试"></a>2.4 测试</h2><ul>
+<li>重新打开一个cmd窗口，执行命令mvn，</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/6.png" alt="img"></p>
+<p>如果出现上图中的提示信息，说明安装成功</p>
+<h1 id="3-基本概念"><a href="#3-基本概念" class="headerlink" title="3 基本概念"></a>3 基本概念</h1><h2 id="3-1-仓库"><a href="#3-1-仓库" class="headerlink" title="3.1 仓库"></a>3.1 仓库</h2><ul>
+<li>仓库用于存储资源，包含各种jar包</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/7.png" alt="img"></p>
+<h3 id="3-1-1-分类"><a href="#3-1-1-分类" class="headerlink" title="3.1.1 分类"></a>3.1.1 分类</h3><ul>
+<li>本地仓库：自己电脑上存储资源的仓库，必要时从远程仓库获取资源</li>
+<li>远程仓库：</li>
+</ul>
+<p>（1）中央仓库：Maven团队维护，存储绝大多数资源</p>
+<p>（2）私服：部门/公司范围内存储资源的仓库，必要时从中央仓库获取资源</p>
+<h3 id="3-1-2-私服的作用"><a href="#3-1-2-私服的作用" class="headerlink" title="3.1.2 私服的作用"></a>3.1.2 私服的作用</h3><ul>
+<li>保存具有版权的资源，包含购买或自主研发的jar包</li>
+<li>一定范围内共享资源，仅对内部开发，不对外共享</li>
+</ul>
+<h2 id="3-2-坐标"><a href="#3-2-坐标" class="headerlink" title="3.2 坐标"></a>3.2 坐标</h2><h3 id="3-2-1-作用"><a href="#3-2-1-作用" class="headerlink" title="3.2.1 作用"></a>3.2.1 作用</h3><ul>
+<li>Maven中的坐标用于描述仓库中资源的位置</li>
+<li>使用唯一标识，唯一性定位资源位置，通过该标识可以将资源的识别与下载工作交由机器完成</li>
+</ul>
+<h3 id="3-2-1-组成"><a href="#3-2-1-组成" class="headerlink" title="3.2.1 组成"></a>3.2.1 组成</h3><ul>
+<li>groupId：当前Maven项目隶属的组织名称（通常是域名反写，例如：org.mybatis）</li>
+<li>artifactId：当前Maven项目名称（通常是模块名称，例如CMS、SMS）</li>
+<li>version：当前版本号</li>
+</ul>
+<h2 id="3-3-仓库配置"><a href="#3-3-仓库配置" class="headerlink" title="3.3 仓库配置"></a>3.3 仓库配置</h2><h3 id="3-3-1-本地仓库路径"><a href="#3-3-1-本地仓库路径" class="headerlink" title="3.3.1 本地仓库路径"></a>3.3.1 本地仓库路径</h3><ul>
+<li>打开%MAVEN_HOME%\conf目录下的settings.xml配置文件，定位到localRepository标签，</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/8.png" alt="img"></p>
+<p>添加一个localRepository标签，内部填上本地仓库的路径（默认为：${user.home}/.m2/repository）</p>
+<h3 id="3-3-2-镜像仓库地址"><a href="#3-3-2-镜像仓库地址" class="headerlink" title="3.3.2 镜像仓库地址"></a>3.3.2 镜像仓库地址</h3><ul>
+<li>定位到mirros标签，在内部添加如下一段配置，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">id</span>&gt;</span>aliyunmaven<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>Aliyun Public Repository<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">url</span>&gt;</span>https://maven.aliyun.com/repository/public<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>将Aliyun Maven仓库设置为中央仓库的镜像</p>
+<h1 id="4-实践"><a href="#4-实践" class="headerlink" title="4 实践"></a>4 实践</h1><h2 id="4-1-目录结构"><a href="#4-1-目录结构" class="headerlink" title="4.1 目录结构"></a>4.1 目录结构</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ tree maven_demo/</span><br><span class="line">maven_demo/</span><br><span class="line">├── pom.xml    <span class="comment"># POM配置文件</span></span><br><span class="line">├── src    <span class="comment"># 存放项目源代码文件</span></span><br><span class="line">│   ├── main    <span class="comment"># 存放项目的主要代码 </span></span><br><span class="line">│   │   ├── java    <span class="comment"># 存放java源代码文件</span></span><br><span class="line">│   │   │   └── Demo.java</span><br><span class="line">│   │   └── resources    <span class="comment"># 存放项目配置文件（比如Spring的xml配置文件）</span></span><br><span class="line">│   └── <span class="built_in">test</span></span><br><span class="line">│       ├── java    <span class="comment"># 存放测试所用的java源代码</span></span><br><span class="line">│       │   └── DemoTest.java    </span><br><span class="line">│       └── resources    <span class="comment"># 存放测试所用的配置文件</span></span><br><span class="line">└── target    <span class="comment"># 项目编译后产生的一个目录，主要存放的是编译后的.class文件</span></span><br><span class="line">    ├── classes</span><br><span class="line">    │   └── Demo.class</span><br><span class="line">    ├── generated-sources</span><br><span class="line">    │   └── annotations</span><br><span class="line">    ├── generated-test-sources</span><br><span class="line">    │   └── test-annotations</span><br><span class="line">    ├── maven-status</span><br><span class="line">    │   └── maven-compiler-plugin</span><br><span class="line">    │       └── compile</span><br><span class="line">    │           └── default-compile</span><br><span class="line">    │               ├── createdFiles.lst</span><br><span class="line">    │               └── inputFiles.lst</span><br><span class="line">    └── test-classes</span><br><span class="line">        └── DemoTest.class</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-pom-xml"><a href="#4-2-pom-xml" class="headerlink" title="4.2 pom.xml"></a>4.2 pom.xml</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- POM模型版本 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 公司或组织的唯一标识 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.company<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 项目的唯一标识 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-demo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 项目版本号 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 打包方式 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 定义项目依赖--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/junit/junit --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 公司或组织的唯一标识 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 项目的唯一标识 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 项目版本号 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.13.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-3-常用命令"><a href="#4-3-常用命令" class="headerlink" title="4.3 常用命令"></a>4.3 常用命令</h2><h3 id="4-3-1-项目构建：mvn-compile"><a href="#4-3-1-项目构建：mvn-compile" class="headerlink" title="4.3.1 项目构建：mvn compile"></a>4.3.1 项目构建：mvn compile</h3><ul>
+<li>在maven项目根目录下执行mvn compile命令，</li>
+</ul>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/9.png" alt="img"></p>
+<p>maven将自动下载项目所需依赖和maven插件，然后进行构建</p>
+<h3 id="4-3-2-项目测试：mvn-test"><a href="#4-3-2-项目测试：mvn-test" class="headerlink" title="4.3.2 项目测试：mvn test"></a>4.3.2 项目测试：mvn test</h3><p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/10.png" alt="img"></p>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/11.png" alt="img"></p>
+<ul>
+<li>除了在控制台展示测试结果，还在target\surefire-reports目录下生成测试数据文件，</li>
+</ul>
+<p><img src="https://cjhahfo50v.feishu.cn/space/api/box/stream/download/asynccode/?code=NDgzNzk4M2MxOGZmZTAxOWQzOTg3NDcwYzJlNzYyMWJfeDJEd0NscUdGYjhIRzB3SktXaWVhdVJLYVkyc08zdzJfVG9rZW46Ym94Y255NXltSWF1d0pHN01sQ2tJTHM4d0ZoXzE2NDI4NDEyOTI6MTY0Mjg0NDg5Ml9WNA" alt="img"></p>
+<h3 id="4-3-3-清理编译产物：mvn-clean"><a href="#4-3-3-清理编译产物：mvn-clean" class="headerlink" title="4.3.3 清理编译产物：mvn clean"></a>4.3.3 清理编译产物：mvn clean</h3><p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/12.png" alt="img"></p>
+<ul>
+<li>mvn clean命令将整个target目录删除 </li>
+</ul>
+<h3 id="4-3-4-打包：mvn-package"><a href="#4-3-4-打包：mvn-package" class="headerlink" title="4.3.4 打包：mvn package"></a>4.3.4 打包：mvn package</h3><p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/13.png" alt="img"></p>
+<p><img src="/2022/01/22/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7Maven%E7%9A%84%E4%BD%BF%E7%94%A8/14.png" alt="img"></p>
+<ul>
+<li>打包的过程需要经历：主程序编译、测试程序编译、执行测试程序、最终打包，然后jar（war）包会被存放在target目录下，其中只包含主程序，不包含测试程序</li>
+</ul>
+<h3 id="4-3-5-安装本地仓库：mvn-install"><a href="#4-3-5-安装本地仓库：mvn-install" class="headerlink" title="4.3.5 安装本地仓库：mvn install"></a>4.3.5 安装本地仓库：mvn install</h3><ul>
+<li>mvn install命令依然会经过：主程序编译、测试程序编译、执行测试程序、打包等步骤</li>
+</ul>
+<h2 id="4-4-依赖管理"><a href="#4-4-依赖管理" class="headerlink" title="4.4 依赖管理"></a>4.4 依赖管理</h2><ul>
+<li>依赖指当前项目运行所需的jar包，一个项目可以设置多个依赖</li>
+</ul>
+<h3 id="4-4-1-配置格式"><a href="#4-4-1-配置格式" class="headerlink" title="4.4.1 配置格式"></a>4.4.1 配置格式</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 定义项目依赖--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- https://mvnrepository.com/artifact/junit/junit --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目所属公司或组织的唯一标识--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目的唯一标识--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目版本号--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.13.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-2-依赖传递"><a href="#4-4-2-依赖传递" class="headerlink" title="4.4.2 依赖传递"></a>4.4.2 依赖传递</h3><h4 id="4-4-2-1-依赖的传递性"><a href="#4-4-2-1-依赖的传递性" class="headerlink" title="4.4.2.1 依赖的传递性"></a>4.4.2.1 依赖的传递性</h4><ul>
+<li>直接依赖：在当前项目中通过依赖配置建立的依赖关系</li>
+<li>间接依赖：被依赖的资源如果依赖其他的资源，当前项目间接依赖其他资源</li>
+</ul>
+<h4 id="4-4-2-2-依赖传递冲突问题"><a href="#4-4-2-2-依赖传递冲突问题" class="headerlink" title="4.4.2.2 依赖传递冲突问题"></a>4.4.2.2 依赖传递冲突问题</h4><ul>
+<li>路径优先：当依赖中出现相同的资源时，层级越深，优先级越低；层级越浅，优先级越高</li>
+<li>声明优先：当资源在相同层级被依赖时，配置顺序靠前的覆盖配置顺序靠后的</li>
+</ul>
+<h3 id="4-4-3-可选依赖（不透明）"><a href="#4-4-3-可选依赖（不透明）" class="headerlink" title="4.4.3 可选依赖（不透明）"></a>4.4.3 可选依赖（不透明）</h3><ul>
+<li>可选依赖指对外隐藏当前所依赖的资源</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 定义项目依赖--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- https://mvnrepository.com/artifact/junit/junit --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 目所属公司或组织的唯一标识 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 项目的唯一标识 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 项目版本号 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.13.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 配置可选依赖 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-4-排除依赖（不需要）"><a href="#4-4-4-排除依赖（不需要）" class="headerlink" title="4.4.4 排除依赖（不需要）"></a>4.4.4 排除依赖（不需要）</h3><ul>
+<li>排除依赖指主动断开依赖的资源，被排除的资源无需指定版本</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 定义项目依赖--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- https://mvnrepository.com/artifact/junit/junit --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目所属公司或组织的唯一标识--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目的唯一标识--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         项目版本号--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.13.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         配置可选依赖--&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!--         排除依赖--&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.hamcrest<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hamcrest-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-5-依赖范围"><a href="#4-4-5-依赖范围" class="headerlink" title="4.4.5 依赖范围"></a>4.4.5 依赖范围</h3><ul>
+<li>依赖的jar默认情况可以在任何地方使用，可以通过scope标签设定其依赖范围</li>
+</ul>
+<h4 id="4-4-5-1-依赖作用范围"><a href="#4-4-5-1-依赖作用范围" class="headerlink" title="4.4.5.1 依赖作用范围"></a>4.4.5.1 依赖作用范围</h4><ul>
+<li>主程序范围有效（main文件夹范围内）</li>
+<li>测试程序范围有效（test文件夹范围内）</li>
+<li>是否参与打包（package指令范围内）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>scope</th>
+<th>主代码</th>
+<th>测试代码</th>
+<th>打包</th>
+<th>范例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>compile（默认）</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>log4j</td>
+</tr>
+<tr>
+<td>test</td>
+<td></td>
+<td>Y</td>
+<td></td>
+<td>junit</td>
+</tr>
+<tr>
+<td>provided</td>
+<td>Y</td>
+<td>Y</td>
+<td></td>
+<td>servlet-api</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td></td>
+<td></td>
+<td>Y</td>
+<td>jdbc</td>
+</tr>
+</tbody></table>
+<h2 id="4-5-生命周期"><a href="#4-5-生命周期" class="headerlink" title="4.5 生命周期"></a>4.5 生命周期</h2><h3 id="4-5-1-什么是Maven构建生命周期"><a href="#4-5-1-什么是Maven构建生命周期" class="headerlink" title="4.5.1 什么是Maven构建生命周期"></a>4.5.1 什么是Maven构建生命周期</h3><ul>
+<li>Maven构建生命周期描述的是一次构建过程经历的事件</li>
+</ul>
+<h3 id="4-5-2-阶段"><a href="#4-5-2-阶段" class="headerlink" title="4.5.2 阶段"></a>4.5.2 阶段</h3><ul>
+<li>clean：清理工作</li>
+<li>default：核心工作，例如编译、测试、打包、部署等</li>
+<li>site：产生报告，发布站点等</li>
+</ul>
+<h3 id="4-5-3-clean生命周期"><a href="#4-5-3-clean生命周期" class="headerlink" title="4.5.3 clean生命周期"></a>4.5.3 clean生命周期</h3><ul>
+<li>pre-clean：执行一些需要在clean之前完成的工作</li>
+<li>clean：移除所有上一次构建生成的文件</li>
+<li>post-clean：执行一些需要在clean之后立刻完成的工作</li>
+</ul>
+<h3 id="4-5-4-default生命周期"><a href="#4-5-4-default生命周期" class="headerlink" title="4.5.4 default生命周期"></a>4.5.4 default生命周期</h3><table>
+<thead>
+<tr>
+<th>生命周期阶段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>validate</td>
+<td>验证项目是否正确，并且所有必要的信息可用于完成构建过程</td>
+</tr>
+<tr>
+<td>initialize</td>
+<td>建立初始化状态，例如设置属性</td>
+</tr>
+<tr>
+<td>generate-sources</td>
+<td>产生任何的源代码包含在编译阶段</td>
+</tr>
+<tr>
+<td>process-resources</td>
+<td>复制和处理资源到目标目录，准备打包阶段</td>
+</tr>
+<tr>
+<td>compile</td>
+<td>编译该项目的源代码</td>
+</tr>
+<tr>
+<td>process-classes</td>
+<td>从编译生成的文件提交处理，例如：Java类的字节码增强/优化</td>
+</tr>
+<tr>
+<td>generate-test-sources</td>
+<td>生成任何测试的源代码包含在编译阶段</td>
+</tr>
+<tr>
+<td>process-test-sources</td>
+<td>处理测试源代码，例如：过滤器任何值</td>
+</tr>
+<tr>
+<td>test-compile</td>
+<td>编译测试源代码到测试目标目录</td>
+</tr>
+<tr>
+<td>process-test-classes</td>
+<td>处理测试代码文件编译生成的文件</td>
+</tr>
+<tr>
+<td>test</td>
+<td>运行测试使用合适的单元测试框架（JUnit）</td>
+</tr>
+<tr>
+<td>prepare-package</td>
+<td>执行必要的任何操作的实际打包之前准备一个包</td>
+</tr>
+<tr>
+<td>package</td>
+<td>提取编译后的代码，并在其分发格式打包，如JAR、WAR或EAR文件</td>
+</tr>
+<tr>
+<td>pre-integration-test</td>
+<td>完成执行集成测试之前所需操作。例如，设置所需的环境</td>
+</tr>
+<tr>
+<td>integration-test</td>
+<td>处理并在必要时部署软件包到集成测试可以运行的环境</td>
+</tr>
+<tr>
+<td>post-integration-test</td>
+<td>完成集成测试已全部执行后所需操作。例如：清理环境</td>
+</tr>
+<tr>
+<td>verify</td>
+<td>运行任何检查，验证包是有效的，符合质量审核规定</td>
+</tr>
+<tr>
+<td>install</td>
+<td>将包安装到本地存储库，它可以用作当地其他项目的依赖</td>
+</tr>
+<tr>
+<td>deploy</td>
+<td>复制最终的包到远程仓库与其他开发者和项目共享</td>
+</tr>
+</tbody></table>
+<h3 id="4-5-6-site生命周期"><a href="#4-5-6-site生命周期" class="headerlink" title="4.5.6 site生命周期"></a>4.5.6 site生命周期</h3><ul>
+<li>pre-site：执行一些需要在生成站点文档之前完成的工作</li>
+<li>site：生成项目的站点文档</li>
+<li>post-site：执行一些需要在生成站点文档之后完成的工作，并且为部署做准备</li>
+<li>site-deploy：将生成的站点文档部署到服务器上</li>
+</ul>
+<h3 id="4-6-插件"><a href="#4-6-插件" class="headerlink" title="4.6 插件"></a>4.6 插件</h3><ul>
+<li>插件与生命周期内的阶段绑定，在执行到对应生命周期时执行对应的插件功能</li>
+<li>默认Maven在各个生命周期上绑定有预设的功能</li>
+<li>通过插件可以自定义其他功能，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-source-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">goal</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">phase</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/20/Spring-IOC%E5%AE%B9%E5%99%A8%E4%B9%8BBean%E7%AE%A1%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1849,163 +2193,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/07/%E5%BA%94%E7%94%A8%E5%B1%82%E7%9A%84-write-%E5%A6%82%E4%BD%95%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E9%87%8C%E7%9A%84-write/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/07/%E5%BA%94%E7%94%A8%E5%B1%82%E7%9A%84-write-%E5%A6%82%E4%BD%95%E8%B0%83%E7%94%A8%E9%A9%B1%E5%8A%A8%E9%87%8C%E7%9A%84-write/" class="post-title-link" itemprop="url">应用层的 write 如何调用驱动里的 write</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-07 17:11:52 / 修改时间：17:18:37" itemprop="dateCreated datePublished" datetime="2021-11-07T17:11:52+08:00">2021-11-07</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="应用层的-write-如何调用驱动里的-write"><a href="#应用层的-write-如何调用驱动里的-write" class="headerlink" title="应用层的 write 如何调用驱动里的 write"></a>应用层的 write 如何调用驱动里的 write</h1><h1 id="1-编写应用程序测试-hello-dev-驱动"><a href="#1-编写应用程序测试-hello-dev-驱动" class="headerlink" title="1 编写应用程序测试 hello_dev 驱动"></a>1 编写应用程序测试 hello_dev 驱动</h1><h2 id="1-1-编写测试程序"><a href="#1-1-编写测试程序" class="headerlink" title="1.1 编写测试程序"></a>1.1 编写测试程序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DATA_LEN (64)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[DATA_LEN] = <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/dev/hello&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == fd) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open file error\r\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;open success\r\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> w_len = write(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="number">0</span>, DATA_LEN);</span><br><span class="line">    <span class="keyword">int</span> r_len = read(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d\r\n&quot;</span>, w_len, r_len);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\r\n&quot;</span>, buf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>打开 “/dev/hello” 设备，写入数据，然后再读取，控制台输出write、read函数的返回值、缓冲区中的内容</li>
-</ul>
-<h2 id="1-2-创建字符设备"><a href="#1-2-创建字符设备" class="headerlink" title="1.2 创建字符设备"></a>1.2 创建字符设备</h2><ul>
-<li>执行 insmod 命令加载驱动到内核，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod hello_dev.ko</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>使用 mknod 命令创建设备，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">MKNOD(1)                                                              User Commands                                                             MKNOD(1)</span><br><span class="line">NAME</span><br><span class="line">       mknod - make block or character special files</span><br><span class="line">SYNOPSIS</span><br><span class="line">       mknod [OPTION]... NAME TYPE [MAJOR MINOR]</span><br><span class="line">DESCRIPTION</span><br><span class="line">       Create the special file NAME of the given TYPE.</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>NAME</td>
-<td>设备名称</td>
-</tr>
-<tr>
-<td>TYPE</td>
-<td>设备类型，b表示块设备，c表示字符设备，p表示FIFO</td>
-</tr>
-<tr>
-<td>MAJOR</td>
-<td>主设备号</td>
-</tr>
-<tr>
-<td>MINOR</td>
-<td>次设备号</td>
-</tr>
-</tbody></table>
-<ul>
-<li>hello_dev 驱动文件中定义主设备号为 232，次设备号为 0，于是创建字符设备，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mknod /dev/hello c 232 0</span><br></pre></td></tr></table></figure>
-
-<p>此时执行 ls -l 命令查看设备是否存在，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ls -l /dev/hello</span><br><span class="line">crw-r--r-- 1 root root 232, 0 Nov  6 23:52 /dev/hello</span><br></pre></td></tr></table></figure>
-
-<h2 id="1-2-编译、运行测试程序"><a href="#1-2-编译、运行测试程序" class="headerlink" title="1.2 编译、运行测试程序"></a>1.2 编译、运行测试程序</h2><ul>
-<li>使用 gcc 编译测试程序，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -o hello_dev_test hello_dev_test.c</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>运行测试程序，查看结果，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ ./hello_dev_test </span><br><span class="line">open success</span><br><span class="line">0 0</span><br></pre></td></tr></table></figure>
-
-<p>这里 w_len、r_len 为 0，缓冲区为空，因为 hello_dev 驱动源码中，write、read 函数输出内核日志后就直接返回 0 了</p>
-<ul>
-<li>查看linux内核日志，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ dmesg | tail -3</span><br><span class="line">[ 9040.652155] hello_open</span><br><span class="line">[ 9040.652186] hello_write</span><br><span class="line">[ 9040.652188] hello_read</span><br></pre></td></tr></table></figure>
-
-<p>hello_dev 驱动程序中定义的 open、write、read 函数确实被调用了</p>
-<h1 id="2-从应用层-write-调用到驱动程序中定义的write"><a href="#2-从应用层-write-调用到驱动程序中定义的write" class="headerlink" title="2 从应用层 write 调用到驱动程序中定义的write"></a>2 从应用层 write 调用到驱动程序中定义的write</h1><p>不支持在 Docs 外粘贴 block</p>
-<ul>
-<li>应用进程调用 c 函数库中定义的 write</li>
-<li>c write 函数接着陷入系统调用，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SYSCALL_DEFINE3(write, <span class="keyword">unsigned</span> <span class="keyword">int</span>, fd, <span class="keyword">const</span> <span class="keyword">char</span> __user *, buf, <span class="keyword">size_t</span>, count)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">fd</span> <span class="title">f</span> =</span> fdget_pos(fd);</span><br><span class="line">    <span class="keyword">ssize_t</span> ret = -EBADF;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (f.file) &#123;</span><br><span class="line">        <span class="keyword">loff_t</span> pos = file_pos_read(f.file);</span><br><span class="line">        ret = vfs_write(f.file, buf, count, &amp;pos);</span><br><span class="line">        <span class="keyword">if</span> (ret &gt;= <span class="number">0</span>)</span><br><span class="line">            file_pos_write(f.file, pos);</span><br><span class="line">        fdput_pos(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>linux 的系统调用由 SYSCALL_DEFINE 定义</p>
-<ul>
-<li>write 系统调用根据文件描述符获取到实际的 file 结构体对象，作为其中1个参数，调用 vfs_write 函数，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">vfs_write</span><span class="params">(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *buf, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *pos)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">ssize_t</span> ret;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!(file-&gt;f_mode &amp; FMODE_WRITE))</span><br><span class="line">        <span class="keyword">return</span> -EBADF;</span><br><span class="line">    <span class="keyword">if</span> (!(file-&gt;f_mode &amp; FMODE_CAN_WRITE))</span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">    <span class="keyword">if</span> (unlikely(!access_ok(VERIFY_READ, buf, count)))</span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line"></span><br><span class="line">    ret = rw_verify_area(WRITE, file, pos, count);</span><br><span class="line">    <span class="keyword">if</span> (!ret) &#123;</span><br><span class="line">        <span class="keyword">if</span> (count &gt; MAX_RW_COUNT)</span><br><span class="line">            count =  MAX_RW_COUNT;</span><br><span class="line">        file_start_write(file);</span><br><span class="line">        ret = __vfs_write(file, buf, count, pos);</span><br><span class="line">        <span class="keyword">if</span> (ret &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            fsnotify_modify(file);</span><br><span class="line">            add_wchar(current, ret);</span><br><span class="line">        &#125;</span><br><span class="line">        inc_syscw(current);</span><br><span class="line">        file_end_write(file);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>vfs_write 函数调用底层的 __vfs_write 函数，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count, <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">        <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">        <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在 __vfs_write 函数中，判断此文件类型是否有定义 write 函数，如果有则直接调用返回结果。file 结构体的 f_op 字段是 file_operations 类型，在 hello_dev 驱动源码中，</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">devNum = MKDEV(reg_major, reg_minor);</span><br><span class="line">............</span><br><span class="line">gDev = kzalloc(<span class="keyword">sizeof</span>(struct cdev), GFP_KERNEL);</span><br><span class="line">gFile = kzalloc(<span class="keyword">sizeof</span>(struct file_operations), GFP_KERNEL);</span><br><span class="line">gFile-&gt;open = hello_open;</span><br><span class="line">gFile-&gt;read = hello_read;</span><br><span class="line">gFile-&gt;write = hello_write;</span><br><span class="line">gFile-&gt;owner = THIS_MODULE;</span><br><span class="line">cdev_init(gDev, gFile);</span><br><span class="line">cdev_add(gDev, devNum, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
-
-<p>将字符设备和 file_operations 结构体对象绑定，然后将字符设备和设备号绑定</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2075,20 +2262,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-count">30</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
