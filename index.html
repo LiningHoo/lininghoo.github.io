@@ -155,6 +155,133 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/25/MyBatis%E5%AE%89%E8%A3%85%E3%80%81%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/25/MyBatis%E5%AE%89%E8%A3%85%E3%80%81%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">MyBatis安装、配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-25 10:51:26 / 修改时间：10:54:26" itemprop="dateCreated datePublished" datetime="2022-01-25T10:51:26+08:00">2022-01-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/MyBatis/" itemprop="url" rel="index"><span itemprop="name">MyBatis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MyBatis安装、配置"><a href="#MyBatis安装、配置" class="headerlink" title="MyBatis安装、配置"></a>MyBatis安装、配置</h1><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1 简介"></a>1 简介</h1><h2 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h2><ul>
+<li>MyBatis是一个半自动化的持久化层框架</li>
+</ul>
+<h2 id="1-2-为什么要使用MyBatis"><a href="#1-2-为什么要使用MyBatis" class="headerlink" title="1.2 为什么要使用MyBatis"></a>1.2 为什么要使用MyBatis</h2><ul>
+<li>对于开发人员而言，核心SQL还是需要自己优化</li>
+<li>SQL和Java编码分开，功能边界清晰，一个专注业务，一个专注数据</li>
+</ul>
+<h3 id="1-2-1-JDBC"><a href="#1-2-1-JDBC" class="headerlink" title="1.2.1 JDBC"></a>1.2.1 JDBC</h3><ul>
+<li>SQL夹在Java代码块里，耦合度高导致硬编码内伤</li>
+<li>维护不易，且实际开发需求中SQL频繁修改的情况是多见的</li>
+</ul>
+<h3 id="1-2-2-Hibernate"><a href="#1-2-2-Hibernate" class="headerlink" title="1.2.2 Hibernate"></a>1.2.2 Hibernate</h3><ul>
+<li>长难SQL对于Hibernate而言处理也不容易</li>
+<li>内部自动产生的SQL，不容易做特殊优化</li>
+<li>基于全映射的全自动框架，大量自动的POJO进行部分映射时比较困难，导致数据库性能下降</li>
+</ul>
+<h1 id="2-idea导入MyBatis"><a href="#2-idea导入MyBatis" class="headerlink" title="2 idea导入MyBatis"></a>2 idea导入MyBatis</h1><ul>
+<li>使用 Maven 来构建项目，则需将下面的依赖代码置于 pom.xml 文件中：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>x.x.x<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>“x.x.x”替换成对应的版本号</p>
+<h1 id="3-Hello-world"><a href="#3-Hello-world" class="headerlink" title="3 Hello world"></a>3 Hello world</h1><h2 id="3-1-创建MySQL数据表、添加数据"><a href="#3-1-创建MySQL数据表、添加数据" class="headerlink" title="3.1 创建MySQL数据表、添加数据"></a>3.1 创建MySQL数据表、添加数据</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> employees (</span><br><span class="line">    id <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">primary</span> key auto_increment,</span><br><span class="line">    last_name <span class="type">varchar</span>(<span class="number">255</span>),</span><br><span class="line">    gender <span class="type">char</span>(<span class="number">1</span>),</span><br><span class="line">    email <span class="type">varchar</span>(<span class="number">255</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> employees (id, last_name, gender, email) <span class="keyword">values</span> (<span class="number">1</span>, &quot;tom&quot;, <span class="number">0</span>, &quot;136xxxx@qq.com&quot;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> employees e </span><br><span class="line">id<span class="operator">|</span>last_name<span class="operator">|</span>gender<span class="operator">|</span>email         <span class="operator">|</span></span><br><span class="line"><span class="comment">--+---------+------+--------------+</span></span><br><span class="line"> <span class="number">1</span><span class="operator">|</span>tom      <span class="operator">|</span><span class="number">0</span>     <span class="operator">|</span><span class="number">136</span>xxxx<span class="variable">@qq</span>.com<span class="operator">|</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-从-XML-中构建-SqlSessionFactory"><a href="#3-2-从-XML-中构建-SqlSessionFactory" class="headerlink" title="3.2 从 XML 中构建 SqlSessionFactory"></a>3.2 <strong>从 XML 中构建 SqlSessionFactory</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.lnhoo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String lastName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">char</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLastName</span><span class="params">(String lastName)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.lastName = lastName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setGender</span><span class="params">(<span class="keyword">char</span> gender)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.gender = gender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setEmail</span><span class="params">(String email)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.email = email;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Employee&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;id=&quot;</span> + id +</span><br><span class="line">                <span class="string">&quot;, lastName=&#x27;&quot;</span> + lastName + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, gender=&quot;</span> + gender +</span><br><span class="line">                <span class="string">&quot;, email=&#x27;&quot;</span> + email + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 测试类</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBatisTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMapper</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> (SqlSession session = sqlSessionFactory.openSession()) &#123;</span><br><span class="line">            Employee employee = (Employee) session.selectOne(<span class="string">&quot;com.lnhoo.EmployeeMapper.selectEmployee&quot;</span>, <span class="number">1</span>);</span><br><span class="line">            System.out.println(employee);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的。SqlSessionFactory 的实例可以通过 SqlSessionFactoryBuilder 获得。而 SqlSessionFactoryBuilder 则可以从 XML 配置文件或一个预先配置的 Configuration 实例来构建出 SqlSessionFactory 实例。</li>
+</ul>
+<h2 id="3-3-mybatis-config-xml"><a href="#3-3-mybatis-config-xml" class="headerlink" title="3.3 mybatis-config.xml"></a>3.3 mybatis-config.xml</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Config 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">&quot;JDBC&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">&quot;POOLED&quot;</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driver&quot;</span> <span class="attr">value</span>=<span class="string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;jdbc:mysql://localhost:3306/mybatis&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;root&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;hln167&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">&quot;EmployeeMapper.xml&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>XML 配置文件中包含了对 MyBatis 系统的核心设置，包括获取数据库连接实例的数据源（DataSource）以及决定事务作用域和控制方式的事务管理器（TransactionManager）</li>
+</ul>
+<h2 id="3-4-Mapper配置文件"><a href="#3-4-Mapper配置文件" class="headerlink" title="3.4 Mapper配置文件"></a>3.4 Mapper配置文件</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectEmployee&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.Employee&quot;</span>&gt;</span></span><br><span class="line">        select id id, last_name lastName, gender gender, email email from employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在数据库表中的字段last_name对应于Employee类中的lastName属性，因为命名不一致，所以需要在SQL语句中将last_name字段起别名为lastName</li>
+</ul>
+<h2 id="3-5-接口式编程"><a href="#3-5-接口式编程" class="headerlink" title="3.5 接口式编程"></a>3.5 接口式编程</h2><h3 id="3-5-1-定义接口"><a href="#3-5-1-定义接口" class="headerlink" title="3.5.1 定义接口"></a>3.5.1 定义接口</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeMapper</span> </span>&#123;</span><br><span class="line">    <span class="function">Employee <span class="title">getEmployeeById</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在接口中定义方法的参数和返回值</li>
+</ul>
+<h3 id="3-5-2-定义Mapper"><a href="#3-5-2-定义Mapper" class="headerlink" title="3.5.2 定义Mapper"></a>3.5.2 定义Mapper</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.dao.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.Employee&quot;</span>&gt;</span></span><br><span class="line">        select id id, last_name lastName, gender gender, email email from employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过xml文件配置接口和SQL语句的绑定关系</li>
+<li>mapper标签的namespace属性必须和Mapper接口的全路径一致</li>
+<li>select标签的id属性必须和接口中定义的方法名一致，resultType属性填返回对象所属类的全路径</li>
+</ul>
+<h3 id="3-5-3-调用方法"><a href="#3-5-3-调用方法" class="headerlink" title="3.5.3 调用方法"></a>3.5.3 调用方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBatisTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMapper</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> (SqlSession session = sqlSessionFactory.openSession()) &#123;</span><br><span class="line">            EmployeeMapper employeeMapper = session.getMapper(EmployeeMapper.class);</span><br><span class="line">            Employee employee = employeeMapper.getEmployeeById(<span class="number">1</span>);</span><br><span class="line">            System.out.println(employee);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将接口和xml配置文件绑定后，MyBatis会自动为接口创建动态代理对象，由代理对象去执行增删改查</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/22/Spring-AOP%EF%BC%88%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2132,145 +2259,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/" class="post-title-link" itemprop="url">字符设备驱动代码添加到内核源码树</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-13 21:14:58 / 修改时间：21:22:08" itemprop="dateCreated datePublished" datetime="2021-11-13T21:14:58+08:00">2021-11-13</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="字符设备驱动代码添加到内核源码树"><a href="#字符设备驱动代码添加到内核源码树" class="headerlink" title="字符设备驱动代码添加到内核源码树"></a>字符设备驱动代码添加到内核源码树</h1><h1 id="1-静态加载"><a href="#1-静态加载" class="headerlink" title="1 静态加载"></a>1 静态加载</h1><h2 id="1-1-移动驱动设备源码文件"><a href="#1-1-移动驱动设备源码文件" class="headerlink" title="1.1 移动驱动设备源码文件"></a>1.1 移动驱动设备源码文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cp hello_dev.c ~/workspace/c/src/linux-4.9.229/drivers/char/</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>将字符设备驱动源码文件拷贝到 linux 内核源码的 drivers/char 目录下</li>
-</ul>
-<h2 id="1-2-修改-Kconfig-文件"><a href="#1-2-修改-Kconfig-文件" class="headerlink" title="1.2 修改 Kconfig 文件"></a>1.2 修改 Kconfig 文件</h2><ul>
-<li>在 drivers/char 目录下的 Kconfig 文件中添加如下几行，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">config HELLO_DEV</span><br><span class="line">    tristate <span class="string">&quot;hello device&quot;</span></span><br><span class="line">    default y</span><br><span class="line">    <span class="built_in">help</span></span><br><span class="line">      hello device</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>config 关键字后面跟着的是在 make menuconfig 中的配置项名称</li>
-<li>关于  tristate ，前缀 tri- 表示“三”，state 表示“状态”，也就是说这个模块可以有三种状态：y(编译进内核)、m(作为独立模块编译)、n(不被编译)</li>
-<li>如果是 bool 则说明这个模块只有两种状态：y(编译进内核)、n(不被编译)</li>
-<li>default 后面跟着模块的默认状态，当前是 y(编译进内核)</li>
-<li>help 后面的内容是此模块的帮助信息</li>
-</ul>
-<h2 id="1-3-查看修改后的配置"><a href="#1-3-查看修改后的配置" class="headerlink" title="1.3 查看修改后的配置"></a>1.3 查看修改后的配置</h2><ul>
-<li>执行 make menuconfig 命令可视化查看配置信息，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make menuconfig</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/1.png" alt="img"></p>
-<p>选择 Device Drivers 进入，</p>
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/2.png" alt="img"></p>
-<p>选择 Character devices 进入，</p>
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/3.png" alt="img"></p>
-<p>字符设备驱动模块 hello device 确实出现在列表中，左侧的 “*” 表示 built-in，即将此模块编译到内核中，如果是 “M” 表示作为独立模块编译，“[]” 表示不编译此模块</p>
-<ul>
-<li>选择 Help 进入，</li>
-</ul>
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/4.png" alt="img"></p>
-<p>可以看到 hello_dev 模块的帮助信息</p>
-<h2 id="1-4-修改-Makefile-文件"><a href="#1-4-修改-Makefile-文件" class="headerlink" title="1.4 修改 Makefile 文件"></a>1.4 修改 Makefile 文件</h2><ul>
-<li>在 drivers/char 目录下的 Makefile 文件添加以下内容，</li>
-</ul>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj-<span class="variable">$(CONFIG_HELLO_DEV)</span>   += hello_dev.o</span><br></pre></td></tr></table></figure>
-
-<h2 id="1-5-编译-linux-内核"><a href="#1-5-编译-linux-内核" class="headerlink" title="1.5 编译 linux 内核"></a>1.5 编译 linux 内核</h2><ul>
-<li>在 linux 内核源码根目录下执行 make 命令，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make -j4</span><br></pre></td></tr></table></figure>
-
-<h1 id="2-动态加载"><a href="#2-动态加载" class="headerlink" title="2 动态加载"></a>2 动态加载</h1><h2 id="2-1-静态加载、动态加载的区别"><a href="#2-1-静态加载、动态加载的区别" class="headerlink" title="2.1 静态加载、动态加载的区别"></a>2.1 静态加载、动态加载的区别</h2><ul>
-<li>静态加载：驱动源码被编译到内核里面，随着内核启动，不需要手动通过 insmod 命令加载</li>
-<li>动态加载：驱动作为独立模块编译，生成 .ko 文件，需要在内核启动后，手动或者通过脚本的形式执行 insmod 命令加载设备驱动模块</li>
-</ul>
-<h2 id="2-2-修改编译配置文件"><a href="#2-2-修改编译配置文件" class="headerlink" title="2.2 修改编译配置文件"></a>2.2 修改编译配置文件</h2><ul>
-<li>执行 make menuconfig，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make menuconfig</span><br></pre></td></tr></table></figure>
-
-<p>依次选择 Device Drivers  -&gt; Character devices 进入，</p>
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/5.png" alt="img"></p>
-<p>配置 hello device 驱动作为独立模块编译，</p>
-<p><img src="/2021/11/13/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E6%A0%91/6.png" alt="img"></p>
-<h2 id="2-3-编译-linux-内核"><a href="#2-3-编译-linux-内核" class="headerlink" title="2.3 编译 linux 内核"></a>2.3 编译 linux 内核</h2><ul>
-<li>在 linux 内核源码根目录下执行 make 命令，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make -j4</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-查看编译产物"><a href="#2-4-查看编译产物" class="headerlink" title="2.4 查看编译产物"></a>2.4 查看编译产物</h2><ul>
-<li>切换到 hello_dev 驱动源码所在目录，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> drivers/char/</span><br></pre></td></tr></table></figure>
-
-<p>确认是否存在对应的 .ko 文件，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ll hello_dev.ko</span><br><span class="line">-rw-rw-r-- 1 lnhoo lnhoo 5535 Nov 13 20:51 hello_dev.ko</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2340,20 +2328,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
