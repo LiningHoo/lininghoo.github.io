@@ -155,6 +155,172 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/" class="post-title-link" itemprop="url">MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-25 23:43:16 / 修改时间：23:53:00" itemprop="dateCreated datePublished" datetime="2021-10-25T23:43:16+08:00">2021-10-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"><a href="#MapperX-基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复" class="headerlink" title="MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复"></a>MapperX: 基于DM-Cache混合存储设备的自适应元数据维护，实现快速故障恢复</h1><h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h2 id="混合存储设备"><a href="#混合存储设备" class="headerlink" title="混合存储设备"></a>混合存储设备</h2><ul>
+<li>固态硬盘相比于传统的机械硬盘，在处理随机小I/O时具有更出色的表现</li>
+<li>但是现在固态硬盘的价格依然比机械硬盘昂贵得多</li>
+<li>近些年，提出了混合存储设备的概念，例如SSHD技术，将SSD作为HHD的高速缓存，以低成本的方式提供更快速的读写</li>
+</ul>
+<h2 id="DM-Cache-概览"><a href="#DM-Cache-概览" class="headerlink" title="DM-Cache 概览"></a>DM-Cache 概览</h2><ul>
+<li>DM-Cache是Linux内核设备映射器的一个组件，实现了物理块设备到虚拟块设备的映射，其将SSDs和HHDs映射到虚拟块设备，SSD作为HHD的高速缓存</li>
+<li>Linux中I/O设备分为两类：块设备和字符设备，SSD和HHD都属于块设备</li>
+</ul>
+<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/arch.png" alt="img"></p>
+<ul>
+<li>虚拟块设备是一种抽象，应用程序将数据写入虚拟块设备、获得ACK确认，从虚拟块设备读取数据，底层的SSD、HHD操作对应用程序是透明的</li>
+<li>DM-Cache元数据(metadata)存储：SSD块和对应HHD块之间的映射关系、“脏”位、当前采用策略相关的元数据</li>
+<li>若采用写回法(writeback)的模式，有两种可能的情况：</li>
+</ul>
+<p>(1) 被修改的块在缓存中：</p>
+<p>不需要更新元数据中SSD块和对应HHD块之间的映射关系，但是要在将“脏”位信息放到内存中后向调用方发送ACK确认，之后由异步任务将“脏”位信息持久化到元数据驱动器上</p>
+<p>(2) 被修改的块不在缓存中：</p>
+<p>需要将HHD块加载到SSD缓存中，同步修改元数据中SSD块和对应HHD块之间的映射关系，之后的步骤和情况(1)中一样</p>
+<ul>
+<li>如果写局部性较高，则缓存命中率高，不需要频繁修改元数据中的映射关系，这样“脏”位的同步会造成更大的影响</li>
+<li>MapperX使用ABT(adaptive bit-tree)数据结构同步地以层次结构的形式维护”脏”位元数据；ABT用一个比特位表示某个连续范围内的数据块</li>
+</ul>
+<h2 id="DM-Cache-的缺陷"><a href="#DM-Cache-的缺陷" class="headerlink" title="DM-Cache 的缺陷"></a>DM-Cache 的缺陷</h2><ul>
+<li>DM-Cache默认在发生写操作时先将“脏”位信息放入内存中，之后再由异步任务写入元数据驱动器，因为内存是易失性设备，断电后数据消失，这样当系统崩溃时，无法得知SSD缓存中哪些是“脏”数据，只好假定SSD缓存中全部都是“脏”数据（即使大部分数据块是一致的），全都要写入HHD，导致崩溃恢复时间长、系统可用性差</li>
+</ul>
+<h1 id="MapperX"><a href="#MapperX" class="headerlink" title="MapperX"></a>MapperX</h1><h2 id="CBT"><a href="#CBT" class="headerlink" title="CBT"></a>CBT</h2><ul>
+<li>有1个在内存中的位图，记录着全部数据块的状态(1个bit代表对应数据块是否为“脏”，即不一致)，首先把这个位图展开成度为d的树，称为CBT(Complete bit-tree)</li>
+<li>展开方式：数据块的个数最好为d的幂次，刚开始一分为d，分为d个子树，然后递归划分下去，最后叶子结点就代表位图中的某个bit</li>
+</ul>
+<h2 id="ABT"><a href="#ABT" class="headerlink" title="ABT"></a>ABT</h2><ul>
+<li>MapperX在元数据存储器中维护着CBT的摘要，称之为ABT(Adaptive bit-tree)</li>
+<li>对于每次写操作，ABT同步更新</li>
+<li>ABT的结点表示某个连续范围内的数据块状态，初始状态是只有一个“干净”的根结点，表示SSD缓存和HHD数据完全一致</li>
+</ul>
+<h2 id="自适应算法"><a href="#自适应算法" class="headerlink" title="自适应算法"></a>自适应算法</h2><h3 id="BitTreeUpdate"><a href="#BitTreeUpdate" class="headerlink" title="BitTreeUpdate"></a>BitTreeUpdate</h3><ol>
+<li>更新内存中的位图(每一bit表示某个数据块，0代表数据一致，1代表存在“脏”数据)</li>
+<li>更新CBT：当某个结点任何一个子孙结点状态为“脏”，置这个结点状态为脏；如果所有子孙结点都“干净”，这个结点状态也为“干净”</li>
+<li>如果写操作导致ABT的某个叶子结点变“脏”，根据CBT修改磁盘上的ABT</li>
+</ol>
+<h3 id="PeriodicAdjust"><a href="#PeriodicAdjust" class="headerlink" title="PeriodicAdjust"></a>PeriodicAdjust</h3><ul>
+<li>参数列表：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>p</td>
+<td>时间</td>
+<td>异步任务执行周期(采样间隔，默认为1s)</td>
+</tr>
+<tr>
+<td>n</td>
+<td>整数</td>
+<td>SLA(Service-Level Agreement)</td>
+</tr>
+<tr>
+<td>abt</td>
+<td>树</td>
+<td>自适应树ABT</td>
+</tr>
+</tbody></table>
+<ul>
+<li>算法：</li>
+</ul>
+<ol>
+<li>置W为客户端在异步任务执行周期p内的写入操作次数</li>
+<li>置N为元数据驱动器被写入的次数</li>
+<li>如果 N/W ≥  1/(10^n)，认定元数据写入频率太高了，因为元数据修改是同步的，这会降低写操作的性能，在ABT中找到所有叶子结点的直接父结点，在这个范围内寻找在周期p中导致最多元数据写操作的结点，在ABT中将它的子结点移除</li>
+<li>如果 N/W &lt;  1/(10^n)，认定还可以接受更高一点频率的元数据写入，于是在ABT中找到周期p内最少元数据写入的叶子结点，在它的下方生成d个子结点，状态根据CBT设置</li>
+</ol>
+<h2 id="快速崩溃恢复策略"><a href="#快速崩溃恢复策略" class="headerlink" title="快速崩溃恢复策略"></a>快速崩溃恢复策略</h2><ul>
+<li>因为元数据是在每次写操作发生时同步更新的，所以在ABT中的叶子结点对“脏”状态的判断不存在假阴性，也就是说，如果一个叶子结点的状态不为“脏”，那么它所表示的连续数据块也就没有“脏”数据，在数据恢复时可以安全地跳过这些块</li>
+<li>对于ABT中每个状态为“脏”的叶子结点，其所表示范围的SSD缓存块全都写回HHD</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><ul>
+<li>重用DM-Cache原有的4字节元数据类型，最后两位分别是“脏”位和有效位，将所有4字节元数据的前30位组织成一个位数组，每一bit表示1个结点，以宽度优先的方式表示</li>
+<li>V-ABT和CBT具有相同的层数和叶子结点数，但是只要状态为“脏”的<strong>叶子结点</strong>标记为1，其余结点标记为0</li>
+<li>例如：</li>
+</ul>
+<p><img src="/2021/10/25/MapperX-%E5%9F%BA%E4%BA%8EDM-Cache%E6%B7%B7%E5%90%88%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E8%87%AA%E9%80%82%E5%BA%94%E5%85%83%E6%95%B0%E6%8D%AE%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%AE%9E%E7%8E%B0%E5%BF%AB%E9%80%9F%E6%95%85%E9%9A%9C%E6%81%A2%E5%A4%8D/tree.png" alt="img"></p>
+<p>上图是1个V-ABT，度为2，层数为4，有两个“脏”状态的叶子结点被标记为1，根据宽度优先，可以将这个V-ABT表示成1个15个bit的位数组：001010000000000</p>
+<h1 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h1><h2 id="写入时延"><a href="#写入时延" class="headerlink" title="写入时延"></a>写入时延</h2><ul>
+<li>根据实验数据，使用MapperX后，写入时延相比于原有的DM-Cache略微高一些，但是远低于使用同步写“脏”位元数据的策略</li>
+<li>MapperX本质上也是同步写“脏”位元数据，但是利用了客户端写操作的局部性原理，减少了对元数据的写入次数</li>
+<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，客户端写入时延增加</li>
+</ul>
+<h2 id="IOPS-writes-per-sec"><a href="#IOPS-writes-per-sec" class="headerlink" title="IOPS(writes per sec)"></a>IOPS(writes per sec)</h2><ul>
+<li>根据实验数据，使用MapperX后，IOPS低于原有的DM-Cache，远高于使用同步写“脏”位元数据的策略</li>
+</ul>
+<h2 id="恢复时间"><a href="#恢复时间" class="headerlink" title="恢复时间"></a>恢复时间</h2><ul>
+<li>根据实验数据，使用MapperX后，崩溃恢复时间相比于原有的DM-Cache显著减少</li>
+<li>随着预期β值(写元数据次数占所有客户端写操作次数的比例)的增加，恢复时间减少，这是因为在<strong>PeriodicAdjust</strong>过程中，当N/W小于β时会在ABT中增加叶子结点，从而叶子结点表示范围粒度更细，在崩溃恢复的时候，需要写回HHD的缓存块个数更少</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/03/influxDB-%E4%BB%8B%E7%BB%8D%E5%92%8C%E4%BD%BF%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1119,126 +1285,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/30/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/30/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">缓存穿透、缓存雪崩、缓存击穿 解决方案分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-09-30 11:11:13 / 修改时间：11:16:08" itemprop="dateCreated datePublished" datetime="2021-09-30T11:11:13+08:00">2021-09-30</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="缓存穿透、缓存雪崩、缓存击穿-解决方案分析"><a href="#缓存穿透、缓存雪崩、缓存击穿-解决方案分析" class="headerlink" title="缓存穿透、缓存雪崩、缓存击穿 解决方案分析"></a>缓存穿透、缓存雪崩、缓存击穿 解决方案分析</h1><h1 id="1-缓存穿透"><a href="#1-缓存穿透" class="headerlink" title="1 缓存穿透"></a>1 缓存穿透</h1><ul>
-<li>正常的读取流程是，先查缓存，如果在缓存中的查不到或者数据过期，那么就到数据库中查询。如果在数据库能查到，则放入缓存，下次就能在缓存中以较快的速度拿到数据。</li>
-<li>如果用来查询的key在数据库中根本不存在，则每次查询都会直接打到数据库，因为在上面的读取流程中不对查询为空的结果进行缓存。如果当前 qps 很高，会对数据库造成压力，甚至压垮数据库。 </li>
-</ul>
-<h2 id="1-1-空值法"><a href="#1-1-空值法" class="headerlink" title="1.1 空值法"></a>1.1 空值法</h2><h3 id="1-1-1-基本思路"><a href="#1-1-1-基本思路" class="headerlink" title="1.1.1 基本思路"></a>1.1.1 基本思路</h3><ul>
-<li>当在数据库中查不到时，将查询为空的结果进行缓存，并设置过期时间，这样下次就可以直接根据在缓存中拿到的数据，判断是否存在。</li>
-</ul>
-<h3 id="1-1-2-缺点"><a href="#1-1-2-缺点" class="headerlink" title="1.1.2 缺点"></a>1.1.2 缺点</h3><ul>
-<li>假如每次查询的key都不一样，并且在数据库中均不存在对应的记录，这样空值法就失效了，因为空值法只会对当前key查询为空的结果进行缓存。</li>
-</ul>
-<h2 id="1-2-布隆过滤器"><a href="#1-2-布隆过滤器" class="headerlink" title="1.2 布隆过滤器"></a>1.2 布隆过滤器</h2><h3 id="1-2-1-原理"><a href="#1-2-1-原理" class="headerlink" title="1.2.1 原理"></a>1.2.1 原理</h3><ul>
-<li>布隆过滤器的主要功能就是用来判断某个元素（key）是否在集合中</li>
-</ul>
-<h4 id="1-2-1-1-算法"><a href="#1-2-1-1-算法" class="headerlink" title="1.2.1.1 算法"></a>1.2.1.1 算法</h4><ul>
-<li>首先需要k个hash函数，每个函数可以把key散列成为1个整数</li>
-<li>初始化时，需要一个长度为n比特的数组，每个比特位初始化为0</li>
-<li>某个key加入集合时，用k个hash函数计算出k个散列值，并把数组中对应的比特位置为1</li>
-<li>判断某个key是否在集合时，用k个hash函数计算出k个散列值，并查询数组中对应的比特位，如果所有的比特位都是1，认为在集合中</li>
-</ul>
-<h4 id="1-2-1-2-缺点"><a href="#1-2-1-2-缺点" class="headerlink" title="1.2.1.2 缺点"></a>1.2.1.2 缺点</h4><ul>
-<li>算法判断key在集合中时，有一定的概率key其实不在集合中（误判率可以调），但是如果算法判断key不在集合中，则一定不在</li>
-<li>无法删除，因为存在hash冲突，不同的key可能经hash运算后映射到相同的整数值</li>
-</ul>
-<h3 id="1-2-2-使用"><a href="#1-2-2-使用" class="headerlink" title="1.2.2 使用"></a>1.2.2 使用</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;github.com/bits-and-blooms/bloom/v3&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    size := <span class="keyword">uint</span>(<span class="number">1e5</span>)</span><br><span class="line">    filter := bloom.NewWithEstimates(size, <span class="number">0.01</span>)</span><br><span class="line">    <span class="keyword">var</span> i <span class="keyword">uint</span></span><br><span class="line">    <span class="keyword">for</span> i = <span class="number">0</span>; i &lt; size; i++ &#123;</span><br><span class="line">        filter.Add([]<span class="keyword">byte</span>(fmt.Sprintf(<span class="string">&quot;%d&quot;</span>, i)))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    count := <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i = size; i &lt; size+<span class="number">10000</span>; i++ &#123;</span><br><span class="line">        <span class="keyword">if</span> filter.Test([]<span class="keyword">byte</span>(fmt.Sprintf(<span class="string">&quot;%d&quot;</span>, i))) &#123;</span><br><span class="line">            count++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;误判次数：%d\n&quot;</span>, count)</span><br><span class="line">&#125;</span><br><span class="line">$ <span class="keyword">go</span> run ./bloom.<span class="keyword">go</span></span><br><span class="line">误判次数：<span class="number">90</span></span><br></pre></td></tr></table></figure>
-
-<p>查询10000个不在集合中的数，误判次数为90，因此误判率约为1%，和设置值接近。</p>
-<h3 id="1-2-3-使用布隆过滤器解决缓存穿透问题"><a href="#1-2-3-使用布隆过滤器解决缓存穿透问题" class="headerlink" title="1.2.3 使用布隆过滤器解决缓存穿透问题"></a>1.2.3 使用布隆过滤器解决缓存穿透问题</h3><ul>
-<li>读取时先查布隆过滤器，不存在的key可以100%地判断出来，如果出现误判，查询会被直接打到数据库，但是因为误判率通常设置得很低，所以对服务造成影响微乎其微。</li>
-</ul>
-<h1 id="2-缓存雪崩"><a href="#2-缓存雪崩" class="headerlink" title="2 缓存雪崩"></a>2 缓存雪崩</h1><ul>
-<li>缓存雪崩，是指在某一个时间段内，<strong>缓存集中过期，集中失效（可能是物理原因）</strong>。</li>
-</ul>
-<h2 id="2-1-大量缓存失效"><a href="#2-1-大量缓存失效" class="headerlink" title="2.1 大量缓存失效"></a>2.1 大量缓存失效</h2><ul>
-<li><strong>将缓存失效时间分散开</strong>，比如在原有的失效时间基础上增加一个<strong>随机值</strong>，对于热点数据，过期时间尽量设置得长一些，冷门的数据可以相对设置过期时间短一些。</li>
-</ul>
-<h2 id="2-2-缓存服务器宕机"><a href="#2-2-缓存服务器宕机" class="headerlink" title="2.2 缓存服务器宕机"></a>2.2 缓存服务器宕机</h2><ul>
-<li>使用缓存集群，避免单机宕机造成的缓存雪崩。</li>
-</ul>
-<h1 id="3-缓存击穿"><a href="#3-缓存击穿" class="headerlink" title="3 缓存击穿"></a>3 缓存击穿</h1><p>缓存在某个时间点过期的时候，恰好在这个时间点对这个Key有大量的并发请求过来，这些请求发现缓存过期一般都会从后端DB加载数据并回设到缓存，这个时候大并发的请求可能会瞬间把后端DB压垮。</p>
-<h2 id="3-1-分布式锁"><a href="#3-1-分布式锁" class="headerlink" title="3.1 分布式锁"></a>3.1 分布式锁</h2><ul>
-<li>如果key不在缓存中，就加锁去查数据库，然后放入缓存中。这样多个并发的查询请求，只有一个会被打到数据库，其余的请求从缓存中就可以拿到数据。</li>
-</ul>
-<h2 id="3-2-singleflight"><a href="#3-2-singleflight" class="headerlink" title="3.2 singleflight"></a>3.2 singleflight</h2><ul>
-<li>当大量请求到来时，对于相同的key，函数对象只会被调用一次。也就是说只有一次请求会被打到数据库，其余请求从singleflight内部维护的map中获取查询结果。</li>
-</ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;errors&quot;</span></span><br><span class="line">    <span class="string">&quot;log&quot;</span></span><br><span class="line">    <span class="string">&quot;sync&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;golang.org/x/sync/singleflight&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">    wg.Add(<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 模拟10个并发</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            <span class="keyword">defer</span> wg.Done()</span><br><span class="line">            data, err := GetData(<span class="string">&quot;key&quot;</span>)</span><br><span class="line">            <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">                log.Println(err)</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">            log.Println(data)</span><br><span class="line">        &#125;()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> g singleflight.Group</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetData</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 先查缓存</span></span><br><span class="line">    data, err := GetDataFromCache(key)</span><br><span class="line">    <span class="keyword">if</span> err == errNotExist &#123;</span><br><span class="line">        <span class="comment">// 缓存中找不到，查数据库</span></span><br><span class="line">        value, err, _ := g.Do(key, <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="params">(<span class="keyword">interface</span>&#123;&#125;, error)</span></span> &#123;</span><br><span class="line">            <span class="keyword">return</span> GetDataFromDB(key)</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            log.Println(err)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">        &#125;</span><br><span class="line">        data = value.(<span class="keyword">string</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> data, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> errNotExist = errors.New(<span class="string">&quot;not exists&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetDataFromCache</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 模拟在缓存中查不到的情况</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errNotExist</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetDataFromDB</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    log.Printf(<span class="string">&quot;get %s from database&quot;</span>, key)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;data&quot;</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ go run ./singleflight.go </span><br><span class="line">2021/09/30 10:57:01 get key from database</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br><span class="line">2021/09/30 10:57:01 data</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>上面的代码模拟10个并发的请求，查询相同的key对应的的value，只有一次是去访问数据库，其余都是从singleflight内部维护的map中获取的。</li>
-</ul>
-<h2 id="3-3-多级cache"><a href="#3-3-多级cache" class="headerlink" title="3.3 多级cache"></a>3.3 多级cache</h2><p>localcache + 分布式缓存，本地缓存失效后优先读分布式缓存，减少回源。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1308,7 +1354,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

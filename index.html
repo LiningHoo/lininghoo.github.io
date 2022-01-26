@@ -155,6 +155,191 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/26/MyBatis%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/26/MyBatis%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">MyBatis全局配置文件</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-26 10:19:27 / 修改时间：10:22:03" itemprop="dateCreated datePublished" datetime="2022-01-26T10:19:27+08:00">2022-01-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/MyBatis/" itemprop="url" rel="index"><span itemprop="name">MyBatis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MyBatis全局配置文件"><a href="#MyBatis全局配置文件" class="headerlink" title="MyBatis全局配置文件"></a>MyBatis全局配置文件</h1><h1 id="1-引入dtd约束"><a href="#1-引入dtd约束" class="headerlink" title="1 引入dtd约束"></a>1 引入dtd约束</h1><ul>
+<li>文档类型定义（DTD）可定义合法的XML文档构建模块。它使用一系列合法的元素来定义文档的结构，DTD 可被成行地声明于 XML 文档中，也可作为一个外部引用</li>
+<li>在MyBatis全局配置文件mybatis-config.xml的开头，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">configuration</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Config 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>引入了MyBatis的文档类型定义文件，这样在IDE中编辑就可以出现xml标签和属性的自动提示</p>
+<ul>
+<li>在Mapper配置文件的头部也有引入dtd文件，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">        <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">        <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="2-引入外部配置文件"><a href="#2-引入外部配置文件" class="headerlink" title="2 引入外部配置文件"></a>2 引入外部配置文件</h1><ul>
+<li>可以使用properties标签引入外部配置文件，</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">jdbc.driver=com.mysql.cj.jdbc.Driver</span><br><span class="line">jdbc.url=jdbc:mysql://localhost:3306/mybatis</span><br><span class="line">jdbc.username=root</span><br><span class="line">jdbc.password=123456</span><br><span class="line">&lt;properties resource=&quot;dbsource.properties&quot;&gt;&lt;/properties&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>properties标签可以用两种方式表示外部配置文件的地址，</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>resource</td>
+<td>从本地项目类路径下获取外部配置文件</td>
+</tr>
+<tr>
+<td>url</td>
+<td>从网络url远程获取外部配置文件</td>
+</tr>
+</tbody></table>
+<h1 id="3-运行时行为设置"><a href="#3-运行时行为设置" class="headerlink" title="3 运行时行为设置"></a>3 运行时行为设置</h1><ul>
+<li>可以通过settings标签配置MyBatis的运行时行为设置项，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;mapUnderscoreToCamelCase&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，将运行时行为mapUnderscoreToCamelCase的值设置为true，MyBatis就会将数据库中下划线表示的字段自动映射到Java类中驼峰命名的属性上，即从经典数据库列名A_COLUMN映射到经典Java属性名aColumn</p>
+<ul>
+<li>其他的运行时行为设置项可以参考：<a target="_blank" rel="noopener" href="https://mybatis.org/mybatis-3/zh/configuration.html">mybatis – MyBatis 3 | 配置</a>中settings一节</li>
+</ul>
+<h1 id="4-类型别名"><a href="#4-类型别名" class="headerlink" title="4 类型别名"></a>4 类型别名</h1><h2 id="4-1-typeAlias"><a href="#4-1-typeAlias" class="headerlink" title="4.1 typeAlias"></a>4.1 typeAlias</h2><ul>
+<li>可以使用typeAlias标签为Java类起别名，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAlias</span> <span class="attr">type</span>=<span class="string">&quot;com.lnhoo.Employee&quot;</span> <span class="attr">alias</span>=<span class="string">&quot;emp&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">typeAlias</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>相应的，在Mapper配置文件中也需要修改resultType，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.dao.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;emp&quot;</span>&gt;</span></span><br><span class="line">        select * from employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-package标签"><a href="#4-2-package标签" class="headerlink" title="4.2 package标签"></a>4.2 package标签</h2><ul>
+<li>在typeAliases标签内部，可以通过package标签批量为包下的所有类起别名，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">&quot;com.lnhoo&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时类的别名是类名的小写形式，比如Employee类的别名就是employee</p>
+<h2 id="4-3-Alias注解"><a href="#4-3-Alias注解" class="headerlink" title="4.3 @Alias注解"></a>4.3 @Alias注解</h2><ul>
+<li>在使用package标签批量起别名的时候，可能会造成名字冲突，此时可以在Java类上面应用@Alias注解起别名，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Alias(&quot;emp&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String lastName;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">char</span> gender;</span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(Integer id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLastName</span><span class="params">(String lastName)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.lastName = lastName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setGender</span><span class="params">(<span class="keyword">char</span> gender)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.gender = gender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setEmail</span><span class="params">(String email)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.email = email;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Employee&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;id=&quot;</span> + id +</span><br><span class="line">                <span class="string">&quot;, lastName=&#x27;&quot;</span> + lastName + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, gender=&quot;</span> + gender +</span><br><span class="line">                <span class="string">&quot;, email=&#x27;&quot;</span> + email + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="5-类型处理器"><a href="#5-类型处理器" class="headerlink" title="5 类型处理器"></a>5 类型处理器</h1><ul>
+<li>MyBatis 在设置预处理语句（PreparedStatement）中的参数或从结果集中取出一个值时， 都会用类型处理器将获取到的值以合适的方式转换成Java类型</li>
+</ul>
+<h1 id="6-插件"><a href="#6-插件" class="headerlink" title="6 插件"></a>6 插件</h1><ul>
+<li>MyBatis允许你在映射语句执行过程中的某一点进行拦截调用。默认情况下，MyBatis允许使用插件来拦截的方法调用包括：</li>
+</ul>
+<p>（1）Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)</p>
+<p>（2）ParameterHandler (getParameterObject, setParameters)</p>
+<p>（3）ResultSetHandler (handleResultSets, handleOutputParameters)</p>
+<p>（4）StatementHandler (prepare, parameterize, batch, update, query)</p>
+<h1 id="7-运行环境"><a href="#7-运行环境" class="headerlink" title="7 运行环境"></a>7 运行环境</h1><ul>
+<li>可以在environments标签内部通过environment标签配置多种运行环境，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">&quot;development&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">&quot;JDBC&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">&quot;POOLED&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driver&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.username&#125;&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>大多数情况下，开发环境、测试环境的数据源是相互隔离的，所以需要两份配置</p>
+<ul>
+<li>环境必须提供事务管理器和数据源配置信息</li>
+<li>可以通过设置environments标签的default属性在多个环境之间快速切换</li>
+<li>使用dataSource标签配置数据源，内置的数据源包括：POOLED（带连接池）、UNPOOLED（不带连接池）、JNDI</li>
+<li>自定义数据源：实现DataSourceFactory接口，在dataSource标签的type属性填上全类名</li>
+</ul>
+<h1 id="8-多数据库支持"><a href="#8-多数据库支持" class="headerlink" title="8 多数据库支持"></a>8 多数据库支持</h1><ul>
+<li>MyBatis可以根据不同的数据库厂商执行不同的语句，这种多厂商的支持是基于映射语句中的databaseId属性。 MyBatis会加载带有匹配当前数据库databaseId属性和所有不带databaseId属性的语句， 如果同时找到带有databaseId和不带databaseId的相同语句，则后者会被舍弃</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">databaseIdProvider</span> <span class="attr">type</span>=<span class="string">&quot;DB_VENDOR&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;MySQL&quot;</span> <span class="attr">value</span>=<span class="string">&quot;mysql&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;Oracle&quot;</span> <span class="attr">value</span>=<span class="string">&quot;oracle&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;SQL Server&quot;</span> <span class="attr">value</span>=<span class="string">&quot;sqlserver&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">databaseIdProvider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在Mapper配置文件中，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.dao.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;emp&quot;</span>&gt;</span></span><br><span class="line">        select * from employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;emp&quot;</span> <span class="attr">databaseId</span>=<span class="string">&quot;mysql&quot;</span>&gt;</span></span><br><span class="line">        select * from employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;emp&quot;</span> <span class="attr">databaseId</span>=<span class="string">&quot;oracle&quot;</span>&gt;</span></span><br><span class="line">        select id, last_name, email from tbl_employees where id = #&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用databaseId属性指定SQL语句执行所在的数据库</p>
+<h1 id="9-SQL映射注册"><a href="#9-SQL映射注册" class="headerlink" title="9 SQL映射注册"></a>9 SQL映射注册</h1><h2 id="9-1-注册配置文件"><a href="#9-1-注册配置文件" class="headerlink" title="9.1 注册配置文件"></a>9.1 注册配置文件</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">&quot;EmployeeMapper.xml&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用mapper标签在MyBatis全局配置文件中注册SQL映射配置文件</li>
+<li>resource属性从类路径加载xml配置文件，如果是url属性，则从网络或磁盘位置加载xml配置文件</li>
+</ul>
+<h2 id="9-2-注册接口"><a href="#9-2-注册接口" class="headerlink" title="9.2 注册接口"></a>9.2 注册接口</h2><ul>
+<li>使用注解方式实现Mapper接口中方法和预执行的SQL语句的绑定，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeMapperAnnotation</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Select(value = &quot;select * from employees where id=#&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function">Employee <span class="title">getEmployeeById</span><span class="params">(Integer id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在MyBatis全局配置文件中引入SQL映射接口，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">class</span>=<span class="string">&quot;com.lnhoo.dao.EmployeeMapperAnnotation&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/25/MyBatis%E5%AE%89%E8%A3%85%E3%80%81%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2117,148 +2302,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/" class="post-title-link" itemprop="url">内核空间和用户空间的数据拷贝</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-21 17:30:45 / 修改时间：17:40:01" itemprop="dateCreated datePublished" datetime="2021-11-21T17:30:45+08:00">2021-11-21</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="内核空间和用户空间的数据拷贝"><a href="#内核空间和用户空间的数据拷贝" class="headerlink" title="内核空间和用户空间的数据拷贝"></a>内核空间和用户空间的数据拷贝</h1><h1 id="1-内核空间和用户空间"><a href="#1-内核空间和用户空间" class="headerlink" title="1 内核空间和用户空间"></a>1 内核空间和用户空间</h1><h2 id="1-1-地址空间的划分"><a href="#1-1-地址空间的划分" class="headerlink" title="1.1 地址空间的划分"></a>1.1 地址空间的划分</h2><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/1.png" alt="img"></p>
-<ul>
-<li>32位地址总线的寻址范围是4GB，默认情况下，在32位系统中，处于低地址的3GB地址被分配给用户空间，处于高地址的1GB地址被分配给内核空间</li>
-<li>在 arch/x86/include/asm/page_32_types.h 中有如下定义，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * This handles the memory map.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * A __PAGE_OFFSET of 0xC0000000 means that the kernel has</span></span><br><span class="line"><span class="comment"> * a virtual address space of one gigabyte, which limits the</span></span><br><span class="line"><span class="comment"> * amount of physical memory you can use to about 950MB.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * If you want more physical memory than this then see the CONFIG_HIGHMEM4G</span></span><br><span class="line"><span class="comment"> * and CONFIG_HIGHMEM64G options in the kernel configuration.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PAGE_OFFSET_BASE  _AC(CONFIG_PAGE_OFFSET, UL)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __PAGE_OFFSET       __PAGE_OFFSET_BASE</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="1-2-用户空间和内核空间的区别"><a href="#1-2-用户空间和内核空间的区别" class="headerlink" title="1.2 用户空间和内核空间的区别"></a>1.2 用户空间和内核空间的区别</h2><h3 id="1-2-1-权限不同"><a href="#1-2-1-权限不同" class="headerlink" title="1.2.1 权限不同"></a>1.2.1 权限不同</h3><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/2.png" alt="img"></p>
-<ul>
-<li>对于 x86 体系的 CPU，用户空间代码运行在 Ring3 模式，内核空间代码运行在 Ring0 模式</li>
-<li>对于 arm 体系的 CPU， 用户空间代码运行在 usr 模式，内核空间代码运行在 svc 模式</li>
-</ul>
-<h3 id="1-2-2-安全考量"><a href="#1-2-2-安全考量" class="headerlink" title="1.2.2 安全考量"></a>1.2.2 安全考量</h3><ul>
-<li>整个系统中有各种资源，比如计算资源、内存资源和外设资源，而 linux 是多用户、多进程系统，所以这些资源必须在受限的、被管理的状态下使用，否则就会陷入混乱。空间隔离可以保证即使是单个应用程序出现错误也不会影响到操作系统的稳定性</li>
-</ul>
-<h3 id="1-2-3-侧重点"><a href="#1-2-3-侧重点" class="headerlink" title="1.2.3 侧重点"></a>1.2.3 侧重点</h3><ul>
-<li>内核代码偏重于系统管理；而用户空间代码（也即应用程序）偏重于业务逻辑的实现</li>
-</ul>
-<h2 id="1-3-应用程序使用内核提供的服务"><a href="#1-3-应用程序使用内核提供的服务" class="headerlink" title="1.3 应用程序使用内核提供的服务"></a>1.3 应用程序使用内核提供的服务</h2><p><img src="/2021/11/21/%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E6%8D%AE%E6%8B%B7%E8%B4%9D/3.png" alt="img"></p>
-<ul>
-<li>CPU、内存、外设、文件等资源是受保护的，用户进程无法直接操作，必须以系统调用的形式访问</li>
-<li>当应用程序要使用内核提供的服务时，要通过 “访管” 指令陷入到内核态，触发软中断，执行对应的系统调用</li>
-<li>当处于进程上下文的程序在运行时，如果发生定时器中断、外设中断，当前进程会被打断，CPU 进入内核态去执行对应的中断处理程序，处理结束后再回到用户进程</li>
-</ul>
-<h1 id="2-数据拷贝"><a href="#2-数据拷贝" class="headerlink" title="2 数据拷贝"></a>2 数据拷贝</h1><h2 id="2-1-用户空间向内核空间拷贝数据"><a href="#2-1-用户空间向内核空间拷贝数据" class="headerlink" title="2.1 用户空间向内核空间拷贝数据"></a>2.1 用户空间向内核空间拷贝数据</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_write</span><span class="params">(struct file *f, <span class="keyword">const</span> <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_write\r\n&quot;</span>);</span><br><span class="line">    <span class="keyword">int</span> write_len = BUFFER_MAX &gt; s ? s : BUFFER_MAX;</span><br><span class="line">    <span class="keyword">if</span> (copy_from_user(buffer, u, write_len)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> write_len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>指针 u 用 __user 宏修饰，表示这是用户空间指针，内核不能直接使用</li>
-<li>在内核空间定义缓冲区 buffer，存放 hello_dev 字符设备的数据</li>
-<li>write_len 取缓冲区容量 BUFFER_MAX 和字符长度 s 的最小值，防止越界</li>
-<li>调用 copy_from_user 函数执行用户空间到内核空间的数据拷贝，传入内核空间地址、用户空间地址、数据长度，成功返回零，失败返回非零值</li>
-</ul>
-<h2 id="2-2-内核空间向用户空间拷贝数据"><a href="#2-2-内核空间向用户空间拷贝数据" class="headerlink" title="2.2 内核空间向用户空间拷贝数据"></a>2.2 内核空间向用户空间拷贝数据</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">hello_read</span><span class="params">(struct file *f, <span class="keyword">char</span> __user *u, <span class="keyword">size_t</span> s, <span class="keyword">loff_t</span> *l)</span> </span>&#123;</span><br><span class="line">    printk(KERN_INFO <span class="string">&quot;hello_read\r\n&quot;</span>);   </span><br><span class="line">    <span class="keyword">int</span> read_len = BUFFER_MAX &gt; s ? s : BUFFER_MAX;</span><br><span class="line">    <span class="keyword">if</span> (copy_to_user(u, buffer, read_len)) &#123;</span><br><span class="line">        <span class="keyword">return</span> -EFAULT;</span><br><span class="line">    &#125;   </span><br><span class="line">    <span class="keyword">return</span> read_len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>调用 copy_to_user 函数执行内核空间到用户空间的数据拷贝，传入用户空间地址、内核空间地址、数据长度，成功返回零，失败返回非零值</li>
-</ul>
-<h2 id="2-3-测试"><a href="#2-3-测试" class="headerlink" title="2.3 测试"></a>2.3 测试</h2><h3 id="2-3-1-创建字符设备"><a href="#2-3-1-创建字符设备" class="headerlink" title="2.3.1 创建字符设备"></a>2.3.1 创建字符设备</h3><ul>
-<li>重新编译内核，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br><span class="line">............</span><br><span class="line">Kernel: arch/x86/boot/bzImage is ready  (<span class="comment">#3)</span></span><br><span class="line">Building modules, stage 2.</span><br><span class="line">MODPOST 19 modules</span><br><span class="line">LD [M]  drivers/char/hello_dev.ko</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>加载 hello_dev 驱动模块，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo insmod hello_dev.ko</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>创建 hello_dev 字符设备，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mknod /dev/hello c 232 0</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>添加访问权限，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo chmod a+w /dev/hello</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-3-2-编译、运行测试程序"><a href="#2-3-2-编译、运行测试程序" class="headerlink" title="2.3.2 编译、运行测试程序"></a>2.3.2 编译、运行测试程序</h3><ul>
-<li>测试程序，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DATA_LEN (32)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[DATA_LEN] = <span class="string">&quot;Hello, world!&quot;</span>;</span><br><span class="line">    <span class="keyword">int</span> fd = open(<span class="string">&quot;/dev/hello&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">-1</span> == fd) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open file error\r\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;open success\r\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> w_len = write(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="number">0</span>, DATA_LEN);</span><br><span class="line">    <span class="keyword">int</span> r_len = read(fd, buf, DATA_LEN);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %d\r\n&quot;</span>, w_len, r_len);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\r\n&quot;</span>, buf);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>编译，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc hello_dev_test.c -o hello_dev_test</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>运行，</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ./hello_dev_test </span><br><span class="line">open success</span><br><span class="line">32 32</span><br><span class="line">Hello, world!</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2328,7 +2371,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
