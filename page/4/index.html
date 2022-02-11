@@ -155,6 +155,109 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/01/go%E8%AF%AD%E8%A8%80%E6%93%8D%E4%BD%9Cetcd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/01/go%E8%AF%AD%E8%A8%80%E6%93%8D%E4%BD%9Cetcd/" class="post-title-link" itemprop="url">go语言操作etcd</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-01 16:38:41 / 修改时间：16:54:21" itemprop="dateCreated datePublished" datetime="2021-10-01T16:38:41+08:00">2021-10-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="go语言操作etcd"><a href="#go语言操作etcd" class="headerlink" title="go语言操作etcd"></a>go语言操作etcd</h1><p>etcd的安装、集群部署请参考：<a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.5/">v3.5 docs | etcd</a></p>
+<h1 id="1-安装-client"><a href="#1-安装-client" class="headerlink" title="1 安装 client"></a>1 安装 client</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get go.etcd.io/etcd/client/v3</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-连接集群"><a href="#2-连接集群" class="headerlink" title="2 连接集群"></a>2 连接集群</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cli, err := clientv3.New(clientv3.Config&#123;</span><br><span class="line">        Endpoints:   []<span class="keyword">string</span>&#123;<span class="string">&quot;localhost:2379&quot;</span>&#125;, <span class="comment">// 集群各节点ip地址:端口号</span></span><br><span class="line">        DialTimeout: <span class="number">5</span> * time.Second,     <span class="comment">// 连接超时时间</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logrus.Errorf(<span class="string">&quot;connect to etcd cluster error: %w&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line">logrus.Info(<span class="string">&quot;connect to etcd success&quot;</span>)</span><br><span class="line"><span class="keyword">defer</span> cli.Close()</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-put-和-get-操作"><a href="#3-put-和-get-操作" class="headerlink" title="3 put 和 get 操作"></a>3 put 和 get 操作</h1><h2 id="3-1-代码"><a href="#3-1-代码" class="headerlink" title="3.1 代码"></a>3.1 代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// put</span></span><br><span class="line">ctx, cancel := context.WithTimeout(context.Background(), time.Second)</span><br><span class="line">_, err = cli.Put(ctx, <span class="string">&quot;greeting&quot;</span>, <span class="string">&quot;Hello, world!&quot;</span>)</span><br><span class="line">cancel()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logrus.Errorf(<span class="string">&quot;put to etcd error: %w&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// get</span></span><br><span class="line">ctx, cancel = context.WithTimeout(context.Background(), time.Second)</span><br><span class="line">resp, err := cli.Get(ctx, <span class="string">&quot;greeting&quot;</span>)</span><br><span class="line">cancel()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logrus.Errorf(<span class="string">&quot;get from etcd error: %w&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> _, pair := <span class="keyword">range</span> resp.Kvs &#123;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;%s:%s\n&quot;</span>, pair.Key, pair.Value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>etcd v3 使用gRPC实现远程过程调用，为了确保不产生goroutine泄露（不被使用的goroutine一直占用资源），调用etcd v3 client API时，要传入context.WithTimeout参数，用于通知子goroutine结束，释放资源。</li>
+</ul>
+<h2 id="3-2-效果演示"><a href="#3-2-效果演示" class="headerlink" title="3.2 效果演示"></a>3.2 效果演示</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run etcd.go</span> </span><br><span class="line">INFO[0000] connect to etcd success                      </span><br><span class="line">greeting:Hello, world!</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-watch-操作"><a href="#4-watch-操作" class="headerlink" title="4 watch 操作"></a>4 watch 操作</h1><h2 id="4-1-代码"><a href="#4-1-代码" class="headerlink" title="4.1 代码"></a>4.1 代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// watch</span></span><br><span class="line">watchChan := cli.Watch(context.Background(), <span class="string">&quot;greeting&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> wresp := <span class="keyword">range</span> watchChan &#123;</span><br><span class="line">    <span class="keyword">for</span> _, event := <span class="keyword">range</span> wresp.Events &#123;</span><br><span class="line">        logrus.Infof(<span class="string">&quot;Type: %s Key:%s Value:%s\n&quot;</span>, event.Type, event.Kv.Key, event.Kv.Value)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用Client对象的watch方法，返回1个channel，etcd client对给定的key进行监听，将修改事件记录在channel中</li>
+<li>修改事件对象包含：修改类型（更新、删除）、Key、Value 信息</li>
+</ul>
+<h2 id="4-2-效果演示"><a href="#4-2-效果演示" class="headerlink" title="4.2 效果演示"></a>4.2 效果演示</h2><p>编译、运行程序，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run etcd.go</span> </span><br><span class="line">INFO[0000] connect to etcd success</span><br></pre></td></tr></table></figure>
+
+<p>更新操作，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> etcdctl --endpoints=http://localhost:2379 put greeting <span class="string">&quot;Hello, etcd!&quot;</span>                          OK</span>                        </span><br></pre></td></tr></table></figure>
+
+<p>查看程序输出，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run etcd.go</span> </span><br><span class="line">INFO[0000] connect to etcd success                      </span><br><span class="line">INFO[0477] Type: PUT Key:greeting Value:Hello, etcd!</span><br></pre></td></tr></table></figure>
+
+<p>删除操作，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> etcdctl --endpoints=http://localhost:2379 del greeting                                         1</span>                       </span><br></pre></td></tr></table></figure>
+
+<p>查看程序输出，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go run etcd.go</span> </span><br><span class="line">INFO[0000] connect to etcd success                      </span><br><span class="line">INFO[0477] Type: PUT Key:greeting Value:Hello, etcd!    </span><br><span class="line">INFO[0631] Type: DELETE Key:greeting Value:</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/01/%E6%94%B6%E9%9B%86%E6%97%A5%E5%BF%97%E5%B9%B6%E5%8F%91%E9%80%81%E5%88%B0Kafka/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1078,362 +1181,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/19/MongoDB-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/19/MongoDB-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">MongoDB 学习笔记</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-19 17:53:29" itemprop="dateCreated datePublished" datetime="2021-09-19T17:53:29+08:00">2021-09-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-09-21 16:06:04" itemprop="dateModified" datetime="2021-09-21T16:06:04+08:00">2021-09-21</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="MongoDB-学习笔记"><a href="#MongoDB-学习笔记" class="headerlink" title="MongoDB 学习笔记"></a>MongoDB 学习笔记</h1><h1 id="1-MongoDB-简介"><a href="#1-MongoDB-简介" class="headerlink" title="1 MongoDB 简介"></a>1 MongoDB 简介</h1><h2 id="1-1-数据库的分类"><a href="#1-1-数据库的分类" class="headerlink" title="1.1 数据库的分类"></a>1.1 数据库的分类</h2><h3 id="1-1-1-关系型数据库（RDBMS）"><a href="#1-1-1-关系型数据库（RDBMS）" class="headerlink" title="1.1.1 关系型数据库（RDBMS）"></a>1.1.1 关系型数据库（RDBMS）</h3><ul>
-<li>MySQL、Oracle、SQL Server、DB2 ……</li>
-<li>关系数据库中全部是表（所谓“关系”，通俗点说就是二维表）</li>
-</ul>
-<h3 id="1-1-2-非关系型数据库（NoSQL）"><a href="#1-1-2-非关系型数据库（NoSQL）" class="headerlink" title="1.1.2 非关系型数据库（NoSQL）"></a>1.1.2 非关系型数据库（NoSQL）</h3><ul>
-<li>NoSQL是Not Only SQL的缩写，“不仅仅是SQL”</li>
-<li>Redis：键值对数据库，常用作缓存</li>
-<li>MongoDB：文档数据库</li>
-</ul>
-<h2 id="1-2-MongoDB-概述"><a href="#1-2-MongoDB-概述" class="headerlink" title="1.2 MongoDB 概述"></a>1.2 MongoDB 概述</h2><p>MongoDB 的数据模型是<strong>面向文档</strong>的，所谓文档是一种类似于JSON的结构，简单理解 MongoDB 数据库中存的是各种各样的JSON（BSON）。</p>
-<h1 id="2-MongoDB-安装"><a href="#2-MongoDB-安装" class="headerlink" title="2 MongoDB 安装"></a>2 MongoDB 安装</h1><h2 id="2-1-安装依赖包"><a href="#2-1-安装依赖包" class="headerlink" title="2.1 安装依赖包"></a>2.1 安装依赖包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libcurl3 openssl</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-下载、解压、移动文件"><a href="#2-2-下载、解压、移动文件" class="headerlink" title="2.2 下载、解压、移动文件"></a>2.2 下载、解压、移动文件</h2><ul>
-<li>MongoDB 下载地址：<a target="_blank" rel="noopener" href="https://www.mongodb.com/try/download">Try MongoDB Products | MongoDB</a></li>
-<li>下载压缩包</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian92-5.0.2.tgz</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>解压</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xzvf mongodb-linux-x86_64-debian92-5.0.2.tgz</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>移动文件</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv mongodb-linux-x86_64-debian92-5.0.2 /opt/mongodb</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-配置环境变量"><a href="#2-3-配置环境变量" class="headerlink" title="2.3 配置环境变量"></a>2.3 配置环境变量</h2><p>在 ~/.bashrc 文件中添加一行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/opt/mongodb/bin</span><br></pre></td></tr></table></figure>
-
-<p>使环境变量生效，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-MongoDB-服务启动、停止"><a href="#3-MongoDB-服务启动、停止" class="headerlink" title="3 MongoDB 服务启动、停止"></a>3 MongoDB 服务启动、停止</h1><h2 id="3-1-前台启动"><a href="#3-1-前台启动" class="headerlink" title="3.1 前台启动"></a>3.1 前台启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod --dbpath &lt;数据存储目录&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-2-后台启动"><a href="#3-2-后台启动" class="headerlink" title="3.2 后台启动"></a>3.2 后台启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod --dbpath &lt;数据存储目录&gt; --logpath &lt;日志文件路径&gt; --fork</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-3-停止服务"><a href="#3-3-停止服务" class="headerlink" title="3.3 停止服务"></a>3.3 停止服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod --dbpath &lt;数据存储目录&gt; --logpath &lt;日志文件路径&gt; --shutdown</span><br></pre></td></tr></table></figure>
-
-<h1 id="4-基本使用"><a href="#4-基本使用" class="headerlink" title="4 基本使用"></a>4 基本使用</h1><h2 id="4-1-数据库对象"><a href="#4-1-数据库对象" class="headerlink" title="4.1 数据库对象"></a>4.1 数据库对象</h2><ul>
-<li>数据库：是一个仓库，可以存放多个集合。</li>
-<li>集合：类似于数组，可以存放多个文档。</li>
-<li>文档：数据库中的最小单位，我们存储和操作的内容都是文档。</li>
-</ul>
-<h2 id="4-2-常用命令"><a href="#4-2-常用命令" class="headerlink" title="4.2 常用命令"></a>4.2 常用命令</h2><table>
-<thead>
-<tr>
-<th>命令</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>show databases</td>
-<td>显示所有的数据库</td>
-</tr>
-<tr>
-<td>use &lt;数据库名&gt;</td>
-<td>切换数据库（支持自动创建数据库）</td>
-</tr>
-<tr>
-<td>db</td>
-<td>显示当前所处的数据库</td>
-</tr>
-<tr>
-<td>show collections</td>
-<td>显示当前数据库中所有的集合</td>
-</tr>
-<tr>
-<td>db.&lt;集合名&gt;.insert(&lt;文档内容&gt;)</td>
-<td>向集合中插入文档</td>
-</tr>
-<tr>
-<td>db.&lt;集合名&gt;.find()</td>
-<td>查询集合中的文档</td>
-</tr>
-</tbody></table>
-<h1 id="5-CRUD"><a href="#5-CRUD" class="headerlink" title="5 CRUD"></a>5 CRUD</h1><h2 id="5-1-插入文档"><a href="#5-1-插入文档" class="headerlink" title="5.1 插入文档"></a>5.1 插入文档</h2><h3 id="5-1-1-ObjectId"><a href="#5-1-1-ObjectId" class="headerlink" title="5.1.1 ObjectId"></a>5.1.1 ObjectId</h3><ul>
-<li>当插入文档时，如果没有显式地给出 <strong>“_id”</strong> 字段值，则 MongoDB 会自动为文档生成一个独一无二的 <strong>“_id”</strong> 字段值。</li>
-</ul>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6141e9058a2bd158b67c5a70&quot;</span>), <span class="attr">&quot;name&quot;</span> : <span class="string">&quot;孙悟空&quot;</span>, <span class="attr">&quot;age&quot;</span> : <span class="number">500</span>, <span class="attr">&quot;description&quot;</span> : <span class="string">&quot;齐天大圣，唐僧的徒弟&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-1-2-insert"><a href="#5-1-2-insert" class="headerlink" title="5.1.2 insert"></a>5.1.2 insert</h3><ul>
-<li>在集合中插入一个或多个文档</li>
-<li>以 <strong>json 对象</strong>的形式插入一个文档</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.insert(&#123;<span class="attr">name</span>:<span class="string">&quot;孙悟空&quot;</span>, <span class="attr">age</span>:<span class="number">500</span>, <span class="attr">description</span>:<span class="string">&quot;齐天大圣，唐僧的徒弟&quot;</span>&#125;);</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>以 <strong>json 对象数组</strong>的形式插入多个文档</li>
-</ul>
-<p>命令，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.insert([&#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>, <span class="attr">age</span>:<span class="number">300</span>, <span class="attr">description</span>:<span class="string">&quot;天蓬元帅&quot;</span>&#125;, &#123;<span class="attr">name</span>:<span class="string">&quot;沙悟净&quot;</span>, <span class="attr">age</span>:<span class="number">200</span>, <span class="attr">description</span>:<span class="string">&quot;卷帘大将&quot;</span>&#125;]); </span><br></pre></td></tr></table></figure>
-
-<p>返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">BulkWriteResult(&#123;    </span><br><span class="line">    <span class="attr">&quot;writeErrors&quot;</span> : [ ],   </span><br><span class="line">    <span class="attr">&quot;writeConcernErrors&quot;</span> : [ ],                                                                                                 <span class="attr">&quot;writeConcernErrors&quot;</span> : [ ],                                                                                                             <span class="attr">&quot;writeErrors&quot;</span> : [ ],                                                                                                    <span class="attr">&quot;writeConcernErrors&quot;</span> : [ ],                                                                                             </span><br><span class="line">    <span class="attr">&quot;nInserted&quot;</span> : <span class="number">2</span>,                                                                                                        </span><br><span class="line">    <span class="attr">&quot;nUpserted&quot;</span> : <span class="number">0</span>,                                                                                                       </span><br><span class="line">    <span class="attr">&quot;nMatched&quot;</span> : <span class="number">0</span>,                                                                                                        </span><br><span class="line">    <span class="attr">&quot;nModified&quot;</span> : <span class="number">0</span>,                                                                                                        </span><br><span class="line">    <span class="attr">&quot;nRemoved&quot;</span> : <span class="number">0</span>,                                                                                                         </span><br><span class="line">    <span class="attr">&quot;upserted&quot;</span> : [ ]                                                                                               </span><br><span class="line"> &#125;) </span><br></pre></td></tr></table></figure>
-
-<h3 id="5-1-3-insertOne"><a href="#5-1-3-insertOne" class="headerlink" title="5.1.3 insertOne"></a>5.1.3 insertOne</h3><ul>
-<li>在集合中插入一个文档</li>
-</ul>
-<p>命令，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.insertOne(&#123;<span class="attr">name</span>:<span class="string">&quot;唐僧&quot;</span>, <span class="attr">age</span>: <span class="number">800</span>, <span class="attr">description</span>:<span class="string">&quot;金蝉子&quot;</span>&#125;); </span><br></pre></td></tr></table></figure>
-
-<p>返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                                                                                                               </span><br><span class="line">    <span class="attr">&quot;acknowledged&quot;</span> : <span class="literal">true</span>,                                                                                                  </span><br><span class="line">    <span class="attr">&quot;insertedId&quot;</span> : ObjectId(<span class="string">&quot;61420315cb3a9ab2eb5a6975&quot;</span>)                                                             </span><br><span class="line">&#125;        </span><br></pre></td></tr></table></figure>
-
-<h3 id="5-1-4-insertMany"><a href="#5-1-4-insertMany" class="headerlink" title="5.1.4 insertMany"></a>5.1.4 insertMany</h3><ul>
-<li>在集合中插入多个文档</li>
-</ul>
-<p>命令，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.insertMany([&#123;<span class="attr">name</span>:<span class="string">&quot;蜘蛛精&quot;</span>, <span class="attr">age</span>:<span class="number">400</span>, <span class="attr">description</span>:<span class="string">&quot;妖精&quot;</span>&#125;, &#123;<span class="attr">name</span>:<span class="string">&quot;白骨精&quot;</span>, <span class="attr">age</span>:<span class="number">300</span>, <span class="attr">description</span>:<span class="string">&quot;妖精&quot;</span>&#125;]);  </span><br></pre></td></tr></table></figure>
-
-<p>返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                                                                                                               </span><br><span class="line">    <span class="attr">&quot;acknowledged&quot;</span> : <span class="literal">true</span>,                                                                                                  </span><br><span class="line">    <span class="attr">&quot;insertedIds&quot;</span> : [    </span><br><span class="line">          ObjectId(<span class="string">&quot;614206cec4c4d45fc611c481&quot;</span>),   </span><br><span class="line">          ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>)                                                                                ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>)                                                                                                     ObjectId(<span class="string">&quot;614206cec4c4d45fc611c481&quot;</span>),                                                                                   ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>)                                                                            </span><br><span class="line">    ]                                                                                                              </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
-
-<h2 id="5-2-查询文档"><a href="#5-2-查询文档" class="headerlink" title="5.2 查询文档"></a>5.2 查询文档</h2><h3 id="5-2-1-db-collection-find"><a href="#5-2-1-db-collection-find" class="headerlink" title="5.2.1 db.collection.find"></a>5.2.1 db.collection.find</h3><ul>
-<li>查询集合中符合条件的文档，返回的是一个结果<strong>数组</strong></li>
-<li>传入一个对象作为筛选条件</li>
-<li>例如：</li>
-</ul>
-<p>查询，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.find(&#123;<span class="attr">age</span>:<span class="number">300</span>&#125;) </span><br></pre></td></tr></table></figure>
-
-<p>   返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6142027bcb3a9ab2eb5a6973&quot;</span>), <span class="attr">&quot;name&quot;</span> : <span class="string">&quot;猪八戒&quot;</span>, <span class="attr">&quot;age&quot;</span> : <span class="number">300</span>, <span class="attr">&quot;description&quot;</span> : <span class="string">&quot;天蓬元帅&quot;</span> &#125;            </span><br><span class="line">&#123; <span class="attr">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>), <span class="attr">&quot;name&quot;</span> : <span class="string">&quot;白骨精&quot;</span>, <span class="attr">&quot;age&quot;</span> : <span class="number">300</span>, <span class="attr">&quot;description&quot;</span> : <span class="string">&quot;妖精&quot;</span> &#125;   </span><br></pre></td></tr></table></figure>
-
-<h3 id="5-2-2-db-collection-findOne"><a href="#5-2-2-db-collection-findOne" class="headerlink" title="5.2.2 db.collection.findOne"></a>5.2.2 db.collection.findOne</h3><ul>
-<li>查询集合中符合条件的第一个文档，返回的是一个<strong>对象</strong></li>
-<li>例如：</li>
-</ul>
-<p>查询，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.findOne(&#123;<span class="attr">age</span>:<span class="number">300</span>&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;                                                                                                                               </span><br><span class="line">    <span class="attr">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6142027bcb3a9ab2eb5a6973&quot;</span>),                                                                           <span class="attr">&quot;name&quot;</span> : <span class="string">&quot;猪八戒&quot;</span>,                                                                                                     </span><br><span class="line">     <span class="attr">&quot;age&quot;</span> : <span class="number">300</span>,                                                                                                            </span><br><span class="line">    <span class="attr">&quot;description&quot;</span> : <span class="string">&quot;天蓬元帅&quot;</span>                                                                                     </span><br><span class="line"> &#125;   </span><br></pre></td></tr></table></figure>
-
-<h3 id="5-2-3-db-collection-find-count"><a href="#5-2-3-db-collection-find-count" class="headerlink" title="5.2.3 db.collection.find.count"></a>5.2.3 db.collection.find.count</h3><ul>
-<li>查询集合中所有符合条件文档的数量</li>
-<li>例如：</li>
-</ul>
-<p>查询，</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.npc.find(&#123;<span class="attr">age</span>:<span class="number">300</span>&#125;).count()</span><br></pre></td></tr></table></figure>
-
-<p>返回，</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="5-3-修改文档"><a href="#5-3-修改文档" class="headerlink" title="5.3 修改文档"></a>5.3 修改文档</h2><h3 id="5-3-1-db-collection-update"><a href="#5-3-1-db-collection-update" class="headerlink" title="5.3.1 db.collection.update"></a>5.3.1 db.collection.update</h3><ul>
-<li>语法</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.&lt;集合名&gt;.update(&lt;查询条件&gt;, &lt;修改/新对象&gt;, &lt;选项&gt;)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>默认情况下，会使用新对象来<strong>替换</strong>旧对象，注意：新对象<strong>直接替换</strong>旧对象，不保留原对象的值。</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.npc.update(&#123;<span class="attr">age</span>:<span class="number">300</span>&#125;, &#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>, <span class="attr">age</span>:<span class="number">300</span>, <span class="attr">address</span>:<span class="string">&quot;高老庄&quot;</span>&#125;)</span><br><span class="line">WriteResult(&#123; <span class="string">&quot;nMatched&quot;</span> : <span class="number">1</span>, <span class="string">&quot;nUpserted&quot;</span> : <span class="number">0</span>, <span class="string">&quot;nModified&quot;</span> : <span class="number">1</span> &#125;) </span><br><span class="line">&gt; db.npc.find(&#123;<span class="attr">age</span>:<span class="number">300</span>&#125;)  </span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6142027bcb3a9ab2eb5a6973&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;猪八戒&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">300</span>, <span class="string">&quot;address&quot;</span> : <span class="string">&quot;高老庄&quot;</span> &#125;           </span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;白骨精&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">300</span>, <span class="string">&quot;description&quot;</span> : <span class="string">&quot;妖精&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>如果需要修改指定的属性，使用 $set </li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.npc.update(&#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>&#125;, &#123;<span class="attr">$set</span>:&#123;<span class="attr">description</span>:<span class="string">&quot;天蓬元帅&quot;</span>&#125;&#125;)   </span><br><span class="line">WriteResult(&#123; <span class="string">&quot;nMatched&quot;</span> : <span class="number">1</span>, <span class="string">&quot;nUpserted&quot;</span> : <span class="number">0</span>, <span class="string">&quot;nModified&quot;</span> : <span class="number">1</span> &#125;)</span><br><span class="line">&gt; db.npc.find(&#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>&#125;) </span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6142027bcb3a9ab2eb5a6973&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;猪八戒&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">300</span>, <span class="string">&quot;address&quot;</span> : <span class="string">&quot;高老庄&quot;</span>, <span class="string">&quot;description&quot;</span> : <span class="string">&quot;天蓬元帅&quot;</span> &#125;     </span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>如果需要删除指定的属性，使用 $unset</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.npc.update(&#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>&#125;, &#123;<span class="attr">$unset</span>:&#123;<span class="attr">address</span>:<span class="string">&quot;&quot;</span>&#125;&#125;) </span><br><span class="line">WriteResult(&#123; <span class="string">&quot;nMatched&quot;</span> : <span class="number">1</span>, <span class="string">&quot;nUpserted&quot;</span> : <span class="number">0</span>, <span class="string">&quot;nModified&quot;</span> : <span class="number">1</span> &#125;) </span><br><span class="line">&gt; db.npc.find(&#123;<span class="attr">name</span>:<span class="string">&quot;猪八戒&quot;</span>&#125;)</span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;6142027bcb3a9ab2eb5a6973&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;猪八戒&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">300</span>, <span class="string">&quot;description&quot;</span> : <span class="string">&quot;天蓬元帅&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>update 默认只会修改一个，设置选项 <strong>multi: true</strong>，可支持修改多个文档对象</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.npc.update(&#123;<span class="attr">description</span>:<span class="string">&quot;妖精&quot;</span>&#125;, &#123;<span class="attr">$set</span>:&#123;<span class="attr">gender</span>:<span class="string">&quot;女&quot;</span>&#125;&#125;, &#123;<span class="attr">multi</span>:<span class="literal">true</span>&#125;)   </span><br><span class="line">WriteResult(&#123; <span class="string">&quot;nMatched&quot;</span> : <span class="number">2</span>, <span class="string">&quot;nUpserted&quot;</span> : <span class="number">0</span>, <span class="string">&quot;nModified&quot;</span> : <span class="number">2</span> &#125;)</span><br><span class="line">&gt; db.npc.find(&#123;<span class="attr">description</span>:<span class="string">&quot;妖精&quot;</span>&#125;)</span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;614206cec4c4d45fc611c481&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;蜘蛛精&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">400</span>, <span class="string">&quot;description&quot;</span> : <span class="string">&quot;妖精&quot;</span>, <span class="string">&quot;gender&quot;</span> : <span class="string">&quot;女&quot;</span> &#125;</span><br><span class="line">&#123; <span class="string">&quot;_id&quot;</span> : ObjectId(<span class="string">&quot;614206cec4c4d45fc611c482&quot;</span>), <span class="string">&quot;name&quot;</span> : <span class="string">&quot;白骨精&quot;</span>, <span class="string">&quot;age&quot;</span> : <span class="number">300</span>, <span class="string">&quot;description&quot;</span> : <span class="string">&quot;妖精&quot;</span>, <span class="string">&quot;gender&quot;</span> : <span class="string">&quot;女&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-3-2-db-collection-updateMany"><a href="#5-3-2-db-collection-updateMany" class="headerlink" title="5.3.2 db.collection.updateMany"></a>5.3.2 db.collection.updateMany</h3><ul>
-<li>同时修改多个符合条件的文档</li>
-<li>相当于 update 设置选项 <strong>multi: true</strong></li>
-</ul>
-<h3 id="5-3-3-db-collection-updateOne"><a href="#5-3-3-db-collection-updateOne" class="headerlink" title="5.3.3 db.collection.updateOne"></a>5.3.3 db.collection.updateOne</h3><ul>
-<li>修改一个符合条件的文档</li>
-<li>update 默认</li>
-</ul>
-<h3 id="5-3-4-db-collection-replaceOne"><a href="#5-3-4-db-collection-replaceOne" class="headerlink" title="5.3.4 db.collection.replaceOne"></a>5.3.4 db.collection.replaceOne</h3><ul>
-<li><strong>替换</strong>一个符合条件的文档</li>
-</ul>
-<h2 id="5-4-删除文档"><a href="#5-4-删除文档" class="headerlink" title="5.4 删除文档"></a>5.4 删除文档</h2><h3 id="5-4-1-db-collection-remove"><a href="#5-4-1-db-collection-remove" class="headerlink" title="5.4.1 db.collection.remove"></a>5.4.1 db.collection.remove</h3><ul>
-<li>语法</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.collection.remove(   </span><br><span class="line">    &lt;query&gt;,   </span><br><span class="line">    &lt;justOne&gt;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>根据条件来删除文档，传递条件的方式和 find() 一样</li>
-<li>默认情况下会删除多个</li>
-<li>第二个参数传递 true，则只会删除一个</li>
-</ul>
-<h3 id="5-4-2-db-collection-deleteOne"><a href="#5-4-2-db-collection-deleteOne" class="headerlink" title="5.4.2 db.collection.deleteOne"></a>5.4.2 db.collection.deleteOne</h3><ul>
-<li>删除一个符合条件的文档</li>
-</ul>
-<h3 id="5-4-3-db-collection-deleteMany"><a href="#5-4-3-db-collection-deleteMany" class="headerlink" title="5.4.3 db.collection.deleteMany"></a>5.4.3 db.collection.deleteMany</h3><ul>
-<li>删除多个符合条件的文档</li>
-</ul>
-<h3 id="5-4-4-db-collection-drop"><a href="#5-4-4-db-collection-drop" class="headerlink" title="5.4.4 db.collection.drop"></a>5.4.4 db.collection.drop</h3><ul>
-<li>删除集合</li>
-</ul>
-<h3 id="5-4-5-db-dropDatabase"><a href="#5-4-5-db-dropDatabase" class="headerlink" title="5.4.5 db.dropDatabase"></a>5.4.5 db.dropDatabase</h3><ul>
-<li>删除数据库</li>
-</ul>
-<h2 id="5-5-sort、limit、skip"><a href="#5-5-sort、limit、skip" class="headerlink" title="5.5 sort、limit、skip"></a>5.5 sort、limit、skip</h2><h3 id="5-5-1-sort"><a href="#5-5-1-sort" class="headerlink" title="5.5.1 sort"></a>5.5.1 sort</h3><ul>
-<li>查询文档时，默认情况是按照 _id 的值进行排列（升序） </li>
-<li>sort 可以用来指定文档排序的规则</li>
-<li>需要传递一个对象用来指定排序的规则，1 表示升序，-1 表示降序</li>
-<li>例如 employee 对象中有一字段 salary，要求按照工资升序排列，</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.employees.find().sort(&#123;<span class="attr">salary</span>:<span class="number">1</span>&#125;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-5-2-limit"><a href="#5-5-2-limit" class="headerlink" title="5.5.2 limit"></a>5.5.2 limit</h3><ul>
-<li>取出集合中前 n 个文档</li>
-<li>例如，查询职工表中前两个职工，</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.employees.find().limit(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-5-3-skip"><a href="#5-5-3-skip" class="headerlink" title="5.5.3 skip"></a>5.5.3 skip</h3><ul>
-<li>跳过集合中前 n 个文档</li>
-<li>例如，查询职工表中从第 3 个开始的所有职工，</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.employees.find().skip(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="5-5-4-调用顺序"><a href="#5-5-4-调用顺序" class="headerlink" title="5.5.4 调用顺序"></a>5.5.4 调用顺序</h3><ul>
-<li>以上三个函数可以组合使用，代码中 sort、limit、skip 的顺序可以任意调换，但是实际执行的顺序依次是：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort    =&gt;    skip    =&gt;    limit</span><br></pre></td></tr></table></figure>
-
-<h2 id="5-6-投影"><a href="#5-6-投影" class="headerlink" title="5.6 投影"></a>5.6 投影</h2><ul>
-<li>查询时，可以在第二个参数位置来设置查询结果的投影</li>
-<li>例如，查询所有职工的姓名和工资，</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.employees.find(&#123;&#125;, &#123;<span class="attr">name</span>:<span class="number">1</span>, <span class="attr">salary</span>:<span class="number">1</span>&#125;)</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>默认情况下，会显示 _id 字段，可设置 <strong>_id: 0</strong> 去除</li>
-</ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.employees.find(&#123;&#125;, &#123;<span class="attr">name</span>:<span class="number">1</span>, <span class="attr">salary</span>:<span class="number">1</span>, <span class="attr">_id</span>:<span class="number">0</span>&#125;)</span><br></pre></td></tr></table></figure>
-
-<h1 id="6-文档之间的关系"><a href="#6-文档之间的关系" class="headerlink" title="6 文档之间的关系"></a>6 文档之间的关系</h1><h2 id="6-1-一对一"><a href="#6-1-一对一" class="headerlink" title="6.1 一对一"></a>6.1 一对一</h2><ul>
-<li>使用内嵌文档的形式表示，其实就是在其中一个文档中加一个引用字段</li>
-</ul>
-<h2 id="6-2-一对多"><a href="#6-2-一对多" class="headerlink" title="6.2 一对多"></a>6.2 一对多</h2><ul>
-<li>开发中常见的关系，例子：</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>1</th>
-<th>n</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>父亲</td>
-<td>孩子</td>
-</tr>
-<tr>
-<td>用户</td>
-<td>订单</td>
-</tr>
-<tr>
-<td>文章</td>
-<td>评论</td>
-</tr>
-</tbody></table>
-<ul>
-<li>也可以通过内嵌文档的形式映射一对多的关系，比如在订单表中加一个字段，指向用户表中的某一个用户</li>
-<li>通常是在 <strong>“多” 的一方</strong>的表中加一个字段</li>
-</ul>
-<h2 id="6-3-多对多"><a href="#6-3-多对多" class="headerlink" title="6.3 多对多"></a>6.3 多对多</h2><ul>
-<li>新建一个文档用来表示多对多的关系，字段是关系双方的 id</li>
-<li>例如，学生和选课是多对多的关系，一个学生可以选择多门课，一个课程可以被多个学生选，存在课程表和学生表，则选课关系如下：</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>course_id</th>
-<th>student_id</th>
-</tr>
-</thead>
-</table>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1503,7 +1250,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">42</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
