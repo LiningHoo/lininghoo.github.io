@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="MyBatis动态SQL MyBatis的动态SQL通过if、choose、when、otherwise、trim、where、set、foreach等标签，可组合成非常灵活的SQL语句，从而在提高SQL语句准确性的同时，大大提高开发人员的效率  1 if判断 &amp; OGNL 可在Mapper xml配置文件使用if标签根据接口参数动态确定最终执行的SQL语句，  123456789&lt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyBatis动态SQL">
+<meta property="og:url" content="http://example.com/2022/02/17/MyBatis%E5%8A%A8%E6%80%81SQL/index.html">
+<meta property="og:site_name" content="hlnBlog">
+<meta property="og:description" content="MyBatis动态SQL MyBatis的动态SQL通过if、choose、when、otherwise、trim、where、set、foreach等标签，可组合成非常灵活的SQL语句，从而在提高SQL语句准确性的同时，大大提高开发人员的效率  1 if判断 &amp; OGNL 可在Mapper xml配置文件使用if标签根据接口参数动态确定最终执行的SQL语句，  123456789&lt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-17T12:30:58.000Z">
+<meta property="article:modified_time" content="2022-02-17T12:32:53.412Z">
+<meta property="article:author" content="Lining Hoo">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="MyBatis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/02/17/MyBatis%E5%8A%A8%E6%80%81SQL/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MyBatis动态SQL | hlnBlog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">hlnBlog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/17/MyBatis%E5%8A%A8%E6%80%81SQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MyBatis动态SQL
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-02-17 20:30:58 / 修改时间：20:32:53" itemprop="dateCreated datePublished" datetime="2022-02-17T20:30:58+08:00">2022-02-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/MyBatis/" itemprop="url" rel="index"><span itemprop="name">MyBatis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="MyBatis动态SQL"><a href="#MyBatis动态SQL" class="headerlink" title="MyBatis动态SQL"></a>MyBatis动态SQL</h1><ul>
+<li>MyBatis的动态SQL通过if、choose、when、otherwise、trim、where、set、foreach等标签，可组合成非常灵活的SQL语句，从而在提高SQL语句准确性的同时，大大提高开发人员的效率</li>
+</ul>
+<h1 id="1-if判断-amp-OGNL"><a href="#1-if判断-amp-OGNL" class="headerlink" title="1 if判断 &amp; OGNL"></a>1 if判断 &amp; OGNL</h1><ul>
+<li>可在Mapper xml配置文件使用if标签根据接口参数动态确定最终执行的SQL语句，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByCond&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees where</span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">        id=#&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null and lastName!=&#x27;&#x27;&quot;</span>&gt;</span></span><br><span class="line">        and last_name like #&#123;lastName&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>if标签的test属性遵循OGNL语法，可以参考：<a target="_blank" rel="noopener" href="https://commons.apache.org/proper/commons-ognl/language-guide.html">OGNL - Apache Commons OGNL - Language Guide</a></li>
+</ul>
+<h1 id="2-where"><a href="#2-where" class="headerlink" title="2 where"></a>2 where</h1><ul>
+<li>上面if标签的用法，如果第一个test不通过，后续执行的sql语句where后面就是and，不符合sql语法导致报错</li>
+<li>比较简单粗暴的解决方式是直接在where后面加个1=1，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByCond&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees where 1=1</span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">        and id=#&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null and lastName!=&#x27;&#x27;&quot;</span>&gt;</span></span><br><span class="line">        and last_name like #&#123;lastName&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>也可以使用where标签将所有查询条件包括在内，自动将多出来的and和or去掉，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByCond&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees</span><br><span class="line">    <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">            id=#&#123;id&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null and lastName!=&#x27;&#x27;&quot;</span>&gt;</span></span><br><span class="line">            and last_name like #&#123;lastName&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用where标签的时候，and应该放在条件语句之前，比如这里“and”就放在“last_name like #{lastName}”之前，如果放在后面拼接出的sql就不符合语法规则</li>
+</ul>
+<h1 id="3-trim自定义字符串前后缀"><a href="#3-trim自定义字符串前后缀" class="headerlink" title="3 trim自定义字符串前后缀"></a>3 trim自定义字符串前后缀</h1><ul>
+<li>可以使用trim标签自定义字符串的前后缀，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByCondTrim&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees</span><br><span class="line">    <span class="tag">&lt;<span class="name">trim</span> <span class="attr">prefix</span>=<span class="string">&quot;where&quot;</span> <span class="attr">suffixOverrides</span>=<span class="string">&quot;and&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">            id=#&#123;id&#125; and</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null and lastName!=&#x27;&#x27;&quot;</span>&gt;</span></span><br><span class="line">            last_name like #&#123;lastName&#125; and</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">trim</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，trim标签设置所有if条件的前缀是“where”，去掉if条件末尾的“and”</p>
+<ul>
+<li>trim标签的属性包括，</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>prefix</td>
+<td>给拼装后的字符串加一个前缀</td>
+</tr>
+<tr>
+<td>prefixOverrides</td>
+<td>去掉整个字符串前面的字符</td>
+</tr>
+<tr>
+<td>suffix</td>
+<td>给拼装后的字符串加一个后缀</td>
+</tr>
+<tr>
+<td>suffixOverrides</td>
+<td>去掉整个字符串后面的字符</td>
+</tr>
+</tbody></table>
+<h1 id="4-choos分支选择"><a href="#4-choos分支选择" class="headerlink" title="4 choos分支选择"></a>4 choos分支选择</h1><ul>
+<li>choose标签可以实现类似Java中switch-case结构的功能，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByAnyCond&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees</span><br><span class="line">    <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">                id=#&#123;id&#125;</span><br><span class="line">            <span class="tag">&lt;/<span class="name">when</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null&quot;</span>&gt;</span></span><br><span class="line">                last_name like #&#123;lastName&#125;</span><br><span class="line">            <span class="tag">&lt;/<span class="name">when</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span></span><br><span class="line">                1=1</span><br><span class="line">            <span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>类比Java的switch-case结构，choose标签相当于switch关键字，表示开始一个分支选择；when标签相当于case关键字，表示其中的一个分支；otherwise相当于default，表示其余分支条件都不成立时的默认操作</p>
+<ul>
+<li>choose标签中的各个分支是自上而下做判断的，只要其中一个条件满足，就执行操作，然后退出分支选择</li>
+</ul>
+<h1 id="5-set与if结合的动态更新"><a href="#5-set与if结合的动态更新" class="headerlink" title="5 set与if结合的动态更新"></a>5 set与if结合的动态更新</h1><ul>
+<li>set标签和if标签结合可以实现动态更新的效果，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">&quot;updateById&quot;</span>&gt;</span></span><br><span class="line">    update employees</span><br><span class="line">    <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;id!=null&quot;</span>&gt;</span></span><br><span class="line">            id=#&#123;id&#125;,</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;lastName!=null&quot;</span>&gt;</span></span><br><span class="line">            last_name=#&#123;lastName&#125;,</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;gender!=null&quot;</span>&gt;</span></span><br><span class="line">            gender=#&#123;gender&#125;,</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;email!=null&quot;</span>&gt;</span></span><br><span class="line">            email=#&#123;email&#125;,</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;deptId!=null&quot;</span>&gt;</span></span><br><span class="line">            dept_id=#&#123;deptId&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">    where id=#&#123;id&#125;;</span><br><span class="line"><span class="tag">&lt;/<span class="name">update</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>只有当传递了值的时候才会更新数据库表中对应得字段</p>
+<ul>
+<li>set标签会自动处理出现在末尾多余的逗号</li>
+<li>同样的功能也可以用trim实现，此时prefix=”set”，suffixOverrides=”,”</li>
+</ul>
+<h1 id="6-foreach遍历集合"><a href="#6-foreach遍历集合" class="headerlink" title="6 foreach遍历集合"></a>6 foreach遍历集合</h1><h2 id="6-1-拼接条件"><a href="#6-1-拼接条件" class="headerlink" title="6.1 拼接条件"></a>6.1 拼接条件</h2><ul>
+<li>有时候需要根据传递给接口的参数拼接出条件，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeForEach&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    select * from employees where id in</span><br><span class="line">    <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;ids&quot;</span> <span class="attr">item</span>=<span class="string">&quot;eid&quot;</span> <span class="attr">open</span>=<span class="string">&quot;(&quot;</span> <span class="attr">close</span>=<span class="string">&quot;)&quot;</span> <span class="attr">separator</span>=<span class="string">&quot;,&quot;</span>&gt;</span></span><br><span class="line">        #&#123;eid&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接口声明中用@Param注解集合参数，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">List&lt;Employee&gt; <span class="title">getEmployeeForEach</span><span class="params">(<span class="meta">@Param(&quot;ids&quot;)</span> List&lt;Integer&gt; ids)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>比如上面的配置，“in”关键字后面跟的应该是“在一对括号内部用逗号间隔的数字”，用到foreach标签的属性作用分别是，</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>collection</td>
+<td>要遍历集合的名称，使用@Param注解指定</td>
+</tr>
+<tr>
+<td>index</td>
+<td>遍历List的时候是索引； 遍历Map的时候是entry的key</td>
+</tr>
+<tr>
+<td>item</td>
+<td>遍历List的时候是取出的元素； 遍历Map的时候是entry的value</td>
+</tr>
+<tr>
+<td>open</td>
+<td>拼接字符串结果的前缀</td>
+</tr>
+<tr>
+<td>close</td>
+<td>拼接字符串结果的后缀</td>
+</tr>
+<tr>
+<td>separator</td>
+<td>每个元素之间的分隔符</td>
+</tr>
+</tbody></table>
+<h2 id="6-2-MySQL批量插入"><a href="#6-2-MySQL批量插入" class="headerlink" title="6.2 MySQL批量插入"></a>6.2 MySQL批量插入</h2><ul>
+<li>在有些场合需要定义1个方法实现批量插入记录，</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);</span><br><span class="line">List&lt;Employee&gt; employees = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">employees.add(<span class="keyword">new</span> Employee(<span class="keyword">null</span>, <span class="string">&quot;rita&quot;</span>, <span class="string">&quot;0&quot;</span>, <span class="string">&quot;rita@gmail.com&quot;</span>, <span class="number">2</span>));</span><br><span class="line">employees.add(<span class="keyword">new</span> Employee(<span class="keyword">null</span>, <span class="string">&quot;michael&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;michael@gmail.com&quot;</span>, <span class="number">1</span>));</span><br><span class="line">Integer cols = mapper.batchAddEmployees(employees);</span><br><span class="line">session.commit();</span><br><span class="line">System.out.println(<span class="string">&quot;inserted cols: &quot;</span> + cols);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>foreach标签也可以实现批量插入的功能，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">&quot;batchAddEmployees&quot;</span>&gt;</span></span><br><span class="line">    insert into employees (last_name, gender, email, dept_id) values</span><br><span class="line">    <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;emps&quot;</span> <span class="attr">item</span>=<span class="string">&quot;emp&quot;</span> <span class="attr">separator</span>=<span class="string">&quot;,&quot;</span>&gt;</span></span><br><span class="line">        (#&#123;emp.lastName&#125;, #&#123;emp.gender&#125;, #&#123;emp.email&#125;, #&#123;emp.deptId&#125;)</span><br><span class="line">    <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用“.”操作符取出item内部的属性值</p>
+<ul>
+<li>也可以把foreach标签放在整个insert语句的外部，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">&quot;batchAddEmployees&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;emps&quot;</span> <span class="attr">item</span>=<span class="string">&quot;emp&quot;</span> <span class="attr">separator</span>=<span class="string">&quot;;&quot;</span>&gt;</span></span><br><span class="line">        insert into employees (last_name, gender, email, dept_id) </span><br><span class="line">            values (#&#123;emp.lastName&#125;, #&#123;emp.gender&#125;, #&#123;emp.email&#125;, #&#123;emp.deptId&#125;)</span><br><span class="line">    <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>但是，此时需要在JDBC连接的时候配置allowMultiQueries选项为true，这样才能一次执行分号间隔的多条sql语句，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jdbc.driver=com.mysql.cj.jdbc.Driver</span><br><span class="line">jdbc.url=jdbc:mysql://localhost:3306/mybatis?allowMultiQueries=true</span><br><span class="line">jdbc.username=root</span><br><span class="line">jdbc.password=******</span><br></pre></td></tr></table></figure>
+
+<h1 id="7-内置参数"><a href="#7-内置参数" class="headerlink" title="7 内置参数"></a>7 内置参数</h1><h2 id="7-1-parameter"><a href="#7-1-parameter" class="headerlink" title="7.1 _parameter"></a>7.1 _parameter</h2><ul>
+<li>_parameter代表整个参数：</li>
+</ul>
+<p>（1）单个参数：_parameter就是这个参数</p>
+<p>（2）多个参数：参数会被封装成一个map，_parameter就是代表这个map</p>
+<h2 id="7-2-databaseId"><a href="#7-2-databaseId" class="headerlink" title="7.2 _databaseId"></a>7.2 _databaseId</h2><ul>
+<li>_databaseId代表当前数据库的别名，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;_databaseId==&#x27;mysql&#x27;&quot;</span>&gt;</span></span><br><span class="line">        select * from employees</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;_parameter!=null&quot;</span>&gt;</span></span><br><span class="line">            where id=#&#123;id&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;_databaseId==&#x27;oracle&#x27;&quot;</span>&gt;</span></span><br><span class="line">        select * from tbl_employee</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;_parameter!=null&quot;</span>&gt;</span></span><br><span class="line">            where eid=#&#123;id&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>前提条件是需要在MyBatis全局文件中配置数据库别名，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">databaseIdProvider</span> <span class="attr">type</span>=<span class="string">&quot;DB_VENDOR&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;MySQL&quot;</span> <span class="attr">value</span>=<span class="string">&quot;mysql&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;Oracle&quot;</span> <span class="attr">value</span>=<span class="string">&quot;oracle&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;SQL Server&quot;</span> <span class="attr">value</span>=<span class="string">&quot;sqlserver&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">databaseIdProvider</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="8-bind"><a href="#8-bind" class="headerlink" title="8 bind"></a>8 bind</h1><ul>
+<li>bind可以将OGNL表达式的值绑定到一个变量中，方便后来引用这个变量，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bind</span> <span class="attr">name</span>=<span class="string">&quot;_lastName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;&#x27;%&#x27; + lastName + &#x27;%&#x27;&quot;</span>/&gt;</span></span><br><span class="line">    select * from employees where last_name like #&#123;_lastName&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>模糊查询无法通过“#”操作符取参数值，并且如果使用“$”操作符取参数值会有sql注入的风险</p>
+<ul>
+<li>bind标签可以将OGNL表达式的值绑定到1个变量中，后续可以用”#”操作符引用</li>
+</ul>
+<h1 id="9-抽取可重用的sql片段"><a href="#9-抽取可重用的sql片段" class="headerlink" title="9 抽取可重用的sql片段"></a>9 抽取可重用的sql片段</h1><ul>
+<li>抽取可重用的sql片段，方便后续引用，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bind</span> <span class="attr">name</span>=<span class="string">&quot;_lastName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;&#x27;%&#x27; + lastName + &#x27;%&#x27;&quot;</span>/&gt;</span></span><br><span class="line">    select</span><br><span class="line">    <span class="tag">&lt;<span class="name">include</span> <span class="attr">refid</span>=<span class="string">&quot;empCols&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">        from employees where last_name like #&#123;_lastName&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">sql</span> <span class="attr">id</span>=<span class="string">&quot;empCols&quot;</span>&gt;</span></span><br><span class="line">    id, last_name, gender, email, dept_id</span><br><span class="line"><span class="tag">&lt;/<span class="name">sql</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用include标签引用之前抽取的sql片段</p>
+<ul>
+<li>sql标签可以引用include标签内定义的属性，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;getEmployeeByName&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;com.lnhoo.dao.Employee&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bind</span> <span class="attr">name</span>=<span class="string">&quot;_lastName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;&#x27;%&#x27; + lastName + &#x27;%&#x27;&quot;</span>/&gt;</span></span><br><span class="line">    select</span><br><span class="line">    <span class="tag">&lt;<span class="name">include</span> <span class="attr">refid</span>=<span class="string">&quot;empCols&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;_lastName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;#&#123;_lastName&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">        from employees where <span class="tag">&lt;<span class="name">include</span> <span class="attr">refid</span>=<span class="string">&quot;nameCond&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">sql</span> <span class="attr">id</span>=<span class="string">&quot;empCols&quot;</span>&gt;</span></span><br><span class="line">    id, last_name, gender, email, dept_id</span><br><span class="line"><span class="tag">&lt;/<span class="name">sql</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">sql</span> <span class="attr">id</span>=<span class="string">&quot;nameCond&quot;</span>&gt;</span></span><br><span class="line">    last_name like #&#123;_lastName&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">sql</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>比如在这个例子中，nameCond sql标签就引用了include标签使用property定义的属性_lastName</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/MyBatis/" rel="tag"># MyBatis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/02/11/MyBatis%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6/" rel="prev" title="MyBatis映射文件">
+      <i class="fa fa-chevron-left"></i> MyBatis映射文件
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MyBatis%E5%8A%A8%E6%80%81SQL"><span class="nav-text">MyBatis动态SQL</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-if%E5%88%A4%E6%96%AD-amp-OGNL"><span class="nav-text">1 if判断 &amp; OGNL</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-where"><span class="nav-text">2 where</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-trim%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%89%8D%E5%90%8E%E7%BC%80"><span class="nav-text">3 trim自定义字符串前后缀</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-choos%E5%88%86%E6%94%AF%E9%80%89%E6%8B%A9"><span class="nav-text">4 choos分支选择</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-set%E4%B8%8Eif%E7%BB%93%E5%90%88%E7%9A%84%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-text">5 set与if结合的动态更新</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-foreach%E9%81%8D%E5%8E%86%E9%9B%86%E5%90%88"><span class="nav-text">6 foreach遍历集合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-%E6%8B%BC%E6%8E%A5%E6%9D%A1%E4%BB%B6"><span class="nav-text">6.1 拼接条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-MySQL%E6%89%B9%E9%87%8F%E6%8F%92%E5%85%A5"><span class="nav-text">6.2 MySQL批量插入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-%E5%86%85%E7%BD%AE%E5%8F%82%E6%95%B0"><span class="nav-text">7 内置参数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#7-1-parameter"><span class="nav-text">7.1 _parameter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-2-databaseId"><span class="nav-text">7.2 _databaseId</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-bind"><span class="nav-text">8 bind</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9-%E6%8A%BD%E5%8F%96%E5%8F%AF%E9%87%8D%E7%94%A8%E7%9A%84sql%E7%89%87%E6%AE%B5"><span class="nav-text">9 抽取可重用的sql片段</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lining Hoo</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lining Hoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
