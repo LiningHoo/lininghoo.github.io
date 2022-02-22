@@ -155,6 +155,158 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/22/MyBatis%E7%BC%93%E5%AD%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/22/MyBatis%E7%BC%93%E5%AD%98/" class="post-title-link" itemprop="url">MyBatis缓存</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-02-22 23:06:29 / 修改时间：23:09:22" itemprop="dateCreated datePublished" datetime="2022-02-22T23:06:29+08:00">2022-02-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/MyBatis/" itemprop="url" rel="index"><span itemprop="name">MyBatis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="MyBatis缓存"><a href="#MyBatis缓存" class="headerlink" title="MyBatis缓存"></a>MyBatis缓存</h1><h1 id="1-一级缓存（本地缓存）"><a href="#1-一级缓存（本地缓存）" class="headerlink" title="1 一级缓存（本地缓存）"></a>1 一级缓存（本地缓存）</h1><ul>
+<li>与数据库同一次会话期间查询到的数据会放在本地缓存中，以后如果需要获取相同的数据，直接从缓存中拿，没必要再去查询数据库</li>
+<li>一级缓存是sqlSession级别的缓存，是一直开启的</li>
+</ul>
+<h2 id="1-1-一级缓存失效的四种情况"><a href="#1-1-一级缓存失效的四种情况" class="headerlink" title="1.1 一级缓存失效的四种情况"></a>1.1 一级缓存失效的四种情况</h2><ul>
+<li>sqlSession不同：一级缓存是sqlSession级别的缓存，所以如果重新开一个sqlSession，并不会共享其他sqlSession的缓存，仍然需要发送请求到数据库进行查询</li>
+<li>sqlSession相同，查询条件不同：这种情况很好理解，因为之前没有查询过，所以在一级缓存中没有对应的数据</li>
+<li>sqlSession相同，两次查询间执行了增删改操作：MyBatis执行增删改操作会清空缓存</li>
+<li>sqlSession相同，手动清空了一级缓存：调用SqlSession对象的clearCache方法清空一级缓存</li>
+</ul>
+<h1 id="2-二级缓存（全局缓存）"><a href="#2-二级缓存（全局缓存）" class="headerlink" title="2 二级缓存（全局缓存）"></a>2 二级缓存（全局缓存）</h1><p><img src="https://cjhahfo50v.feishu.cn/space/api/box/stream/download/asynccode/?code=ZGYzNTQ2YzQ4YTIzMzU2YzIxNjczNmYxM2IyYmU5MzFfNnVlZ0h1WGxMSDNvVXdiUzJVbXI3c1hjSU1SVWRIRXlfVG9rZW46Ym94Y25ha3d4WHE4OFJyeUJoVDVqZXREZ0piXzE2NDU1NDI0Mzg6MTY0NTU0NjAzOF9WNA" alt="img"></p>
+<ul>
+<li>二级缓存是namespace级别的缓存</li>
+</ul>
+<h2 id="2-1-工作机制"><a href="#2-1-工作机制" class="headerlink" title="2.1 工作机制"></a>2.1 工作机制</h2><ul>
+<li>一个session过程中查询的数据会被放在当前session的一级缓存中</li>
+<li>如果session关闭，一级缓存中的数据就被保存到二级缓存中，从而新的session查询就可以参照二级缓存</li>
+<li>不同namespace查出的数据会被放在自己对应的缓存中</li>
+</ul>
+<h2 id="2-2-使用"><a href="#2-2-使用" class="headerlink" title="2.2 使用"></a>2.2 使用</h2><ul>
+<li>开启全局二级缓存配置，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">setting</span> <span class="attr">name</span>=<span class="string">&quot;cacheEnabled&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在Mapper xml文件配置使用二级缓存，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.mapper.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">cache</span> <span class="attr">eviction</span>=<span class="string">&quot;LRU&quot;</span> <span class="attr">readOnly</span>=<span class="string">&quot;true&quot;</span> <span class="attr">size</span>=<span class="string">&quot;65536&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">cache</span>&gt;</span></span><br><span class="line">    ......</span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>实现POJO的序列化接口</li>
+</ul>
+<h2 id="2-3-cache标签参数"><a href="#2-3-cache标签参数" class="headerlink" title="2.3 cache标签参数"></a>2.3 cache标签参数</h2><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>eviction</td>
+<td>缓存的回收策略， LRU：最近最少使用的，移除最长时间不被使用的对象 FIFO：先进先出，按对象进入缓存的顺序移除 SOFT：软引用，移除基于垃圾回收器状态和软引用规则的对象 WEAK：弱引用，更积极地移除基于垃圾收集器状态和弱引用规则地对象</td>
+</tr>
+<tr>
+<td>flushInterval</td>
+<td>缓存刷新间隔，即每隔多少毫秒清空缓存，默认不清空</td>
+</tr>
+<tr>
+<td>readOnly</td>
+<td>是否只读， 只读：MyBatis认为所有访问缓存的操作都是只读操作，不会修改数据；为了加快获取速度，直接将数据在缓存中的引用返回给用户；不安全，但是速度快 读写，MyBatis认为获取的数据可能会被修改，会利用序列化、反序列化技术克隆一份新的数据；安全，但是速度慢</td>
+</tr>
+<tr>
+<td>size</td>
+<td>缓存的元素个数</td>
+</tr>
+<tr>
+<td>type</td>
+<td>自定义的缓存实现类（通过实现MyBatis Cache接口）</td>
+</tr>
+</tbody></table>
+<h2 id="2-4-和缓存有关的设置、属性"><a href="#2-4-和缓存有关的设置、属性" class="headerlink" title="2.4 和缓存有关的设置、属性"></a>2.4 和缓存有关的设置、属性</h2><ul>
+<li>1）cacheEnabled：决定二级缓存是否启用</li>
+<li>2）useCache：每个select标签都有一个“useCache”属性，决定是否缓存当前sql查询到的数据，默认为true；useCache决定的是二级缓存，对一级缓存无影响</li>
+<li>3）flushCache：每个增删改标签都有一个“flushCache”属性，决定是否在sql执行后清空一级、二级缓存</li>
+<li>4）sqlSession.clearCache()：只清除当前session的一级缓存</li>
+<li>5）localCacheScope：本地缓存作用域，默认值为“SESSION”，可选值为“STATEMENT”</li>
+</ul>
+<h1 id="3-MyBatis整合ehcache"><a href="#3-MyBatis整合ehcache" class="headerlink" title="3 MyBatis整合ehcache"></a>3 MyBatis整合ehcache</h1><p><img src="https://cjhahfo50v.feishu.cn/space/api/box/stream/download/asynccode/?code=ZmFmNmFmNzgxNTZhMTFiY2Y0MTYzMGEwYTQ3NTkzZDZfM0VCaTRsa2d1b1k0RDIzMDNmRUV5TXptRlBJSWlNR3lfVG9rZW46Ym94Y25KWTFrVGRBSGt4YlFzRXEzcGt2eVZmXzE2NDU1NDI0Mzg6MTY0NTU0NjAzOF9WNA" alt="img"></p>
+<h2 id="3-1-导入适配器包"><a href="#3-1-导入适配器包" class="headerlink" title="3.1 导入适配器包"></a>3.1 导入适配器包</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.caches<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-ehcache<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-导入第三方缓存包"><a href="#3-2-导入第三方缓存包" class="headerlink" title="3.2 导入第三方缓存包"></a>3.2 导入第三方缓存包</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.ehcache/ehcache --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.ehcache<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ehcache<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.9.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.8.0-beta4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.17.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.8.0-beta4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-Mapper-xml配置使用自定义缓存"><a href="#3-2-Mapper-xml配置使用自定义缓存" class="headerlink" title="3.2 Mapper xml配置使用自定义缓存"></a>3.2 Mapper xml配置使用自定义缓存</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.mapper.EmployeeMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">cache</span> <span class="attr">eviction</span>=<span class="string">&quot;LRU&quot;</span> <span class="attr">readOnly</span>=<span class="string">&quot;true&quot;</span> <span class="attr">type</span>=<span class="string">&quot;org.mybatis.caches.ehcache.EhcacheCache&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">cache</span>&gt;</span></span><br><span class="line">    ............</span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以通过cache标签的type属性指定自定义的缓存实现类</li>
+</ul>
+<h2 id="3-3-引用cache配置"><a href="#3-3-引用cache配置" class="headerlink" title="3.3 引用cache配置"></a>3.3 引用cache配置</h2><ul>
+<li>有时候希望能够重用其他namespace的cache配置，可以使用cache-ref标签，</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">cache-ref</span> <span class="attr">namespace</span>=<span class="string">&quot;com.lnhoo.mapper.EmployeeMapper&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/17/MyBatis%E5%8A%A8%E6%80%81SQL/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2283,316 +2435,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/28/linux-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%87%BD%E6%95%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/linux-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%87%BD%E6%95%B0/" class="post-title-link" itemprop="url">linux 内核内存分配函数</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-28 23:06:03 / 修改时间：23:08:50" itemprop="dateCreated datePublished" datetime="2021-11-28T23:06:03+08:00">2021-11-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="linux-内核内存分配函数"><a href="#linux-内核内存分配函数" class="headerlink" title="linux 内核内存分配函数"></a>linux 内核内存分配函数</h1><h1 id="1-伙伴系统"><a href="#1-伙伴系统" class="headerlink" title="1 伙伴系统"></a>1 伙伴系统</h1><h2 id="1-1-alloc-page-alloc-pages-free-pages"><a href="#1-1-alloc-page-alloc-pages-free-pages" class="headerlink" title="1.1 alloc_page/alloc_pages/free_pages"></a>1.1 alloc_page/alloc_pages/free_pages</h2><h3 id="1-1-1-alloc-pages-node"><a href="#1-1-1-alloc-pages-node" class="headerlink" title="1.1.1 alloc_pages_node"></a>1.1.1 alloc_pages_node</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct page *<span class="title">alloc_pages_node</span><span class="params">(<span class="keyword">int</span> nid, <span class="keyword">unsigned</span> <span class="keyword">int</span> flags, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>nid</td>
-<td>NUMA node ID</td>
-</tr>
-<tr>
-<td>flags</td>
-<td>Usual GFP_ allocation flags</td>
-</tr>
-<tr>
-<td>order</td>
-<td>he size of the allocation</td>
-</tr>
-</tbody></table>
-<ul>
-<li><p>现在的机器上都是有多个CPU和多个内存块的，以前我们都是将内存块看成是一大块内存，所有CPU到这个共享内存访问消息是一样的，这就是之前普遍使用的SMP模型</p>
-</li>
-<li><p>但是随着处理器的增加，共享内存可能会导致内存访问冲突越来越厉害，NUMA（Non-Uniform Memory Access）就是在这样的环境下引入的一个模型，比如一台机器有2个处理器、4个内存块，我们将1个处理器和两个内存块关联起来，称为一个 NUMA node，这样这个机器就会有两个 NUMA node，在物理分布上，NUMA node 的处理器和内存块的物理距离更小，因此访问也更快。比如这台机器会分左右两个处理器（cpu1、cpu2），在每个处理器两边放两个内存块（memory1.1, memory1.2, memory2.1,memory2.2），这样 NUMA node1 的 cpu1 访问memory1.1 和 memory1.2 就比访问 memory2.1 和 memory2.2 更快。所以使用 NUMA 的模式如果能尽量保证本 node 内的 CPU 只访问本 node 内的内存块，那这样的效率就是最高的</p>
-</li>
-<li><p>Get Free Page (GFP) Flags 的取值参考：<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/gorman/html/understand/understand009.html">Physical Page Allocation</a></p>
-</li>
-<li><p>需要分配的物理页个数为：2 的 order 次方 </p>
-</li>
-<li><p>alloc_pages_node 的返回值：如果分配成功，是第一个页的指针；如果分配失败，是空指针 NULL</p>
-</li>
-</ul>
-<h3 id="1-1-2-alloc-pages"><a href="#1-1-2-alloc-pages" class="headerlink" title="1.1.2 alloc_pages"></a>1.1.2 alloc_pages</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> alloc_pages(gfp_mask, order) \</span></span><br><span class="line"><span class="meta">                alloc_pages_node(numa_node_id(), gfp_mask, order)</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>alloc_pages 是宏定义，逻辑是调用 alloc_pages_node 函数，传递给 nid 参数的值是调用 numa_node_id() 函数获取到的当前 CPU 所处的 NUMA node 的 ID，需要用户传递参数 GFP flags 和需要分配的页个数</li>
-</ul>
-<h3 id="1-1-3-alloc-page"><a href="#1-1-3-alloc-page" class="headerlink" title="1.1.3 alloc_page"></a>1.1.3 alloc_page</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> alloc_page(gfp_mask) alloc_pages(gfp_mask, 0)</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>alloc_page 是宏定义，逻辑是调用 alloc_pages，传递给 order 参数的值为 0，表示需要分配的物理页个数为 2 的 0 次方，即 1 个物理页，需要用户传递参数 GFP flags</li>
-</ul>
-<h3 id="1-1-4-free-pages"><a href="#1-1-4-free-pages" class="headerlink" title="1.1.4 free_pages"></a>1.1.4 free_pages</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// include/linux/gfp.h</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_pages</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (addr != <span class="number">0</span>) &#123;</span><br><span class="line">                VM_BUG_ON(!virt_addr_valid((<span class="keyword">void</span> *)addr));</span><br><span class="line">                __free_pages(virt_to_page((<span class="keyword">void</span> *)addr), order);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// mm/page_alloc.c</span></span><br><span class="line"><span class="keyword">void</span> __free_pages(struct page *page, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (put_page_testzero(page)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (order == <span class="number">0</span>)</span><br><span class="line">                        free_hot_cold_page(page, <span class="literal">false</span>);</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                        __free_pages_ok(page, order);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>addr</td>
-<td>要释放的连续物理页中第一个的地址</td>
-</tr>
-<tr>
-<td>order</td>
-<td>被释放的物理页个数为 2 的 order 次方</td>
-</tr>
-</tbody></table>
-<h1 id="2-Slab"><a href="#2-Slab" class="headerlink" title="2 Slab"></a>2 Slab</h1><h2 id="2-1-kmem-cache"><a href="#2-1-kmem-cache" class="headerlink" title="2.1 kmem_cache"></a>2.1 kmem_cache</h2><h3 id="2-1-1-kmem-cache-create"><a href="#2-1-1-kmem-cache-create" class="headerlink" title="2.1.1 kmem_cache_create"></a>2.1.1 kmem_cache_create</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">kmem_cache_t</span> *<span class="title">kmem_cache_create</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">size_t</span> size,</span></span></span><br><span class="line"><span class="params"><span class="function">                                <span class="keyword">size_t</span> offset, </span></span></span><br><span class="line"><span class="params"><span class="function">                                <span class="keyword">unsigned</span> <span class="keyword">long</span> flags,</span></span></span><br><span class="line"><span class="params"><span class="function">                                <span class="keyword">void</span> (*constructor)(<span class="keyword">void</span> *, <span class="keyword">kmem_cache_t</span> *,</span></span></span><br><span class="line"><span class="params"><span class="function">                                                    <span class="keyword">unsigned</span> <span class="keyword">long</span> flags),</span></span></span><br><span class="line"><span class="params"><span class="function">                                <span class="keyword">void</span> (*destructor)(<span class="keyword">void</span> *, <span class="keyword">kmem_cache_t</span> *,</span></span></span><br><span class="line"><span class="params"><span class="function">                                                   <span class="keyword">unsigned</span> <span class="keyword">long</span> flags))</span></span>;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>name</td>
-<td>被缓存对象的类名</td>
-</tr>
-<tr>
-<td>size</td>
-<td>每个对象的大小</td>
-</tr>
-<tr>
-<td>offset</td>
-<td>第一个对象在物理页中的偏移量，通常置为 0</td>
-</tr>
-<tr>
-<td>flags</td>
-<td>决定内存如何被分配、管理</td>
-</tr>
-<tr>
-<td>constructor</td>
-<td>构造函数</td>
-</tr>
-<tr>
-<td>destructor</td>
-<td>析构函数</td>
-</tr>
-</tbody></table>
-<ul>
-<li>flags 参数是 bitmap，决定了内存如何被分配、管理，</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>flag</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>SLAB_NO_REAP</td>
-<td>保护缓存在系统查找内存时不被削减，不推荐</td>
-</tr>
-<tr>
-<td>SLAB_HWCACHE_ALIGN</td>
-<td>所有数据对象跟高速缓存行对齐，平台依赖，可能浪费内存</td>
-</tr>
-<tr>
-<td>SLAB_CACHE_DMA</td>
-<td>每个数据对象在 DMA 内存区段分配</td>
-</tr>
-</tbody></table>
-<ul>
-<li><p>参数 constructor 和 destructor 是可选函数(不能只有destructor，而没有constructor )，用来初始化新分配的对象和在内存被作为整体释放给系统之前“清理”对象</p>
-</li>
-<li><p>constructor 函数不保证在为对象被分配内存后立即被调用，同理，destructor 函数不是立刻在一个对象被释放后调用</p>
-</li>
-<li><p>将 flags 按位与 SLAB_CTOR_ATOMIC，可以确保 constructor 函数 和 destructor 函数是原子的，不允许在执行中线程被置于睡眠状态</p>
-</li>
-</ul>
-<h3 id="2-1-2-kmem-cache-alloc"><a href="#2-1-2-kmem-cache-alloc" class="headerlink" title="2.1.2 kmem_cache_alloc"></a>2.1.2 kmem_cache_alloc</h3><ul>
-<li>通过调用 kmem_cache_alloc 从已创建的后备高速缓存中分配对象，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">kmem_cache_alloc</span><span class="params">(<span class="keyword">kmem_cache_t</span> *cache, <span class="keyword">int</span> flags)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>cache</td>
-<td>调用 kmem_cache_create 函数创建的缓存</td>
-</tr>
-<tr>
-<td>flags</td>
-<td>GFP（Get Free Page）flags</td>
-</tr>
-</tbody></table>
-<h3 id="2-1-3-kmem-cache-free"><a href="#2-1-3-kmem-cache-free" class="headerlink" title="2.1.3 kmem_cache_free"></a>2.1.3 kmem_cache_free</h3><ul>
-<li>使用 kmem_cache_free 释放一个对象，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kmem_cache_free</span><span class="params">(<span class="keyword">kmem_cache_t</span> *cache, <span class="keyword">const</span> <span class="keyword">void</span> *obj)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-1-4-kmem-cache-destroy"><a href="#2-1-4-kmem-cache-destroy" class="headerlink" title="2.1.4 kmem_cache_destroy"></a>2.1.4 kmem_cache_destroy</h3><ul>
-<li>当用完这个后备高速缓存（通常在当模块被卸载时），释放缓存，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">kmem_cache_destroy</span><span class="params">(<span class="keyword">kmem_cache_t</span> *cache)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-kmalloc"><a href="#2-2-kmalloc" class="headerlink" title="2.2 kmalloc"></a>2.2 kmalloc</h2><ul>
-<li>使用 kmalloc 函数动态分配内存空间，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">kmalloc</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">int</span> flags)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>size</td>
-<td>要分配内存空间的字节数</td>
-</tr>
-<tr>
-<td>flags</td>
-<td>GFP（Get Free Page）flags</td>
-</tr>
-</tbody></table>
-<ul>
-<li><p>分配到的内存空间可能会略大于 size 参数的值</p>
-</li>
-<li><p>flags 参数可取以下值，</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>flags 取值</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>GFP_KERNEL</td>
-<td>在分配内存空间时，当前进程可被置于睡眠状态</td>
-</tr>
-<tr>
-<td>GFP_ATOMIC</td>
-<td>在分配内存空间时，当前进程不可被打断</td>
-</tr>
-<tr>
-<td>GFP_USER</td>
-<td>用于在用户空间分配内存，当前进程可被置于睡眠状态</td>
-</tr>
-<tr>
-<td>GFP_HIGHUSER</td>
-<td>和 GFP_USER 相似，但是在 high memory 分配内存</td>
-</tr>
-<tr>
-<td>GFP_NOIO</td>
-<td>和 GFP_KERNEL 相似，但是在内存分配过程中限制 I/O 操作</td>
-</tr>
-<tr>
-<td>GFP_NOFS</td>
-<td>和 GFP_KERNEL 相似，但是在内存分配过程中限制文件系统调用</td>
-</tr>
-</tbody></table>
-<p>更多 flags 的取值可参考 &lt;linux/gfp.h&gt; 头文件</p>
-<h2 id="2-3-kzalloc"><a href="#2-3-kzalloc" class="headerlink" title="2.3 kzalloc"></a>2.3 kzalloc</h2><ul>
-<li>kzalloc 等价于先调用 kmalloc 分配一块内存空间，然后初始化为0，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * kzalloc - allocate memory. The memory is set to zero.</span></span><br><span class="line"><span class="comment"> * @size: how many bytes of memory are required.</span></span><br><span class="line"><span class="comment"> * @flags: the type of memory to allocate (see kmalloc).</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> *<span class="title">kzalloc</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> kmalloc(size, flags | __GFP_ZERO);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-kfree"><a href="#2-4-kfree" class="headerlink" title="2.4 kfree"></a>2.4 kfree</h2><ul>
-<li>分配内存后如果不释放会造成内存泄漏，在内核中可能导致系统崩溃，</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kfree</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *objp)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>可以调用 kfree 函数释放动态分配的内存</p>
-<h1 id="3-vmalloc-vfree"><a href="#3-vmalloc-vfree" class="headerlink" title="3 vmalloc/vfree"></a>3 vmalloc/vfree</h1><h2 id="3-1-vmalloc"><a href="#3-1-vmalloc" class="headerlink" title="3.1 vmalloc"></a>3.1 vmalloc</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">vmalloc</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> size)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>使用 vmalloc 函数在虚拟地址空间分配连续的内存空间，这些内存的物理地址并不是连续的</li>
-</ul>
-<h2 id="3-2-vfree"><a href="#3-2-vfree" class="headerlink" title="3.2 vfree"></a>3.2 vfree</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vfree</span><span class="params">(<span class="keyword">void</span> * addr)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>使用 vfree 函数释放由 vmalloc 函数分配的内存空间</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2662,7 +2504,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

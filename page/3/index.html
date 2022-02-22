@@ -155,6 +155,139 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/03/linux-%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%90%84%E7%9B%AE%E5%BD%95%E7%9A%84%E5%8A%9F%E8%83%BD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lining Hoo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hlnBlog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/03/linux-%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%90%84%E7%9B%AE%E5%BD%95%E7%9A%84%E5%8A%9F%E8%83%BD/" class="post-title-link" itemprop="url">linux 内核源码各目录的功能</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-03 00:54:53 / 修改时间：00:59:10" itemprop="dateCreated datePublished" datetime="2021-11-03T00:54:53+08:00">2021-11-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/linux%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">linux内核</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="linux-内核源码各目录的功能"><a href="#linux-内核源码各目录的功能" class="headerlink" title="linux 内核源码各目录的功能"></a>linux 内核源码各目录的功能</h1><h1 id="1-arch"><a href="#1-arch" class="headerlink" title="1 arch"></a>1 arch</h1><ul>
+<li>arch 目录下主要存放用于支持不同体系结构的代码</li>
+<li>不同的子目录存放对应平台的初始化代码，例如</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ls arch/</span><br><span class="line">Kconfig  arm    blackfin  frv      ia64  metag       mn10300   parisc   score  tile       x86</span><br><span class="line">alpha    arm64  c6x       h8300    m32r  microblaze  nios2     powerpc  sh     um         x86_64</span><br><span class="line">arc      avr32  cris      hexagon  m68k  mips        openrisc  s390     sparc  unicore32  xtensa</span><br></pre></td></tr></table></figure>
+
+<h1 id="2-Documentation"><a href="#2-Documentation" class="headerlink" title="2 Documentation"></a>2 Documentation</h1><ul>
+<li>内核参数、配置、特性的技术说明文档</li>
+</ul>
+<h1 id="3-firmware"><a href="#3-firmware" class="headerlink" title="3 firmware"></a>3 firmware</h1><ul>
+<li>固件相关的代码，比如 wifi、flash 等硬件的固件代码可能就存放于此</li>
+</ul>
+<h1 id="4-init"><a href="#4-init" class="headerlink" title="4 init"></a>4 init</h1><ul>
+<li>内核启动相关的代码</li>
+<li>在 init/main.c 文件中，</li>
+</ul>
+<p><img src="/2021/11/03/linux-%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%90%84%E7%9B%AE%E5%BD%95%E7%9A%84%E5%8A%9F%E8%83%BD/1.png" alt="img"></p>
+<p>start_kernel函数在汇编指令之后执行启动内核</p>
+<h1 id="5-security"><a href="#5-security" class="headerlink" title="5 security"></a>5 security</h1><ul>
+<li>安全相关的代码</li>
+</ul>
+<h1 id="6-block"><a href="#6-block" class="headerlink" title="6 block"></a>6 block</h1><ul>
+<li>块设备相关的代码</li>
+<li>在 linux 内核中，块设备子系统是很重要的一部分</li>
+<li>如果是做存储设备相关的开发，可能会比较关注这部分代码</li>
+</ul>
+<h1 id="7-driver"><a href="#7-driver" class="headerlink" title="7 driver"></a>7 driver</h1><ul>
+<li>外部设备驱动相关的代码，比如 gpio、gpu、i2c、video 等</li>
+<li>如果是做驱动开发，可能会比较关注这部分代码</li>
+</ul>
+<h1 id="8-fs"><a href="#8-fs" class="headerlink" title="8 fs"></a>8 fs</h1><ul>
+<li>文件系统相关的代码</li>
+</ul>
+<h1 id="9-ipc"><a href="#9-ipc" class="headerlink" title="9 ipc"></a>9 ipc</h1><ul>
+<li>进程间通信相关的代码</li>
+</ul>
+<h1 id="10-kernel"><a href="#10-kernel" class="headerlink" title="10 kernel"></a>10 kernel</h1><ul>
+<li>进程管理、调度等核心代码</li>
+</ul>
+<h1 id="11-net"><a href="#11-net" class="headerlink" title="11 net"></a>11 net</h1><ul>
+<li>网络协议栈相关的代码</li>
+<li>如果是做通讯设备开发，可能会比较关注这部分代码</li>
+</ul>
+<h1 id="12-sound"><a href="#12-sound" class="headerlink" title="12 sound"></a>12 sound</h1><ul>
+<li>声卡相关的代码</li>
+</ul>
+<h1 id="13-crypto"><a href="#13-crypto" class="headerlink" title="13 crypto"></a>13 crypto</h1><ul>
+<li>加密、解密相关的代码</li>
+<li>linux 内核不能依赖于外部的 c 库，所以其封装了一些加、解密代码存放在此目录下</li>
+</ul>
+<h1 id="14-mm"><a href="#14-mm" class="headerlink" title="14 mm"></a>14 mm</h1><ul>
+<li>内存管理相关的代码</li>
+</ul>
+<h1 id="15-include"><a href="#15-include" class="headerlink" title="15 include"></a>15 include</h1><ul>
+<li>内核头文件相关的代码</li>
+</ul>
+<h1 id="16-lib"><a href="#16-lib" class="headerlink" title="16 lib"></a>16 lib</h1><ul>
+<li>内核的通用库，可被其他内核程序调用</li>
+</ul>
+<h1 id="17-scripts"><a href="#17-scripts" class="headerlink" title="17 scripts"></a>17 scripts</h1><ul>
+<li>内核编译脚本</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/01/%E5%9F%BA%E4%BA%8E-busybox-%E6%89%93%E5%8C%85%E3%80%81%E5%88%B6%E4%BD%9C%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E9%80%9A%E8%BF%87-qemu-%E5%90%AF%E5%8A%A8%E5%86%85%E6%A0%B8%E5%92%8C%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1324,108 +1457,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/02/%E4%BB%8Eetcd%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E9%A1%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lining Hoo">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hlnBlog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/10/02/%E4%BB%8Eetcd%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E9%A1%B9/" class="post-title-link" itemprop="url">从etcd加载配置项</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-10-02 00:21:58" itemprop="dateCreated datePublished" datetime="2021-10-02T00:21:58+08:00">2021-10-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-10-03 11:30:01" itemprop="dateModified" datetime="2021-10-03T11:30:01+08:00">2021-10-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">项目实战</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86/" itemprop="url" rel="index"><span itemprop="name">日志收集</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="从etcd加载配置项"><a href="#从etcd加载配置项" class="headerlink" title="从etcd加载配置项"></a>从etcd加载配置项</h1><h1 id="1-目录结构"><a href="#1-目录结构" class="headerlink" title="1 目录结构"></a>1 目录结构</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ tree etcd/</span><br><span class="line">etcd/</span><br><span class="line">├── etcd_biz.go</span><br><span class="line">└── etcd_conn.go</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>etcd_conn.go 存放 etcd client 初始化、获取/设置/删除、关闭连接相关的代码</li>
-<li>etcd_biz.go 存放与业务逻辑相关的代码</li>
-</ul>
-<h1 id="2-etcd-conn"><a href="#2-etcd-conn" class="headerlink" title="2 etcd_conn"></a>2 etcd_conn</h1><h2 id="2-1-初始化"><a href="#2-1-初始化" class="headerlink" title="2.1 初始化"></a>2.1 初始化</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    client *clientv3.Client</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(endpoints []<span class="keyword">string</span>)</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">    client, err = clientv3.New(clientv3.Config&#123;</span><br><span class="line">        Endpoints:   endpoints,</span><br><span class="line">        DialTimeout: time.Second * <span class="number">5</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        logrus.Errorf(<span class="string">&quot;init etcd client error: %w&quot;</span>, err)</span><br><span class="line">        <span class="keyword">return</span> err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-2-获取值"><a href="#2-2-获取值" class="headerlink" title="2.2 获取值"></a>2.2 获取值</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetValue</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">    ctx, cancel := context.WithTimeout(context.Background(), time.Second*<span class="number">2</span>)</span><br><span class="line">    resp, err := client.Get(ctx, key)</span><br><span class="line">    <span class="keyword">defer</span> cancel()</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        logrus.Errorf(<span class="string">&quot;get config from etcd error: %w&quot;</span>, err)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(resp.Kvs) == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, fmt.Errorf(<span class="string">&quot;no such entry&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">string</span>(resp.Kvs[<span class="number">0</span>].Value), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>etcd v3 使用gRPC实现远程过程调用，为了确保不产生goroutine泄露（不被使用的goroutine一直占用资源），调用etcd v3 client API时，要传入context.WithTimeout参数，用于通知子goroutine结束，释放资源</li>
-</ul>
-<h2 id="2-3-关闭连接"><a href="#2-3-关闭连接" class="headerlink" title="2.3 关闭连接"></a>2.3 关闭连接</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Close</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    err := client.Close()</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        logrus.Errorf(<span class="string">&quot;close etcd client error: %w&quot;</span>, err)</span><br><span class="line">        <span class="keyword">return</span> err</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-配置项结构"><a href="#3-配置项结构" class="headerlink" title="3 配置项结构"></a>3 配置项结构</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    CollectConfig []CollectConfigEntry</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> CollectConfigEntry <span class="keyword">struct</span> &#123;</span><br><span class="line">    LogFilePath <span class="keyword">string</span> <span class="string">`json:&quot;log_file_path&quot;`</span></span><br><span class="line">    Topic       <span class="keyword">string</span> <span class="string">`json:&quot;topic&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>配置信息 json 格式序列化之后以键值对的 value 字符串形式存储在 etcd 中</li>
-</ul>
-<h1 id="4-拉取配置信息"><a href="#4-拉取配置信息" class="headerlink" title="4 拉取配置信息"></a>4 拉取配置信息</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">func GetCollectConfig() (config []CollectConfigEntry, err error) &#123;</span><br><span class="line">    configStr, err := GetValue(conf.DefaultConfig.ETCD.CollectConfKey)</span><br><span class="line">    if err != nil &#123;</span><br><span class="line">        logrus.Errorf(&quot;get collect config error: %w&quot;, err)</span><br><span class="line">        return nil, err</span><br><span class="line">    &#125;</span><br><span class="line">    err = json.Unmarshal([]byte(configStr), &amp;config)</span><br><span class="line">    if err != nil &#123;</span><br><span class="line">        logrus.Errorf(&quot;unmarshal config str error: %w&quot;, err)</span><br><span class="line">        return nil, err</span><br><span class="line">    &#125;</span><br><span class="line">    return config, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>全局的 []CollectConfigEntry 结构体数组对象 CollectConfig 用于存储配置信息，从 etcd 获取到配置值是 json 格式的字符串，需要调用 json.Unmarshal 反序列化后放入 CollectConfig 对象中</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1495,7 +1526,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
